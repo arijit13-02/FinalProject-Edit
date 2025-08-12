@@ -1,0 +1,19 @@
+Existing Functionality here:
+
+Login Authentication
+
+working on : Real Time Jobs - operations 
+
+For site jobs, under 'Field Job Details' have added button for extra row, and deleting the rows. Minimum one should be there.
+
+<<<<need to check for pdf uploads
+<<<<<need to check cross computers
+
+Admin makes changes to admindb
+changes flow from admindb => staffdb automatically
+
+Staff makes changes to staffdb
+<< changes are stored in pending need to check
+<< import button needs to be changed to pending changes. then redirect to epnding changes whhich admin approve or rejevt and then commit to the admin db
+
+===test and rollout, then check for the next changes
