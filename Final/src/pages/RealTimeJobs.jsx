@@ -255,6 +255,7 @@ function RealTimeJobs() {
   e.preventDefault();
 
   if (editingRecord) {
+  /*
     // Editing existing record locally
     const newRecords = records.map((record) =>
       record.id === editingRecord.id
@@ -267,7 +268,31 @@ function RealTimeJobs() {
         : record
     );
     setRecords(newRecords);
-    resetForm();
+    resetForm();*/
+    try {
+    const response = await axios.put(
+      `http://localhost:5050/api/realtimejobs/${editingRecord.id}?role=${role}`, // update by ID
+      {
+        ...formData,
+        id: editingRecord.id,
+        createdAt: editingRecord.createdAt,
+        updatedAt: new Date().toISOString(),
+      }
+    );
+
+    if (response.data.success) {
+      // Update UI with the edited record
+      const updatedRecords = records.map((record) =>
+        record.id === editingRecord.id ? response.data.item : record
+      );
+      setRecords(updatedRecords);
+      resetForm();
+    } else {
+      console.error("Failed to update:", response.data.message);
+    }
+  } catch (error) {
+    console.error("API error:", error);
+  }
   } else {
     // Adding new record
     try {
@@ -346,13 +371,18 @@ function RealTimeJobs() {
     setIsDetailOpen(true);
   };
   
-  const handleDelete = (id) => {
-  if (window.confirm("Are you sure you want to delete this record?")) {
-    const newRecords = records.filter((record) => record.id !== id);
-    setRecords(newRecords);
-    saveRecords(newRecords);
-  }
-};
+
+const handleDelete = async (id) => {
+    try {
+      await axios.delete(
+        `http://localhost:5050/api/realtimejobs/${id}?role=${role}`
+      );
+      loadRecords();
+    } catch (err) {
+      console.error("Failed to delete item:", err);
+    }
+  };
+
   const handleSort = (key) => {
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {

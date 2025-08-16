@@ -25,6 +25,8 @@ const getFileByRole = (role) => (role === "admin" ? ADMIN_FILE : STAFF_FILE);
 const syncToStaff = (adminData) => writeJson(STAFF_FILE, adminData);
 
 
+
+
 // Initialize files
 for (const file of [ADMIN_FILE, STAFF_FILE, PENDING_FILE]) {
     if (!fs.existsSync(file)) fs.writeFileSync(file, JSON.stringify([]));
@@ -60,13 +62,11 @@ router.post("/", (req, res) => {
 		if (role === "admin") {
 			syncToStaff(data);
 		} else {
-			console.log(PENDING_FILE);
 			const pending = readJson(PENDING_FILE);
 			pending.push({
 				type: "add",
 				item: newItem
 			});
-			console.log(pending);
 			writeJson(PENDING_FILE, pending);
 		}
 
@@ -76,7 +76,7 @@ router.post("/", (req, res) => {
 			item: newItem
 		});
 	} catch (err) {
-		console.error("POST RealTimeJobs error:", err);
+		console.error("POST Realtimejobs error:", err);
 		res.status(500).json({
 			success: false,
 			message: "Failed to add item"
@@ -173,7 +173,7 @@ router.delete("/:id", (req, res) => {
 			message: "Item deleted"
 		});
 	} catch (err) {
-		console.error("DELETE RealTimeJobs error:", err);
+		console.error("DELETE RealTimejobs error:", err);
 		res.status(500).json({
 			message: "Failed to delete item"
 		});
