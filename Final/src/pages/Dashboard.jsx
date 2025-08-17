@@ -228,7 +228,7 @@ function Dashboard() {
     },
   ];
   /*useEffect(() => {
-    // Disable right-click
+    // Disable right-click - ***and aadd to all the pages***
     document.addEventListener("contextmenu", (e) => e.preventDefault());
 
     // Disable certain keyboard shortcuts
