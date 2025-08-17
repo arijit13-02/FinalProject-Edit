@@ -12,6 +12,7 @@ import {
   Building2,
   Eye,
   X,
+  Hourglass,
   Download,
   Upload,
 } from "lucide-react";
@@ -120,6 +121,22 @@ function RealTimeJobs() {
   loadRecords();
 }, [role]);
 
+useEffect(() => {
+  if (role === "admin") {
+    fetchPendingChanges();
+    const interval = setInterval(fetchPendingChanges, 2000); // every 5 seconds
+    return () => clearInterval(interval); // cleanup
+  }
+}, [role]);
+
+  const fetchPendingChanges = async () => {
+    try {
+      const res = await axios.get("http://localhost:5050/api/realtimejobs/pending");
+      setHasPendingChanges(res.data.length > 0);
+    } catch (err) {
+      console.error("Failed to load pending changes:", err);
+    }
+  };
 
   const loadRecords = async () => {
   try {
@@ -158,24 +175,6 @@ function RealTimeJobs() {
     linkElement.click();
   };
 
-  //check import => pending changes for admin
-  const importFromJSON = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const importedRecords = JSON.parse(e.target.result);
-          setRecords(importedRecords);
-          saveRecords(importedRecords);
-          alert("Records imported successfully!");
-        } catch (error) {
-          alert("Error importing file. Please check the JSON format.");
-        }
-      };
-      reader.readAsText(file);
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -370,7 +369,7 @@ function RealTimeJobs() {
     setViewingRecord(record);
     setIsDetailOpen(true);
   };
-  
+  const [hasPendingChanges, setHasPendingChanges] = useState(false);
 
 const handleDelete = async (id) => {
     try {
@@ -558,6 +557,23 @@ const handleDelete = async (id) => {
               </div>
             </div>
             <div className="flex space-x-3">
+              {
+                role === "admin" && (
+                  <button
+                    onClick={() => (window.location.href = "/pendingchangesrealtimejobs")}
+                    className={`${hasPendingChanges 
+                      ? "bg-red-600 hover:bg-red-700" 
+                      : "bg-green-600 hover:bg-green-700"} text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg`}
+                  >
+                    <Hourglass className="w-4 h-4" />
+                    <span>
+                      {hasPendingChanges ? "Inventory Pending Changes" : "No Inventory Pending Changes"}
+                    </span>
+                  </button>
+                )
+              }
+
+
               <button
                 onClick={exportToJSON}
                 className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
@@ -565,16 +581,6 @@ const handleDelete = async (id) => {
                 <Download className="w-4 h-4" />
                 <span>Export</span>
               </button>
-              <label className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg cursor-pointer">
-                <Upload className="w-4 h-4" />
-                <span>Import</span>
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={importFromJSON}
-                  className="hidden"
-                />
-              </label>
               <button
                 onClick={() => setIsFormOpen(true)}
                 className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"

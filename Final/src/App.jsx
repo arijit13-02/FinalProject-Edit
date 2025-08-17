@@ -13,6 +13,7 @@ import Certifications from "./pages/Certifications";
 import UpcomingJobs from "./pages/UpcomingJobs";
 import Login from "./pages/Login";
 import RealTimeJobs from "./pages/RealTimeJobs";
+import PendingChangesRealTimeJobs from "./pages/PendingChangesRealTimeJobs";
 
 function App() {
   return (
@@ -28,7 +29,9 @@ function App() {
         <Route path="/billing" element={<Billing />} />
         <Route path="/certifications" element={<Certifications />} />
         <Route path="/upcoming-jobs" element={<UpcomingJobs />} />
+        <Route path="/pendingchangesrealtimejobs" element={<PendingChangesRealTimeJobs />} />
         <Route path="/login" element={<Login />} />
+        
 
         {/* Fallback route */}
         <Route path="*" element={<Navigate to="/" />} />
