@@ -1,166 +1,170 @@
-// src/pages/PendingChangesRealTimeJobs.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const PendingChanges = () => {
-  const [pendingChanges, setPendingChanges] = useState([]);
-  const [adminData, setAdminData] = useState([]);
+const PendingJobs = () => {
+  const [pendingJobs, setPendingJobs] = useState([]);
   const [decisions, setDecisions] = useState({});
   const role = localStorage.getItem("userRole");
-  const navigate = useNavigate();
 
-  // Redirect staff users
   useEffect(() => {
-    if (role === "staff") {
-      alert("Access denied. Only admins can view this page.");
-      navigate("/login", { replace: true });
-      return;
-    }
-
-    if (role === "admin") {
-      fetchPendingChanges();
-      fetchAdminData();
-    }
+    if (role === "admin") fetchPendingJobs();
   }, []);
 
-  const fetchPendingChanges = async () => {
+  const fetchPendingJobs = async () => {
     try {
       const res = await axios.get("http://localhost:5050/api/realtimejobs/pending");
-      setPendingChanges(res.data);
+      setPendingJobs(res.data);
     } catch (err) {
-      console.error("Failed to load pending changes:", err);
-    }
-  };
-
-  const fetchAdminData = async () => {
-    try {
-      const res = await axios.get("http://localhost:5050/api/realtimejobs/admin");
-      setAdminData(res.data);
-    } catch (err) {
-      console.error("Failed to load admin data:", err);
+      console.error("Failed to load pending jobs:", err);
     }
   };
 
   const handleDecision = (id, approved) => {
-    setDecisions((prev) => ({
-      ...prev,
-      [id]: approved,
-    }));
+    setDecisions((prev) => ({ ...prev, [id]: approved }));
   };
 
   const selectAll = (approved) => {
     const all = {};
-    pendingChanges.forEach((change) => {
-      all[change.item.id] = approved;
-    });
+    pendingJobs.forEach((change) => { all[change.item.id] = approved; });
     setDecisions(all);
   };
 
   const applyChanges = async () => {
-    const actions = Object.keys(decisions).map((id) => ({
-      id,
-      approved: decisions[id],
-    }));
+    const actions = Object.keys(decisions).map((id) => ({ id, approved: decisions[id] }));
+    if (actions.length === 0) return alert("Please approve/reject at least one job.");
 
-    if (actions.length === 0) {
-      alert("Please approve or reject at least one item.");
-      return;
-    }
-
-    const confirmed = window.confirm(
-      "Are you sure you want to apply all selected decisions? This action cannot be undone."
-    );
-    if (!confirmed) return;
+    if (!window.confirm("Apply all selected decisions?")) return;
 
     try {
       await axios.post("http://localhost:5050/api/realtimejobs/pending/apply", { actions });
       alert("Changes applied successfully.");
-      fetchPendingChanges();
+      fetchPendingJobs();
       setDecisions({});
     } catch (err) {
-      console.error("Failed to apply changes:", err);
+      console.error(err);
       alert("Failed to apply changes.");
     }
   };
 
-  // Render only changed fields by comparing with admin/original data
-  const renderDifferences = (item) => {
-    const original = adminData.find((a) => a.id === item.id) || {};
-    const changedFields = [];
+  const renderDifferences = (item, original) => {
+  if (!original) return null;
 
-    // Top-level fields
-    Object.keys(item).forEach((key) => {
-      if (key === "fieldJobDetails" || key === "id" || key === "updatedAt") return;
-      if (item[key] !== original[key]) {
-        changedFields.push({ key, old: original[key], newValue: item[key] });
-      }
-    });
+  const changedFields = Object.keys(item).filter(
+    (key) => key !== "id" && JSON.stringify(item[key]) !== JSON.stringify(original[key])
+  );
 
-    // fieldJobDetails
-    if (Array.isArray(item.fieldJobDetails) && item.fieldJobDetails.length > 0) {
-      item.fieldJobDetails.forEach((field, idx) => {
-        const originalField = original.fieldJobDetails?.[idx] || {};
-        Object.keys(field).forEach((k) => {
-          if (field[k] !== originalField[k]) {
-            changedFields.push({ key: `fieldJobDetails[${idx}].${k}`, old: originalField[k], newValue: field[k] });
+  if (!changedFields.length) return null;
+
+  return (
+    <div className="mt-2 text-sm text-gray-700">
+      <p className="font-semibold">Changed Fields:</p>
+      <ul className="list-disc list-inside space-y-1">
+        {changedFields.map((field) => {
+          // Handle nested array (like fieldJobDetails)
+          if (Array.isArray(item[field]) || Array.isArray(original[field])) {
+  const newArray = item[field] || [];
+  const origArray = original[field] || [];
+
+  // Build a lookup by a unique key (e.g., kva)
+  const origLookup = Object.fromEntries(origArray.map((obj) => [obj.kva, obj]));
+
+  return (
+    <li key={field}>
+      <span className="text-gray-500">{field}:</span>
+      <ul className="list-decimal list-inside ml-4">
+        {newArray.map((obj, idx) => {
+          const origObj = origLookup[obj.kva];
+          if (!origObj) {
+            // New row
+            return (
+              <li key={idx}>
+                <span className="text-green-700 font-medium">Added Row:</span>
+                {Object.keys(obj).map((subField) => (
+                  <div key={subField}>
+                    <span className="text-gray-500">{subField}:</span>{" "}
+                    <span className="text-green-700 font-medium">{obj[subField]}</span>
+                  </div>
+                ))}
+              </li>
+            );
           }
-        });
-      });
-    }
 
-    if (changedFields.length === 0) return <div className="text-gray-500 mt-1">No changes detected</div>;
+          // Existing row, check differences
+          const subFields = Object.keys(obj).filter(
+            (k) => JSON.stringify(obj[k]) !== JSON.stringify(origObj[k])
+          );
+          if (subFields.length === 0) return null;
+          return (
+            <li key={idx}>
+              {subFields.map((subField) => (
+                <div key={subField}>
+                  <span className="text-gray-500">{subField}:</span>{" "}
+                  <span className="line-through text-red-600">{origObj[subField]}</span>{" "}
+                  ➡{" "}
+                  <span className="text-green-700 font-medium">{obj[subField]}</span>
+                </div>
+              ))}
+            </li>
+          );
+        })}
 
-    return (
-      <div className="mt-2 text-sm text-gray-700">
-        <p className="font-semibold">Changed Fields:</p>
-        <ul className="list-disc list-inside">
-          {changedFields.map((f) => (
-            <li key={f.key}>
-              <span className="text-gray-500">{f.key}:</span>{" "}
-              <span className="line-through text-red-600">{f.old ?? "N/A"}</span> ➡{" "}
-              <span className="text-green-700 font-medium">{f.newValue}</span>
+        {/* Removed rows */}
+        {origArray
+          .filter((obj) => !newArray.find((n) => n.kva === obj.kva))
+          .map((removedObj, idx) => (
+            <li key={`removed-${idx}`}>
+              <span className="text-red-600 font-medium">Removed Row:</span>
+              {Object.keys(removedObj).map((subField) => (
+                <div key={subField}>
+                  <span className="text-gray-500">{subField}:</span>{" "}
+                  <span className="text-red-600 font-medium">{removedObj[subField]}</span>
+                </div>
+              ))}
             </li>
           ))}
-        </ul>
-      </div>
-    );
-  };
+      </ul>
+    </li>
+  );
+}
+ else {
+            // Top-level simple fields
+            return (
+              <li key={field}>
+                <span className="text-gray-500">{field}:</span>{" "}
+                <span className="line-through text-red-600">{original[field]}</span>{" "}
+                ➡{" "}
+                <span className="text-green-700 font-medium">{item[field]}</span>
+              </li>
+            );
+          }
+        })}
+      </ul>
+    </div>
+  );
+};
 
-  const countSummary = () => {
-    let approved = 0,
-      rejected = 0;
 
-    for (const id in decisions) {
-      if (decisions[id] === true) approved++;
-      else if (decisions[id] === false) rejected++;
-    }
 
-    const total = pendingChanges.length;
-    const undecided = total - approved - rejected;
+  const summary = (() => {
+    let approved = 0, rejected = 0;
+    Object.values(decisions).forEach(v => v === true ? approved++ : v === false ? rejected++ : null);
+    const total = pendingJobs.length;
+    return { approved, rejected, undecided: total - approved - rejected, total };
+  })();
 
-    return { approved, rejected, undecided, total };
-  };
-
-  const summary = countSummary();
-
-  if (role !== "admin") {
-    return (
-      <div className="p-6 text-center text-red-500 font-semibold">
-        Access Denied: Only admins can view this page.
-      </div>
-    );
-  }
+  if (role !== "admin") return (
+    <div className="p-6 text-center text-red-500 font-semibold">Access Denied: Only admins can view this page.</div>
+  );
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Pending RealTime Job Changes</h2>
+      <h2 className="text-2xl font-bold mb-4">Pending Real-Time Jobs</h2>
 
-      {pendingChanges.length === 0 ? (
-        <div className="text-gray-500">No pending changes.</div>
+      {pendingJobs.length === 0 ? (
+        <div className="text-gray-500">No pending jobs.</div>
       ) : (
         <div className="space-y-4">
-          {/* Summary Box */}
+          {/* Summary */}
           <div className="bg-white p-4 rounded shadow border flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm sm:text-base">
             <div>📝 Total Pending: <strong>{summary.total}</strong></div>
             <div>✅ Approved: <strong>{summary.approved}</strong></div>
@@ -168,67 +172,34 @@ const PendingChanges = () => {
             <div>❓ No Action: <strong>{summary.undecided}</strong></div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Actions */}
           <div className="flex gap-4">
-            <button
-              onClick={() => selectAll(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              ✅ Select All Approve
-            </button>
-            <button
-              onClick={() => selectAll(false)}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-              ❌ Select All Reject
-            </button>
+            <button onClick={() => selectAll(true)} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">✅ Select All Approve</button>
+            <button onClick={() => selectAll(false)} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">❌ Select All Reject</button>
           </div>
 
-          {/* Pending Changes List */}
-          {pendingChanges.map((change) => (
-            <div
-              key={change.item.id}
-              className="p-4 border rounded bg-gray-50 flex flex-col gap-2"
-            >
+          {/* Job List */}
+          {pendingJobs.map((change) => (
+            <div key={change.item.id} className="p-4 border rounded bg-gray-50 flex flex-col gap-2">
               <div>
-                <strong className="capitalize">{change.type}</strong> –{" "}
-                {change.item.location || "Unnamed Item"}
+                <strong className="capitalize">{change.type}</strong> – {change.item.orderNo || "Unnamed Job"}
               </div>
-
-              {change.type === "edit" && renderDifferences(change.item)}
-
+              {change.type === "edit" && renderDifferences(change.item, change.original)}
               <div className="mt-2 space-x-2">
                 <button
                   onClick={() => handleDecision(change.item.id, true)}
-                  className={`px-3 py-1 rounded ${
-                    decisions[change.item.id] === true
-                      ? "bg-green-600 text-white"
-                      : "bg-green-100 text-green-800 hover:bg-green-200"
-                  }`}
-                >
-                  ✅ Approve
-                </button>
+                  className={`px-3 py-1 rounded ${decisions[change.item.id] === true ? "bg-green-600 text-white" : "bg-green-100 text-green-800 hover:bg-green-200"}`}
+                >✅ Approve</button>
                 <button
                   onClick={() => handleDecision(change.item.id, false)}
-                  className={`px-3 py-1 rounded ${
-                    decisions[change.item.id] === false
-                      ? "bg-red-600 text-white"
-                      : "bg-red-100 text-red-800 hover:bg-red-200"
-                  }`}
-                >
-                  ❌ Reject
-                </button>
+                  className={`px-3 py-1 rounded ${decisions[change.item.id] === false ? "bg-red-600 text-white" : "bg-red-100 text-red-800 hover:bg-red-200"}`}
+                >❌ Reject</button>
               </div>
             </div>
           ))}
 
           <div className="mt-4 text-right">
-            <button
-              onClick={applyChanges}
-              className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
-            >
-              Apply All Decisions
-            </button>
+            <button onClick={applyChanges} className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700">Apply All Decisions</button>
           </div>
         </div>
       )}
@@ -236,4 +207,4 @@ const PendingChanges = () => {
   );
 };
 
-export default PendingChanges;
+export default PendingJobs;
