@@ -174,9 +174,9 @@ function Dashboard() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   //checks authentication
-  const [role, setRole] = useState(() => {
-  return localStorage.getItem("userRole") || "staff";
-  });
+  const [role, setRole] = useState(() => { 
+    return localStorage.getItem("userRole") || "staff"; 
+  }); 
   localStorage.setItem("userRole", role);
 
   const navigate = useNavigate();

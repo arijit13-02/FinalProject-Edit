@@ -7,7 +7,7 @@
     "type": "Division",
     "dismental": "Started",
     "wind": "Started",
-    "assemble": "Started",
+    "assemble": "Completed",
     "testing": "Started",
     "siteLocation": "",
     "client": "",
@@ -23,8 +23,9 @@
     ],
     "execution": "",
     "jobCompletionCertificate": null,
-    "delivery": false,
-    "id": "1753827666240"
+    "delivery": true,
+    "id": "1753827666240",
+    "updatedAt": "2025-08-17T12:03:58.316Z"
   },
   {
     "location": "Site",
@@ -224,34 +225,6 @@
     "updatedAt": "2025-08-17T00:20:07.511Z"
   },
   {
-    "location": "In House",
-    "category": "Private",
-    "orderNo": "stafftest",
-    "date": "2025-08-09",
-    "type": "Division",
-    "dismental": "Started",
-    "wind": "Completed",
-    "assemble": "Started",
-    "testing": "Completed",
-    "siteLocation": "",
-    "client": "",
-    "typeOfJob": "",
-    "otherJobType": "",
-    "fieldJobDetails": [
-      {
-        "kva": "",
-        "srNo": "",
-        "rating": "",
-        "note": ""
-      }
-    ],
-    "execution": "",
-    "jobCompletionCertificate": null,
-    "delivery": true,
-    "id": "1755385180054",
-    "updatedAt": "2025-08-16T23:50:56.741Z"
-  },
-  {
     "location": "Site",
     "category": "Private",
     "orderNo": "wertyui",
@@ -278,5 +251,32 @@
     "delivery": true,
     "id": "1755391121583",
     "updatedAt": "2025-08-17T00:38:56.152Z"
+  },
+  {
+    "location": "In House",
+    "category": "Private",
+    "orderNo": "bewstafasfjs",
+    "date": "2025-08-14",
+    "type": "Division",
+    "dismental": "Completed",
+    "wind": "Completed",
+    "assemble": "Started",
+    "testing": "Started",
+    "siteLocation": "",
+    "client": "",
+    "typeOfJob": "",
+    "otherJobType": "",
+    "fieldJobDetails": [
+      {
+        "kva": "",
+        "srNo": "",
+        "rating": "",
+        "note": ""
+      }
+    ],
+    "execution": "",
+    "jobCompletionCertificate": null,
+    "delivery": false,
+    "id": "1755432223659"
   }
 ]

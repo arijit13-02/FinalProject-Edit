@@ -32,6 +32,12 @@ const Login = () => {
     }
   };
 
+  const closesystem = () => {
+    localStorage.removeItem("userRole");
+    window.location.href = "/dashboard";
+  };
+
+
   return (
     
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600">
@@ -73,6 +79,14 @@ const Login = () => {
       >
         Login
       </button>
+      {localStorage.getItem("userRole") === "admin" && (
+        <button
+          onClick={closesystem}
+          className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition duration-200"
+        >
+          Logout!
+        </button>
+      )}
     </div>
   </div>
 </main>

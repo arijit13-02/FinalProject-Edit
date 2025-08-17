@@ -567,7 +567,7 @@ const handleDelete = async (id) => {
                   >
                     <Hourglass className="w-4 h-4" />
                     <span>
-                      {hasPendingChanges ? "Inventory Pending Changes" : "No Inventory Pending Changes"}
+                      {hasPendingChanges ? "RealTimeJobs Pending Changes" : "No RealTimeJobs Pending Changes"}
                     </span>
                   </button>
                 )

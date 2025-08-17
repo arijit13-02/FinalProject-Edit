@@ -209,61 +209,54 @@ router.get("/pending", (req, res) => {
 // APPLY approvals or rejections
 router.post("/pending/apply", (req, res) => {
     try {
-		const actions = req.body.actions;
-		const pending = readJson(PENDING_FILE);
-		let adminData = readJson(ADMIN_FILE);
-		let staffData = readJson(STAFF_FILE);
+        const actions = req.body.actions;
+        const pending = readJson(PENDING_FILE);
+        let adminData = readJson(ADMIN_FILE);
+        let staffData = readJson(STAFF_FILE);
 
-		const remainingPending = [];
+        const remainingPending = [];
 
-		for (const pendingItem of pending) {
-			const action = actions.find(a => a.id === pendingItem.item.id);
+        for (const pendingItem of pending) {
+            const action = actions.find(a => a.id === pendingItem.item.id);
 
-			if (!action) {
-				remainingPending.push(pendingItem); // No decision made — keep
-				continue;
-			}
+            if (!action) {
+                remainingPending.push(pendingItem); // No decision made — keep
+                continue;
+            }
 
-			const {
-				type,
-				item
-			} = pendingItem;
+            const { type, item } = pendingItem;
 
-			if (action.approved) {
-				if (type === "add") adminData.push(item);
-				else if (type === "edit") {
-					const i = adminData.findIndex(x => x.id === item.id);
-					if (i !== -1) adminData[i] = item;
-				} else if (type === "delete") {
-					adminData = adminData.filter(x => x.id !== item.id);
-				}
-			} else {
-				// Rejected
-				if (type === "add") {
-					staffData = staffData.filter(x => x.id !== item.id);
-				} else if (type === "edit") {
-					const orig = adminData.find(x => x.id === item.id);
-					const i = staffData.findIndex(x => x.id === item.id);
-					if (i !== -1 && orig) staffData[i] = orig;
-				} else if (type === "delete") {
-					staffData.push(item);
-				}
-			}
-		}
+            if (action.approved) {
+                if (type === "add") adminData.push(item);
+                else if (type === "edit") {
+                    const i = adminData.findIndex(x => x.id === item.id);
+                    if (i !== -1) adminData[i] = item;
+                } else if (type === "delete") {
+                    adminData = adminData.filter(x => x.id !== item.id);
+                }
+            } else {
+                // Rejected
+                if (type === "add") {
+                    staffData = staffData.filter(x => x.id !== item.id);
+                } else if (type === "edit") {
+                    const orig = adminData.find(x => x.id === item.id);
+                    const i = staffData.findIndex(x => x.id === item.id);
+                    if (i !== -1 && orig) staffData[i] = orig;
+                } else if (type === "delete") {
+                    staffData.push(item);
+                }
+            }
+        }
 
-		writeJson(ADMIN_FILE, adminData);
-		writeJson(STAFF_FILE, adminData); // sync after approval
-		writeJson(PENDING_FILE, remainingPending);
+        writeJson(ADMIN_FILE, adminData);
+        writeJson(STAFF_FILE, staffData); // FIXED: write staffData
+        writeJson(PENDING_FILE, remainingPending);
 
-		res.json({
-			message: "Changes applied"
-		});
-	} catch (err) {
-		console.error("POST apply error:", err);
-		res.status(500).json({
-			message: "Error applying changes"
-		});
-	}
+        res.json({ message: "Changes applied" });
+    } catch (err) {
+        console.error("POST apply error:", err);
+        res.status(500).json({ message: "Error applying changes" });
+    }
 });
 
 export default router;
