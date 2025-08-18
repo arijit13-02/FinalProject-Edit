@@ -249,7 +249,7 @@
     "category": "Private",
     "orderNo": "wertyui",
     "date": "2025-08-22",
-    "type": "Client",
+    "type": "Division",
     "dismental": "",
     "wind": "",
     "assemble": "",
@@ -264,13 +264,19 @@
         "srNo": "srno2",
         "rating": "rating2",
         "note": "note2"
+      },
+      {
+        "kva": "werty",
+        "srNo": "ergh",
+        "rating": "sdfgh",
+        "note": "dfg"
       }
     ],
     "execution": "Started",
     "jobCompletionCertificate": null,
     "delivery": true,
     "id": "1755391121583",
-    "updatedAt": "2025-08-17T00:38:56.152Z"
+    "updatedAt": "2025-08-17T22:40:08.671Z"
   },
   {
     "location": "In House",

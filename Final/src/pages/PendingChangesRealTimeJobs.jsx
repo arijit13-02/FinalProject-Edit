@@ -1,10 +1,70 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  TrendingUp,Plus,Save,Edit3,Trash2,Search,ChevronUp,ChevronDown,Building2,Eye,X,Hourglass,Download,Upload,Menu,User,Settings,CalendarClock,Users,Boxes,FileText,BarChart3,BadgeCheck,PieChart,Activity
+} from "lucide-react";
+import logo from "../assets/logo.png";
 import axios from "axios";
 
 const PendingJobs = () => {
   const [pendingJobs, setPendingJobs] = useState([]);
   const [decisions, setDecisions] = useState({});
   const role = localStorage.getItem("userRole");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  //Ribbon at top
+  const navigate = useNavigate();
+  const handleProtectedNav = (path) => {
+    const role = localStorage.getItem("userRole");
+    if (role === "admin") {
+      navigate(path);
+    } else {
+      alert("Admin Privileges Required!\nLogin to proceed");
+      navigate("/login");
+    }
+  };
+  const navigationItems = [
+    { name: "Dashboard", icon: BarChart3, onClick: () => navigate("/") },
+    {
+      name: "RealTime Jobs",
+      icon: Activity,
+      onClick: () => navigate("/realtimejobs"),
+    },
+    {
+      name: "Operations",
+      icon: Settings,
+      onClick: () => handleProtectedNav("/operations"),
+    },
+    {
+      name: "Upcoming Jobs",
+      icon: CalendarClock,
+      onClick: () => handleProtectedNav("/upcoming-jobs"),
+    },
+    {
+      name: "Vendors",
+      icon: Building2,
+      onClick: () => handleProtectedNav("/vendors"),
+    },
+    { name: "Staff", icon: Users, onClick: () => handleProtectedNav("/staff") },
+    { name: "Inventory", icon: Boxes, onClick: () => navigate("/inventory") },
+    {
+      name: "Billing",
+      icon: FileText,
+      onClick: () => handleProtectedNav("/billing"),
+    },
+    {
+      name: "Certifications",
+      icon: BadgeCheck,
+      onClick: () => handleProtectedNav("/certifications"),
+    },
+  ];
+  const [records, setRecords] = useState([]);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [viewingRecord, setViewingRecord] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   useEffect(() => {
     if (role === "admin") fetchPendingJobs();
@@ -50,10 +110,19 @@ const PendingJobs = () => {
   if (!original) return null;
 
   const changedFields = Object.keys(item).filter(
-    (key) => key !== "id" && JSON.stringify(item[key]) !== JSON.stringify(original[key])
+    (key) =>
+      key !== "id" &&
+      JSON.stringify(item[key]) !== JSON.stringify(original[key])
   );
 
   if (!changedFields.length) return null;
+
+  // Helper: Format values for display
+  const formatValue = (val) => {
+    if (typeof val === "boolean") return val ? "Yes" : "No";
+    if (val === null || val === undefined || val === "") return "N/A";
+    return val;
+  };
 
   return (
     <div className="mt-2 text-sm text-gray-700">
@@ -62,78 +131,96 @@ const PendingJobs = () => {
         {changedFields.map((field) => {
           // Handle nested array (like fieldJobDetails)
           if (Array.isArray(item[field]) || Array.isArray(original[field])) {
-  const newArray = item[field] || [];
-  const origArray = original[field] || [];
+            const newArray = item[field] || [];
+            const origArray = original[field] || [];
 
-  // Build a lookup by a unique key (e.g., kva)
-  const origLookup = Object.fromEntries(origArray.map((obj) => [obj.kva, obj]));
-
-  return (
-    <li key={field}>
-      <span className="text-gray-500">{field}:</span>
-      <ul className="list-decimal list-inside ml-4">
-        {newArray.map((obj, idx) => {
-          const origObj = origLookup[obj.kva];
-          if (!origObj) {
-            // New row
             return (
-              <li key={idx}>
-                <span className="text-green-700 font-medium">Added Row:</span>
-                {Object.keys(obj).map((subField) => (
-                  <div key={subField}>
-                    <span className="text-gray-500">{subField}:</span>{" "}
-                    <span className="text-green-700 font-medium">{obj[subField]}</span>
-                  </div>
-                ))}
+              <li key={field}>
+                <span className="text-gray-500">{field}:</span>
+                <ul className="list-decimal list-inside ml-4">
+                  {/* Additions */}
+                  {newArray.map((obj, idx) => {
+                    const origObj = origArray[idx];
+
+                    if (!origObj) {
+                      return (
+                        <li key={idx}>
+                          <span className="text-green-700 font-medium">
+                            Added Row:
+                          </span>
+                          {Object.keys(obj).map((subField) => (
+                            <div key={subField}>
+                              <span className="text-gray-500">{subField}:</span>{" "}
+                              <span className="text-green-700 font-medium">
+                                {formatValue(obj[subField])}
+                              </span>
+                            </div>
+                          ))}
+                        </li>
+                      );
+                    }
+
+                    // Existing row — show differences normally
+                    const subFields = Object.keys(obj).filter(
+                      (k) =>
+                        JSON.stringify(obj[k]) !== JSON.stringify(origObj[k])
+                    );
+                    if (subFields.length === 0) return null;
+                    return (
+                      <li key={idx}>
+                        {subFields.map((subField) => (
+                          <div key={subField}>
+                            <span className="text-gray-500">{subField}:</span>{" "}
+                            <span className="line-through text-red-600">
+                              {formatValue(origObj[subField])}
+                            </span>{" "}
+                            ➡{" "}
+                            <span className="text-green-700 font-medium">
+                              {formatValue(obj[subField])}
+                            </span>
+                          </div>
+                        ))}
+                      </li>
+                    );
+                  })}
+
+                  {/* Deletions */}
+                  {origArray.map((origObj, idx) => {
+                    const newObj = newArray[idx];
+                    if (!newObj) {
+                      return (
+                        <li key={`removed-${idx}`}>
+                          <span className="text-red-600 font-medium">
+                            Removed Row:
+                          </span>
+                          {Object.keys(origObj).map((subField) => (
+                            <div key={subField}>
+                              <span className="text-gray-500">{subField}:</span>{" "}
+                              <span className="text-red-600 font-medium">
+                                {formatValue(origObj[subField])}
+                              </span>
+                            </div>
+                          ))}
+                        </li>
+                      );
+                    }
+                    return null;
+                  })}
+                </ul>
               </li>
             );
-          }
-
-          // Existing row, check differences
-          const subFields = Object.keys(obj).filter(
-            (k) => JSON.stringify(obj[k]) !== JSON.stringify(origObj[k])
-          );
-          if (subFields.length === 0) return null;
-          return (
-            <li key={idx}>
-              {subFields.map((subField) => (
-                <div key={subField}>
-                  <span className="text-gray-500">{subField}:</span>{" "}
-                  <span className="line-through text-red-600">{origObj[subField]}</span>{" "}
-                  ➡{" "}
-                  <span className="text-green-700 font-medium">{obj[subField]}</span>
-                </div>
-              ))}
-            </li>
-          );
-        })}
-
-        {/* Removed rows */}
-        {origArray
-          .filter((obj) => !newArray.find((n) => n.kva === obj.kva))
-          .map((removedObj, idx) => (
-            <li key={`removed-${idx}`}>
-              <span className="text-red-600 font-medium">Removed Row:</span>
-              {Object.keys(removedObj).map((subField) => (
-                <div key={subField}>
-                  <span className="text-gray-500">{subField}:</span>{" "}
-                  <span className="text-red-600 font-medium">{removedObj[subField]}</span>
-                </div>
-              ))}
-            </li>
-          ))}
-      </ul>
-    </li>
-  );
-}
- else {
-            // Top-level simple fields
+          } else {
+            // Top-level simple fields (like delivery, category, etc.)
             return (
               <li key={field}>
                 <span className="text-gray-500">{field}:</span>{" "}
-                <span className="line-through text-red-600">{original[field]}</span>{" "}
+                <span className="line-through text-red-600">
+                  {formatValue(original[field])}
+                </span>{" "}
                 ➡{" "}
-                <span className="text-green-700 font-medium">{item[field]}</span>
+                <span className="text-green-700 font-medium">
+                  {formatValue(item[field])}
+                </span>
               </li>
             );
           }
@@ -142,6 +229,8 @@ const PendingJobs = () => {
     </div>
   );
 };
+
+
 
 
 
@@ -157,11 +246,106 @@ const PendingJobs = () => {
   );
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Pending Real-Time Jobs</h2>
+<div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600">
+      {/* Header */}
+      <header className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-3">
+              {navigationItems.map((item) => (
+                <button
+                  key={item.name}
+                  onClick={item.onClick}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition px-3 py-2 rounded-lg hover:bg-blue-50"
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span className="font-medium">{item.name}</span>
+                </button>
+              ))}
+            </nav>
 
+            {/* Login Button */}
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => navigate("/login")}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center space-x-2"
+              >
+                <User className="w-4 h-4" />
+                <span>Login</span>
+              </button>
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition"
+              >
+                {isMenuOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <div className="md:hidden py-4 border-t border-gray-200">
+              <nav className="flex flex-col space-y-2">
+                {navigationItems.map((item) => (
+                  <button
+                    key={item.name}
+                    onClick={item.onClick}
+                    className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-blue-50"
+                  >
+                    <item.icon className="w-4 h-4" />
+                    <span className="font-medium">{item.name}</span>
+                  </button>
+                ))}
+              </nav>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Page Header with Logo */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
+              {/* Company Logo */}
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20 text-center">
+                <div className="w-16 h-12 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
+                  <img
+                    className="w-full h-full object-contain"
+                    src={logo}
+                    alt="company logo"
+                  />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white mb-2">
+                  Pending Changes Approval
+                </h1>
+                <p className="text-blue-100">
+                  Admin Approval for changes in RealTimeJobs
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+      {/* THE CONTENT*/}
       {pendingJobs.length === 0 ? (
-        <div className="text-gray-500">No pending jobs.</div>
+        <div className="bg-white p-6 rounded shadow border flex items-center justify-center text-center">
+  <div>
+    <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+    <p className="text-gray-600 text-base sm:text-lg">
+      No Pending Changes!
+    </p>
+  </div>
+</div>
+
       ) : (
         <div className="space-y-4">
           {/* Summary */}
@@ -203,7 +387,12 @@ const PendingJobs = () => {
           </div>
         </div>
       )}
-    </div>
+    
+
+
+      </main>
+    
+</div>
   );
 };
 
