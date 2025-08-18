@@ -7,7 +7,7 @@
     "type": "Client",
     "dismental": "Completed",
     "wind": "Started",
-    "assemble": "Completed",
+    "assemble": "Started",
     "testing": "Started",
     "siteLocation": "",
     "client": "",
@@ -23,9 +23,9 @@
     ],
     "execution": "",
     "jobCompletionCertificate": null,
-    "delivery": false,
+    "delivery": true,
     "id": "1753827666240",
-    "updatedAt": "2025-08-17T20:38:16.905Z"
+    "updatedAt": "2025-08-18T00:47:05.104Z"
   },
   {
     "location": "Site",
@@ -144,23 +144,23 @@
         "note": "["
       },
       {
-        "kva": "add",
-        "srNo": "add",
-        "rating": "add",
-        "note": "add"
-      },
-      {
         "kva": "add2",
         "srNo": "add2",
         "rating": "add2",
         "note": "add2"
+      },
+      {
+        "kva": "add",
+        "srNo": "add",
+        "rating": "add",
+        "note": "addkk"
       }
     ],
     "execution": "Started",
     "jobCompletionCertificate": null,
     "delivery": true,
     "id": "1755383669192",
-    "updatedAt": "2025-08-17T13:29:21.615Z"
+    "updatedAt": "2025-08-18T00:47:21.009Z"
   },
   {
     "location": "Site",
@@ -182,12 +182,19 @@
         "srNo": "3",
         "rating": "3",
         "note": "3"
+      },
+      {
+        "kva": "4",
+        "srNo": "4",
+        "rating": "4",
+        "note": "4"
       }
     ],
     "execution": "Started",
     "jobCompletionCertificate": null,
     "delivery": false,
-    "id": "1755383694816"
+    "id": "1755383694816",
+    "updatedAt": "2025-08-18T00:18:10.103Z"
   },
   {
     "location": "In House",

@@ -138,10 +138,11 @@ const PendingJobs = () => {
               <li key={field}>
                 <span className="text-gray-500">{field}:</span>
                 <ul className="list-decimal list-inside ml-4">
-                  {/* Additions */}
+                  {/* Additions + Modifications */}
                   {newArray.map((obj, idx) => {
                     const origObj = origArray[idx];
 
+                    // New row added
                     if (!origObj) {
                       return (
                         <li key={idx}>
@@ -160,26 +161,48 @@ const PendingJobs = () => {
                       );
                     }
 
-                    // Existing row — show differences normally
-                    const subFields = Object.keys(obj).filter(
+                    // Existing row — check if there are any differences
+                    const subFieldsChanged = Object.keys(obj).filter(
                       (k) =>
                         JSON.stringify(obj[k]) !== JSON.stringify(origObj[k])
                     );
-                    if (subFields.length === 0) return null;
+
+                    if (subFieldsChanged.length === 0) return null;
+
+                    // Show entire row: changed fields highlighted, unchanged in green
                     return (
                       <li key={idx}>
-                        {subFields.map((subField) => (
-                          <div key={subField}>
-                            <span className="text-gray-500">{subField}:</span>{" "}
-                            <span className="line-through text-red-600">
-                              {formatValue(origObj[subField])}
-                            </span>{" "}
-                            ➡{" "}
-                            <span className="text-green-700 font-medium">
-                              {formatValue(obj[subField])}
-                            </span>
-                          </div>
-                        ))}
+                        <span className="text-blue-600 font-medium">
+                          Modified Row:
+                        </span>
+                        {Object.keys(obj).map((subField) => {
+                          const oldVal = formatValue(origObj[subField]);
+                          const newVal = formatValue(obj[subField]);
+
+                          if (oldVal !== newVal) {
+                            return (
+                              <div key={subField}>
+                                <span className="text-gray-500">{subField}:</span>{" "}
+                                <span className="line-through text-red-600">
+                                  {oldVal}
+                                </span>{" "}
+                                ➡{" "}
+                                <span className="text-green-700 font-medium">
+                                  {newVal}
+                                </span>
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div key={subField}>
+                                <span className="text-gray-500">{subField}:</span>{" "}
+                                <span className="text-green-700 font-medium">
+                                  {newVal}
+                                </span>
+                              </div>
+                            );
+                          }
+                        })}
                       </li>
                     );
                   })}
@@ -229,6 +252,10 @@ const PendingJobs = () => {
     </div>
   );
 };
+
+
+
+
 
 
 
@@ -383,7 +410,7 @@ const PendingJobs = () => {
           ))}
 
           <div className="mt-4 text-right">
-            <button onClick={applyChanges} className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700">Apply All Decisions</button>
+            <button onClick={applyChanges} className="bg-white-600 text-black px-5 py-2 rounded hover:bg-white-700">Apply All Decisions</button>
           </div>
         </div>
       )}
