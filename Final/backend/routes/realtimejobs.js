@@ -15,6 +15,7 @@ const ADMIN_FILE = path.join(__dirname, '../data/adminrtj.json');
 const STAFF_FILE = path.join(__dirname, '../data/staffrtj.json');
 const PENDING_FILE = path.join(__dirname, '../data/pendingChangesrtj.json');
 
+const OPERATIONS_WB_FILE = path.join(__dirname, '../data/OperationsWB.json');
 
 
 
@@ -32,6 +33,33 @@ for (const file of [ADMIN_FILE, STAFF_FILE, PENDING_FILE]) {
     if (!fs.existsSync(file)) fs.writeFileSync(file, JSON.stringify([]));
 }
 
+// Ensure OperationsWB.json exists
+if (!fs.existsSync(OPERATIONS_WB_FILE)) {
+  fs.writeFileSync(OPERATIONS_WB_FILE, JSON.stringify([]));
+}
+
+// Utility: remove empty/null/false fields
+const cleanDataWB = (obj) => {
+  return {
+    orderNo: obj.orderNo || ""
+  };
+};
+
+/*const cleanDataWB = (obj) => {
+  const cleaned = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (
+      value !== "" && 
+      value !== null && 
+      !(typeof value === "boolean" && value === false) && 
+      !(Array.isArray(value) && value.length === 0)
+    ) {
+      cleaned[key] = value;
+    }
+  }
+  return cleaned;
+};
+*/
 // GET based on role
 router.get("/", (req, res) => {
     try {
@@ -48,41 +76,121 @@ router.get("/", (req, res) => {
 
 // ADD new item
 router.post("/", (req, res) => {
-    try {
-		const role = req.query.role;
-		const file = getFileByRole(role);
-		const data = readJson(file);
-		const newItem = {
-			...req.body,
-			id: Date.now().toString()
-		};
-		data.push(newItem);
-		writeJson(file, data);
+  try {
+    const role = req.query.role;
+    const file = getFileByRole(role);
+    const data = readJson(file);
 
-		if (role === "admin") {
-			syncToStaff(data);
-		} else {
-			const pending = readJson(PENDING_FILE);
-			pending.push({
-				type: "add",
-				item: newItem
-			});
-			writeJson(PENDING_FILE, pending);
-		}
+    const newItem = {
+      ...req.body,
+      id: Date.now().toString()
+    };
 
-		res.json({
-			success: true,
-			message: "Item added",
-			item: newItem
-		});
-	} catch (err) {
-		console.error("POST Realtimejobs error:", err);
-		res.status(500).json({
-			success: false,
-			message: "Failed to add item"
-		});
-	}
+    data.push(newItem);
+    writeJson(file, data);
+
+    if (role === "admin") {
+      syncToStaff(data);
+	  //console.log("helo");
+	  // ✅ Extra Step: If category is WB → write to OperationsWB.json
+    if (newItem.category === "WB") {
+      const operationsData = readJson(OPERATIONS_WB_FILE);
+
+      // Remove empty fields
+      let cleanedItem = cleanDataWB(newItem);
+
+      // Add new fields
+      cleanedItem = {
+  ...cleanedItem,
+  // Extra fields
+  Tender: "",
+  Division: "",
+  FileNo: "",
+  WorkOrder: "",
+  Dated1: "",
+  PrelimarySurvey: "",
+  SIRNofTransformer: "",
+  FinalSurvey: "",
+  SRNofDrainoutOil: "",
+  StageInspection: "",
+  OilStatement: "",
+  SIRNofOil: "",
+  TransfomerTesting: "",
+  Materialdeliveredon: "",
+  SRNofTransformer: "",
+  Estimate: "",
+  FormalOrderPlaced: "",
+  OrderReferanceno: "",
+  Dated2: "",
+  Billsubmission: "",
+  Payment: "",
+  NetAmount: "",
+  SecurityDepositesubmitted: "",
+  SecurityDepositeReceived: ""
+};
+	  //console.log("test2");
+	  //console.log(cleanedItem);
+      operationsData.push(cleanedItem);
+      writeJson(OPERATIONS_WB_FILE, operationsData);
+    }
+    } else {
+      const pending = readJson(PENDING_FILE);
+      pending.push({
+        type: "add",
+        item: newItem
+      });
+      writeJson(PENDING_FILE, pending);
+    }
+	//console.log("test1");
+    
+
+    res.json({
+      success: true,
+      message: "Item added",
+      item: newItem
+    });
+  } catch (err) {
+    console.error("POST Realtimejobs error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to add item"
+    });
+  }
 });
+
+// Utility to add all required fields
+const addDefaultFields = (item) => {
+  return {
+    ...item,
+    status: "Pending",
+    createdAt: new Date().toISOString(),
+    Tender: "",
+    Division: "",
+    FileNo: "",
+    WorkOrder: "",
+    Dated1: "",
+    PrelimarySurvey: "",
+    SIRNofTransformer: "",
+    FinalSurvey: "",
+    SRNofDrainoutOil: "",
+    StageInspection: "",
+    OilStatement: "",
+    SIRNofOil: "",
+    TransfomerTesting: "",
+    Materialdeliveredon: "",
+    SRNofTransformer: "",
+    Estimate: "",
+    FormalOrderPlaced: "",
+    OrderReferanceno: "",
+    Dated2: "",
+    Billsubmission: "",
+    Payment: "",
+    NetAmount: "",
+    SecurityDepositesubmitted: "",
+    SecurityDepositeReceived: ""
+  };
+};
+
 
 // UPDATE item
 router.put("/:id", (req, res) => {
@@ -213,6 +321,7 @@ router.post("/pending/apply", (req, res) => {
         const pending = readJson(PENDING_FILE);
         let adminData = readJson(ADMIN_FILE);
         let staffData = readJson(STAFF_FILE);
+		let operationsData = readJson(OPERATIONS_WB_FILE);
 
         const remainingPending = [];
 
@@ -227,8 +336,49 @@ router.post("/pending/apply", (req, res) => {
             const { type, item } = pendingItem;
 
             if (action.approved) {
-                if (type === "add") adminData.push(item);
-                else if (type === "edit") {
+                if (type === "add") {
+          adminData.push(item);
+
+          // ✅ Extra step: If WB, clean and add extra fields
+          if ((item.category || "").trim().toUpperCase() === "WB") {
+			cleanedItem = addDefaultFields(cleanedItem);
+
+
+            cleanedItem = {
+              ...cleanedItem,
+              status: "Pending",
+              createdAt: new Date().toISOString(),
+
+              // Extra fields
+              Tender: "",
+              Division: "",
+              FileNo: "",
+              WorkOrder: "",
+              Dated1: "",
+              PrelimarySurvey: "",
+              SIRNofTransformer: "",
+              FinalSurvey: "",
+              SRNofDrainoutOil: "",
+              StageInspection: "",
+              OilStatement: "",
+              SIRNofOil: "",
+              TransfomerTesting: "",
+              Materialdeliveredon: "",
+              SRNofTransformer: "",
+              Estimate: "",
+              FormalOrderPlaced: "",
+              OrderReferanceno: "",
+              Dated2: "",
+              Billsubmission: "",
+              Payment: "",
+              NetAmount: "",
+              SecurityDepositesubmitted: "",
+              SecurityDepositeReceived: ""
+            };
+
+            operationsData.push(cleanedItem);
+          }
+        }else if (type === "edit") {
                     const i = adminData.findIndex(x => x.id === item.id);
                     if (i !== -1) adminData[i] = item;
                 } else if (type === "delete") {

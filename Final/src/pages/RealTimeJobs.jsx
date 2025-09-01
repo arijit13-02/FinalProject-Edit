@@ -91,11 +91,10 @@ function RealTimeJobs() {
     delivery: false,
   });
   // Load records from localStorage (simulating JSON file)
-  useEffect(() => {
-  loadRecords();
-}, [role]);
+  
 
 useEffect(() => { 
+  loadRecords();
   const interval = setInterval(loadRecords, 2000); 
   return () => clearInterval(interval); // cleanup 
 }, []); // empty dependency array
