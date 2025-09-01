@@ -95,10 +95,23 @@ function RealTimeJobs() {
   loadRecords();
 }, [role]);
 
+useEffect(() => { 
+  const interval = setInterval(loadRecords, 2000); 
+  return () => clearInterval(interval); // cleanup 
+}, []); // empty dependency array
+
 useEffect(() => {
   if (role === "admin") {
     fetchPendingChanges();
-    const interval = setInterval(fetchPendingChanges, 2000); // every 5 seconds
+    const interval = setInterval(fetchPendingChanges, 2000); 
+    return () => clearInterval(interval); // cleanup
+  }
+}, [role]);
+
+useEffect(() => {
+  if (role === "admin") {
+    fetchPendingChanges();
+    const interval = setInterval(fetchPendingChanges, 2000); 
     return () => clearInterval(interval); // cleanup
   }
 }, [role]);
@@ -124,17 +137,7 @@ useEffect(() => {
 };
 
 
-  const saveRecords = async (recordsToSave) => {
-  try {
-    await axios.post("http://localhost:5050/api/realtimejobs", {
-      role,
-      records: recordsToSave
-    });
-    console.log("Records saved successfully.");
-  } catch (error) {
-    console.error("Failed to save records:", error);
-  }
-};
+
 
 
   const exportToJSON = () => {
