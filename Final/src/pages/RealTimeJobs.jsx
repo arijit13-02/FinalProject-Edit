@@ -81,12 +81,10 @@ function RealTimeJobs() {
     testing: "",
     // Site specific fields
     siteLocation: "",
-    client: "",
     typeOfJob: "",
     otherJobType: "",
     fieldJobDetails: [{ kva: "", srNo: "", rating: "", note: "" }],
     execution: "",
-    jobCompletionCertificate: null,
     // Common field
     delivery: false,
   });
@@ -107,13 +105,6 @@ useEffect(() => {
   }
 }, [role]);
 
-useEffect(() => {
-  if (role === "admin") {
-    fetchPendingChanges();
-    const interval = setInterval(fetchPendingChanges, 2000); 
-    return () => clearInterval(interval); // cleanup
-  }
-}, [role]);
 
   const fetchPendingChanges = async () => {
     try {
@@ -168,14 +159,12 @@ useEffect(() => {
         if (value === "In House") {
           // Clear Site specific fields
           newData.siteLocation = "";
-          newData.client = "";
           newData.typeOfJob = "";
           newData.otherJobType = "";
           newData.fieldJobDetails = [
             { kva: "", srNo: "", rating: "", note: "" },
           ];
           newData.execution = "";
-          newData.jobCompletionCertificate = null;
         } else if (value === "Site") {
           // Clear In House specific fields
           newData.dismental = "";
@@ -213,7 +202,7 @@ useEffect(() => {
     });
   };
 
-  //pdf and to check
+  /*//pdf and to check
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type === "application/pdf") {
@@ -224,7 +213,7 @@ useEffect(() => {
     } else {
       alert("Please select a PDF file");
     }
-  };
+  };*/
 
   const handleSubmit = async (e) => {
   e.preventDefault();
@@ -301,12 +290,10 @@ useEffect(() => {
       assemble: "",
       testing: "",
       siteLocation: "",
-      client: "",
       typeOfJob: "",
       otherJobType: "",
       fieldJobDetails: [{ kva: "", srNo: "", rating: "", note: "" }],
       execution: "",
-      jobCompletionCertificate: null,
       delivery: false,
     });
     setIsFormOpen(false);
@@ -325,7 +312,6 @@ useEffect(() => {
       assemble: record.assemble || "",
       testing: record.testing || "",
       siteLocation: record.siteLocation || "",
-      client: record.client || "",
       typeOfJob: record.typeOfJob || "",
       otherJobType: record.otherJobType || "",
       fieldJobDetails:
@@ -334,7 +320,6 @@ useEffect(() => {
           : [{ kva: "", srNo: "", rating: "", note: "" }],
 
       execution: record.execution || "",
-      jobCompletionCertificate: record.jobCompletionCertificate || null,
       delivery: record.delivery || false,
     });
     setEditingRecord(record);
@@ -389,8 +374,7 @@ const handleDelete = async (id) => {
           record.typeOfJob.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (record.execution &&
           record.execution.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (record.client &&
-          record.client.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        
         (record.siteLocation &&
           record.siteLocation.toLowerCase().includes(searchTerm.toLowerCase()))
     );
@@ -850,19 +834,17 @@ const handleDelete = async (id) => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Type
+                        Client/Division
                       </label>
-                      <select
+                      <input
+                        type="text"
                         name="type"
                         value={formData.type}
                         onChange={handleInputChange}
                         required
+                        placeholder="Client/Division"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="">Select Type</option>
-                        <option value="Client">Client</option>
-                        <option value="Division">Division</option>
-                      </select>
+                      />
                     </div>
                   </div>
                 </div>
@@ -959,19 +941,7 @@ const handleDelete = async (id) => {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Client
-                        </label>
-                        <input
-                          type="text"
-                          name="client"
-                          value={formData.client}
-                          onChange={handleInputChange}
-                          placeholder="Enter client name"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
+                      
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -1140,22 +1110,7 @@ const handleDelete = async (id) => {
                     </div>
 
                     <div className="mt-4 mb-4"></div>
-                    <div>
-                      <h4 className="text-md font-medium text-gray-800 mb-3">
-                        Job Completion Certificate
-                      </h4>
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        onChange={handleFileChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />{" "}
-                      {formData.jobCompletionCertificate && (
-                        <p className="text-sm text-green-600 mt-1">
-                          File: {formData.jobCompletionCertificate}
-                        </p>
-                      )}
-                    </div>
+                    
                   </div>
                 )}{" "}
                 {/* Common Delivery Checkbox */}
@@ -1315,16 +1270,7 @@ const handleDelete = async (id) => {
                           </p>
                         </div>
                       )}{" "}
-                      {viewingRecord.client && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Client
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.client}
-                          </p>
-                        </div>
-                      )}
+                      
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       {viewingRecord.typeOfJob && (
@@ -1410,16 +1356,7 @@ const handleDelete = async (id) => {
                           )}
                         </div>
                       )}{" "}
-                    {viewingRecord.jobCompletionCertificate && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-500">
-                          Job Completion Certificate
-                        </label>
-                        <p className="text-lg font-semibold text-gray-800">
-                          {viewingRecord.jobCompletionCertificate}
-                        </p>
-                      </div>
-                    )}
+                    
                   </div>
                 )}{" "}
                 {/* Delivery Status */}
