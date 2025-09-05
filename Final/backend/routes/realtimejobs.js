@@ -25,10 +25,10 @@ const STAFF_FILE = path.join(__dirname, '../data/staffrtj.json');
 const PENDING_FILE = path.join(__dirname, '../data/pendingChangesrtj.json');
 
 const OPERATIONS_WB_FILE = path.join(__dirname, '../data/OperationsWB.json');
-const OPERATIONS_inpub_FILE = path.join(__dirname, '../data/OperationsInHousePrivate.json');
-const OPERATIONS_inpvt_FILE = path.join(__dirname, '../data/OperationsInHousePublic.json');
-const OPERATIONS_sitepub_FILE = path.join(__dirname, '../data/OperationsSitePrivate.json');
-const OPERATIONS_sitepvt_FILE = path.join(__dirname, '../data/OperationsSitePublic.json');
+const OPERATIONS_inpvt_FILE = path.join(__dirname, '../data/OperationsInHousePrivate.json');
+const OPERATIONS_inpub_FILE = path.join(__dirname, '../data/OperationsInHousePublic.json');
+const OPERATIONS_sitepub_FILE = path.join(__dirname, '../data/OperationsSitePublic.json');
+const OPERATIONS_sitepvt_FILE = path.join(__dirname, '../data/OperationsSitePrivate.json');
 
 
 // Utility functions
@@ -70,6 +70,7 @@ const cleanDataWB = (obj) => {
   };
 };
 
+
 function handleWBCategoryadd(newItem) {
   const operationsData = readJson(OPERATIONS_WB_FILE);
 
@@ -109,6 +110,103 @@ function handleWBCategoryadd(newItem) {
 }
 
 
+const cleanDataInhouse = (obj) => {
+  return {
+    Client: obj.type || "",
+    WorkOrder: obj.orderNo || "",
+    Date: obj.date || "",
+    Category: obj.category || "",
+  };
+};
+
+function handleInhouse(newItem) {
+  const inpvt = readJson(OPERATIONS_inpvt_FILE);
+  const inpub = readJson(OPERATIONS_inpub_FILE);
+
+  // Remove empty fields
+  let cleanedItem = cleanDataInhouse(newItem);
+
+  // Add new fields
+  cleanedItem = {
+  ...cleanedItem,
+  // Extra fields (new)
+  FileNo: "",
+  Dismetalling: "",
+  Inspection: "",
+  InformToClient: "",
+  Approval: "",
+  Winding: "",
+  Assembly: "",
+  HeatChamber: "",
+  Testing: "",
+  ClientInspection: "",
+  Delivery: "",
+  TestReportAttachment: "",
+  BillSubmission: "",
+  Payment: "",
+  Amount: "",
+  SecurityDeposited: ""
+  };
+
+  if ((cleanedItem.Category || "").trim().toUpperCase() === "PRIVATE") {
+    inpvt.push(cleanedItem);
+    writeJson(OPERATIONS_inpvt_FILE, inpvt);
+  } else if ((cleanedItem.Category || "").trim().toUpperCase() === "PUBLIC") {
+    inpub.push(cleanedItem);
+    writeJson(OPERATIONS_inpub_FILE, inpub);
+  }
+}
+
+const cleanDataSite = (obj) => {
+  return {
+    Client: obj.type || "",                
+    WorkOrder: obj.orderNo || "",
+    Date: obj.date || "",
+    Category: obj.category || "",
+    SiteLocation: obj.siteLocation || "",
+    TypeOfJob: obj.typeOfJob || "",
+    TransformerDetails: (obj.fieldJobDetails || []).map((item) => ({
+      KVA: item.kva || "",
+      SrNo: item.srNo || "",
+      Rating: item.rating || "",
+      Note: item.note || ""
+    }))
+  };
+};
+
+
+function handleSite(newItem) {
+  const sitepvt = readJson(OPERATIONS_sitepvt_FILE);
+  const sitepub = readJson(OPERATIONS_sitepub_FILE);
+
+
+  // Remove empty fields
+  let cleanedItem = cleanDataSite(newItem);
+
+  // Add new fields
+  cleanedItem = {
+  ...cleanedItem,
+  // Extra fields (new)
+  FileNo: "",
+  Make: "",
+  OilQty: "",
+  TestReportAttachment: "",
+  BillSubmission: "",
+  Payment: "",
+  Amount: "",
+  SecurityDeposited: ""
+};
+
+
+  if ((cleanedItem.Category || "").trim().toUpperCase() === "PRIVATE") {
+    sitepvt.push(cleanedItem);
+    writeJson(OPERATIONS_sitepvt_FILE, sitepvt);
+  } else if ((cleanedItem.Category || "").trim().toUpperCase() === "PUBLIC") {
+    sitepub.push(cleanedItem);
+    writeJson(OPERATIONS_sitepub_FILE, sitepub);
+  }
+}
+
 // ADD new item
 router.post("/", (req, res) => {
   try {
@@ -124,13 +222,29 @@ router.post("/", (req, res) => {
     data.push(newItem);
     writeJson(file, data);
 
-    if (role === "admin") {
+    if (role === "admin") 
+    {
       syncToStaff(data);
 
-    if (newItem.category === "WB") 
-    {
-      handleWBCategoryadd(newItem);
-    }
+      if (newItem.category === "WB") 
+      {
+        handleWBCategoryadd(newItem);
+      }
+      else
+      {
+        if (newItem.location === "In House") 
+        {
+          handleInhouse(newItem);
+        }
+        else{
+            if (newItem.location === "Site") 
+            {
+              handleSite(newItem);
+            }
+        }
+          
+      }
+      
     } else {
       const pending = readJson(PENDING_FILE);
       pending.push({
