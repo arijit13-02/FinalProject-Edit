@@ -454,6 +454,20 @@ router.post("/pending/apply", (req, res) => {
           if ((item.category || "").trim().toUpperCase() === "WB") {
             handleWBCategoryadd(item);
           }
+          else
+          {
+            if (item.location === "In House") 
+            {
+              handleInhouse(item);
+            }
+            else{
+                if (item.location === "Site") 
+                {
+                  handleSite(item);
+                }
+            }
+              
+          }
         }
         else if (type === "edit") {
                     const i = adminData.findIndex(x => x.id === item.id);

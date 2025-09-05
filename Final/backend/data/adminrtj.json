@@ -595,5 +595,236 @@
     "jobCompletionCertificate": null,
     "delivery": false,
     "id": "1756765642650"
+  },
+  {
+    "location": "In House",
+    "category": "WB",
+    "orderNo": "inhousewbstaff",
+    "date": "2025-09-11",
+    "type": "clidiv",
+    "dismental": "Completed",
+    "wind": "",
+    "assemble": "Completed",
+    "testing": "",
+    "siteLocation": "",
+    "typeOfJob": "",
+    "otherJobType": "",
+    "fieldJobDetails": [
+      {
+        "kva": "",
+        "srNo": "",
+        "rating": "",
+        "note": ""
+      }
+    ],
+    "execution": "",
+    "delivery": false,
+    "id": "1757110151979"
+  },
+  {
+    "location": "In House",
+    "category": "WB",
+    "orderNo": "inhousewbadmin",
+    "date": "2025-09-06",
+    "type": "client",
+    "dismental": "Completed",
+    "wind": "Started",
+    "assemble": "Started",
+    "testing": "",
+    "siteLocation": "",
+    "typeOfJob": "",
+    "otherJobType": "",
+    "fieldJobDetails": [
+      {
+        "kva": "",
+        "srNo": "",
+        "rating": "",
+        "note": ""
+      }
+    ],
+    "execution": "",
+    "delivery": false,
+    "id": "1757110222096"
+  },
+  {
+    "location": "In House",
+    "category": "Private",
+    "orderNo": "inhousepvtadmin",
+    "date": "2025-09-20",
+    "type": "hcdbhfnjd",
+    "dismental": "Completed",
+    "wind": "",
+    "assemble": "",
+    "testing": "",
+    "siteLocation": "",
+    "typeOfJob": "",
+    "otherJobType": "",
+    "fieldJobDetails": [
+      {
+        "kva": "",
+        "srNo": "",
+        "rating": "",
+        "note": ""
+      }
+    ],
+    "execution": "",
+    "delivery": false,
+    "id": "1757110250110"
+  },
+  {
+    "location": "In House",
+    "category": "Public",
+    "orderNo": "inhousepublicstaff",
+    "date": "2025-09-18",
+    "type": "dfsdgf",
+    "dismental": "",
+    "wind": "Started",
+    "assemble": "Completed",
+    "testing": "",
+    "siteLocation": "",
+    "typeOfJob": "",
+    "otherJobType": "",
+    "fieldJobDetails": [
+      {
+        "kva": "",
+        "srNo": "",
+        "rating": "",
+        "note": ""
+      }
+    ],
+    "execution": "",
+    "delivery": false,
+    "id": "1757110579366"
+  },
+  {
+    "location": "In House",
+    "category": "Private",
+    "orderNo": "inhousepvtstaffg",
+    "date": "2025-09-18",
+    "type": "dfsg",
+    "dismental": "",
+    "wind": "Started",
+    "assemble": "",
+    "testing": "",
+    "siteLocation": "",
+    "typeOfJob": "",
+    "otherJobType": "",
+    "fieldJobDetails": [
+      {
+        "kva": "",
+        "srNo": "",
+        "rating": "",
+        "note": ""
+      }
+    ],
+    "execution": "",
+    "delivery": false,
+    "id": "1757110803143"
+  },
+  {
+    "location": "In House",
+    "category": "Public",
+    "orderNo": "inhousepubadmin",
+    "date": "2025-09-12",
+    "type": "huehue",
+    "dismental": "",
+    "wind": "",
+    "assemble": "",
+    "testing": "",
+    "siteLocation": "",
+    "typeOfJob": "",
+    "otherJobType": "",
+    "fieldJobDetails": [
+      {
+        "kva": "",
+        "srNo": "",
+        "rating": "",
+        "note": ""
+      }
+    ],
+    "execution": "",
+    "delivery": false,
+    "id": "1757110868130"
+  },
+  {
+    "location": "Site",
+    "category": "Private",
+    "orderNo": "site pvt staff",
+    "date": "2025-09-27",
+    "type": "v. h",
+    "dismental": "",
+    "wind": "",
+    "assemble": "",
+    "testing": "",
+    "siteLocation": "fg",
+    "typeOfJob": "Testing",
+    "otherJobType": "",
+    "fieldJobDetails": [
+      {
+        "kva": "sitepvtstaff",
+        "srNo": "sitepvtstaff",
+        "rating": "sitepvtstaff",
+        "note": "sitepvtstaff"
+      }
+    ],
+    "execution": "Completed",
+    "delivery": false,
+    "id": "1757110966402"
+  },
+  {
+    "location": "Site",
+    "category": "WB",
+    "orderNo": "site wb staff",
+    "date": "2025-09-19",
+    "type": "fdgdgfn",
+    "dismental": "",
+    "wind": "",
+    "assemble": "",
+    "testing": "",
+    "siteLocation": "asdfgd",
+    "typeOfJob": "Testing",
+    "otherJobType": "",
+    "fieldJobDetails": [
+      {
+        "kva": "sitebwstaff",
+        "srNo": "sitebwstaff",
+        "rating": "sitebwstaff",
+        "note": "sitebwstaff"
+      },
+      {
+        "kva": "sitebwstaff",
+        "srNo": "sitebwstaff",
+        "rating": "sitebwstaff",
+        "note": "sitebwstaff"
+      }
+    ],
+    "execution": "Completed",
+    "delivery": false,
+    "id": "1757110940554"
+  },
+  {
+    "location": "Site",
+    "category": "Public",
+    "orderNo": "site pub staff",
+    "date": "2025-10-02",
+    "type": "afdsgg",
+    "dismental": "",
+    "wind": "",
+    "assemble": "",
+    "testing": "",
+    "siteLocation": "afdsgfnb",
+    "typeOfJob": "Maintain",
+    "otherJobType": "",
+    "fieldJobDetails": [
+      {
+        "kva": "sitepuob staff",
+        "srNo": "sitepuob staff",
+        "rating": "sitepuob staff",
+        "note": "sitepuob staff"
+      }
+    ],
+    "execution": "",
+    "delivery": false,
+    "id": "1757110985836"
   }
 ]
