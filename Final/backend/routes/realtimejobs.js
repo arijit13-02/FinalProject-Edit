@@ -323,8 +323,18 @@ router.put("/:id", (req, res) => {
 		writeJson(file, data);
 
 		if (role === "admin") {
-			syncToStaff(data);
-		} else {
+  if (updatedItem.delivery === true) {
+    // ✅ Remove record if delivery marked true
+    data.splice(index, 1);
+    writeJson(file, data);
+    syncToStaff(data);
+  } else {
+    // ✅ Normal update
+    syncToStaff(data);
+  }
+}
+ 
+    else {
 			const adminData = readJson(ADMIN_FILE);
 			const original = adminData.find(item => item.id === req.params.id);
 
@@ -469,13 +479,27 @@ router.post("/pending/apply", (req, res) => {
               
           }
         }
-        else if (type === "edit") {
-                    const i = adminData.findIndex(x => x.id === item.id);
-                    if (i !== -1) adminData[i] = item;
-                } else if (type === "delete") {
-                    adminData = adminData.filter(x => x.id !== item.id);
-                }
-            } else {
+        else if (type === "edit") 
+          {
+            const i = adminData.findIndex(x => x.id === item.id);
+  if (i !== -1) {
+    if (item.delivery === true) {
+      // ✅ If delivery is true, remove the record instead of updating
+      adminData = adminData.filter(x => x.id !== item.id);
+      staffData = staffData.filter(x => x.id !== item.id);
+    } else {
+      // ✅ Otherwise, update as normal
+      adminData[i] = item;
+    }
+  }
+          } 
+          else if (type === "delete") 
+          {
+            adminData = adminData.filter(x => x.id !== item.id);
+          }
+          
+      } else 
+              {
                 // Rejected
                 if (type === "add") {
                     staffData = staffData.filter(x => x.id !== item.id);
