@@ -386,7 +386,7 @@ const PendingJobs = () => {
           {/* Actions */}
           <div className="flex gap-4">
             <button onClick={() => selectAll(true)} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">✅ Select All Approve</button>
-            <button onClick={() => selectAll(false)} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">❌ Select All Reject</button>
+            <button onClick={() => selectAll(false)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">❌ Select All Reject</button>
           </div>
 
           {/* Job List */}
@@ -410,7 +410,7 @@ const PendingJobs = () => {
           ))}
 
           <div className="mt-4 text-right">
-            <button onClick={applyChanges} className="bg-white-600 text-black px-5 py-2 rounded hover:bg-white-700">Apply All Decisions</button>
+            <button onClick={applyChanges} className="bg-yellow-600 text-black px-5 py-2 rounded hover:bg-white-700">Apply All Decisions</button>
           </div>
         </div>
       )}

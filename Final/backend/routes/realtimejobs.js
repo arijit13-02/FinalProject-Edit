@@ -1,13 +1,3 @@
-/*
-for now, in add directly 
-for admin
-files are added, now just clean and function call
-then for staff applu changes
-
-then when delivery is checked, just delete from realtimes file
-
-then all files be generated, in operaitons just display the file thats it
-*/
 import express from "express";
 import fs from "fs";
 import path from "path";
