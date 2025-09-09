@@ -70,5 +70,29 @@
     "Payment": "",
     "Amount": "",
     "SecurityDeposited": ""
+  },
+  {
+    "Client": "sitepubnewnew",
+    "WorkOrder": "newnew",
+    "Date": "2025-09-11",
+    "Category": "Public",
+    "SiteLocation": "asdgf",
+    "TypeOfJob": "Testing",
+    "TransformerDetails": [
+      {
+        "KVA": "76",
+        "SrNo": "76",
+        "Rating": "76",
+        "Note": "7"
+      }
+    ],
+    "FileNo": "",
+    "Make": "",
+    "OilQty": "",
+    "TestReportAttachment": "",
+    "BillSubmission": "",
+    "Payment": "",
+    "Amount": "",
+    "SecurityDeposited": ""
   }
 ]

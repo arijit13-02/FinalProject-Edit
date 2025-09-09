@@ -30,7 +30,6 @@ const syncToStaff = (adminData) => writeJson(STAFF_FILE, adminData);
 
 
 
-
 // Initialize files
 for (const file of [ADMIN_FILE, STAFF_FILE, PENDING_FILE, OPERATIONS_inWB_FILE,OPERATIONS_siteWB_FILE, OPERATIONS_inpub_FILE, OPERATIONS_inpvt_FILE,OPERATIONS_sitepub_FILE, OPERATIONS_sitepvt_FILE ]) {
     if (!fs.existsSync(file)) fs.writeFileSync(file, JSON.stringify([]));

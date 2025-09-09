@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  TrendingUp,Plus,Save,Edit3,Trash2,Search,ChevronUp,ChevronDown,Building2,Eye,X,Hourglass,Download,Upload,Menu,User,Settings,CalendarClock,Users,Boxes,FileText,BarChart3,BadgeCheck,PieChart,Activity
+  TrendingUp, Plus, Save, Edit3, Trash2, Search, ChevronUp, ChevronDown, Building2, Eye, X, Hourglass, Download, Upload, Menu, User, Settings, CalendarClock, Users, Boxes, FileText, BarChart3, BadgeCheck, PieChart,MapPin, Activity, Home, Briefcase, Lock, Globe
 } from "lucide-react";
+
 import logo from "../assets/logo.png";
 import axios from "axios";
+import { data } from "autoprefixer";
 
 function Operations() {
   //checks authentication
@@ -12,7 +14,7 @@ function Operations() {
   const [role, setRole] = useState(() => {
     return localStorage.getItem("userRole") || "staff";
   });
-    // keep role in localStorage in sync
+  // keep role in localStorage in sync
   useEffect(() => {
     localStorage.setItem("userRole", role);
   }, [role]);
@@ -28,7 +30,7 @@ function Operations() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   //Ribbon at top
-  
+
   const handleProtectedNav = (path) => {
     const role = localStorage.getItem("userRole");
     if (role === "admin") {
@@ -74,7 +76,7 @@ function Operations() {
     },
   ];
 
-  
+
   //checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
   const [records, setRecords] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -103,181 +105,9 @@ function Operations() {
     // Common field
     delivery: false,
   });
-
-useEffect(() => { 
-  loadRecords();
-  const interval = setInterval(loadRecords, 2000); 
-  return () => clearInterval(interval); // cleanup 
-}, []); // empty dependency array
-
-
-  const loadRecords = async () => {
-  try {
-    const res = await axios.get("http://localhost:5050/api/operations/wb");
-    setRecords(res.data);
-  } catch (error) {
-    console.error("Failed to fetch records:", error);
-  }
-};
-
-
-
-
-
-  const exportToJSON = () => {
-    const dataStr = JSON.stringify(records, null, 2);
-    const dataUri =
-      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-    const exportFileDefaultName = "job_tracking_records.json";
-
-    const linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", exportFileDefaultName);
-    linkElement.click();
-  };
-
-
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => {
-      const newData = { ...prev };
-
-      if (type === "checkbox") {
-        newData[name] = checked;
-      } else {
-        newData[name] = value;
-      }
-
-      // Reset dependent fields when location changes
-      if (name === "location") {
-        if (value === "In House") {
-          // Clear Site specific fields
-          newData.siteLocation = "";
-          newData.typeOfJob = "";
-          newData.otherJobType = "";
-          newData.fieldJobDetails = [
-            { kva: "", srNo: "", rating: "", note: "" },
-          ];
-          newData.execution = "";
-        } else if (value === "Site") {
-          // Clear In House specific fields
-          newData.dismental = "";
-          newData.wind = "";
-          newData.assemble = "";
-          newData.testing = "";
-        }
-      }
-
-      return newData;
-    });
-  };
-
-
-  /*//pdf and to check
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type === "application/pdf") {
-      setFormData((prev) => ({
-        ...prev,
-        jobCompletionCertificate: file.name, // In real app, you'd upload the file
-      }));
-    } else {
-      alert("Please select a PDF file");
-    }
-  };*/
-
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  
-};
-
- 
-  const resetForm = () => {
-    setFormData({
-      location: "",
-      category: "",
-      orderNo: "",
-      date: "",
-      type: "",
-      dismental: "",
-      wind: "",
-      assemble: "",
-      testing: "",
-      siteLocation: "",
-      typeOfJob: "",
-      otherJobType: "",
-      fieldJobDetails: [{ kva: "", srNo: "", rating: "", note: "" }],
-      execution: "",
-      delivery: false,
-    });
-    setIsFormOpen(false);
-    setEditingRecord(null);
-  };
-
-  const handleEdit = (record) => {
-    setFormData({
-      location: record.location,
-      category: record.category,
-      orderNo: record.orderNo,
-      date: record.date,
-      type: record.type,
-      dismental: record.dismental || "",
-      wind: record.wind || "",
-      assemble: record.assemble || "",
-      testing: record.testing || "",
-      siteLocation: record.siteLocation || "",
-      typeOfJob: record.typeOfJob || "",
-      otherJobType: record.otherJobType || "",
-      fieldJobDetails:
-        record.fieldJobDetails && record.fieldJobDetails.length > 0
-          ? record.fieldJobDetails
-          : [{ kva: "", srNo: "", rating: "", note: "" }],
-
-      execution: record.execution || "",
-      delivery: record.delivery || false,
-    });
-    setEditingRecord(record);
-    setIsFormOpen(true);
-  };
-
-  const handleView = (record) => {
-    setViewingRecord(record);
-    setIsDetailOpen(true);
-  };
-  const [hasPendingChanges, setHasPendingChanges] = useState(false);
-
-const handleDelete = async (id) => {
-    try {
-      await axios.delete(
-        `http://localhost:5050/api/realtimejobs/${id}?role=${role}`
-      );
-      loadRecords();
-    } catch (err) {
-      console.error("Failed to delete item:", err);
-    }
-  };
-
-  const handleSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const getSortIcon = (columnKey) => {
-    if (sortConfig.key !== columnKey) {
-      return <ChevronUp className="w-4 h-4 text-gray-400" />;
-    }
-    return sortConfig.direction === "asc" ? (
-      <ChevronUp className="w-4 h-4 text-blue-600" />
-    ) : (
-      <ChevronDown className="w-4 h-4 text-blue-600" />
-    );
-  };
-  // Filter and sort records
-
+  const [location, setLocation] = useState("inhouse");
+const [category, setCategory] = useState("wb");
+const [data, setData] = useState([]);
   const filteredAndSortedRecords = React.useMemo(() => {
     let filtered = records.filter(
       (record) =>
@@ -289,7 +119,7 @@ const handleDelete = async (id) => {
           record.typeOfJob.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (record.execution &&
           record.execution.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        
+
         (record.siteLocation &&
           record.siteLocation.toLowerCase().includes(searchTerm.toLowerCase()))
     );
@@ -316,34 +146,54 @@ const handleDelete = async (id) => {
     }
     return filtered;
   }, [records, searchTerm, sortConfig]);
-  
 
-  const getCategoryColor = (category) => {
-    const colors = {
-      WB: "bg-blue-100 text-blue-800",
-      Private: "bg-green-100 text-green-800",
-      Public: "bg-purple-100 text-purple-800",
-    };
-    return colors[category] || "bg-gray-100 text-gray-800";
-  };
-  const getExecutionColor = (execution) => {
-    const colors = {
-      Started: "bg-yellow-100 text-yellow-800",
-      Completed: "bg-green-100 text-green-800",
-    };
-    return colors[execution] || "bg-gray-100 text-gray-800";
-  };
-  const getLocationColor = (location) => {
-    const colors = {
-      "In House": "bg-indigo-100 text-indigo-800",
-      Site: "bg-orange-100 text-orange-800",
-    };
-    return colors[location] || "bg-gray-100 text-gray-800";
-  };
-  const getDeliveryColor = (delivery) => {
-    return delivery ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
+const getApiUrl = () => {
+    if (location === "inhouse" && category === "wb")
+        return "http://localhost:5050/api/operations/inhousewb"; 
+      
+    if (location === "inhouse" && category === "private")
+return "http://localhost:5050/api/operations/inhousepvt"; 
+      
+    if (location === "inhouse" && category === "public")
+      return "http://localhost:5050/api/operations/inhousepub"; 
+
+    if (location === "site" && category === "wb")
+      return "http://localhost:5050/api/operations/sitewb"; 
+    if (location === "site" && category === "private")
+      return "http://localhost:5050/api/operations/sitepvt"; 
+    if (location === "site" && category === "public")
+      return "http://localhost:5050/api/operations/sitepub"; 
+
+    return null;
   };
 
+// "http://localhost:5050/api/operations/"
+// "http://localhost:5050/api/operations/inhousewb"
+
+  const fetchData = async () => {
+    try {
+      const url = getApiUrl();
+      if (!url) return;
+      const res = await axios.get(url, {
+  headers: { "x-user-role": localStorage.getItem("userRole") }
+});
+      setData(res.data);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(); // first fetch immediately
+
+    const interval = setInterval(() => {
+      fetchData();
+    }, 2000); // 
+
+    return () => clearInterval(interval); // cleanup
+    }, [location, category]); // re-run when selection changes
+
+    
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600">
       {/* Header */}
@@ -427,46 +277,88 @@ const handleDelete = async (id) => {
                   Operations
                 </h1>
                 <p className="text-blue-100">
-                  Manage and track your job records
+                  Automated Record entry in accordance with Real Time Jobs
                 </p>
               </div>
             </div>
             <div className="flex space-x-3">
-              {
-                role === "admin" && (
-                  <button
-                    onClick={() => (window.location.href = "/pendingchangesrealtimejobs")}
-                    className={`${hasPendingChanges 
-                      ? "bg-red-600 hover:bg-red-700" 
-                      : "bg-green-600 hover:bg-green-700"} text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg`}
-                  >
-                    <Hourglass className="w-4 h-4" />
-                    <span>
-                      {hasPendingChanges ? "RealTimeJobs Pending Changes" : "No RealTimeJobs Pending Changes"}
-                    </span>
-                  </button>
-                )
-              }
 
 
-              <button
-                onClick={exportToJSON}
-                className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
-              >
-                <Download className="w-4 h-4" />
-                <span>Export</span>
-              </button>
-              <button
-                onClick={() => setIsFormOpen(true)}
-                className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Add Job Record</span>
-              </button>
+
+<div className="flex flex-col space-y-6 w-full items-center">
+  {/* First Group: In House / Site */}
+  <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+    <button
+      onClick={() => setLocation("inhouse")}
+      className={`${
+        location === "inhouse"
+          ? "bg-white text-blue-600"
+          : "bg-[rgba(255,255,255,0.6)] text-black"
+      } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+    >
+      <Home className="w-5 h-5" />
+      <span>In House</span>
+    </button>
+    <button
+      onClick={() => setLocation("site")}
+      className={`${
+        location === "site"
+          ? "bg-white text-blue-600"
+          : "bg-[rgba(255,255,255,0.6)] text-black"
+      } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+    >
+      <MapPin className="w-5 h-5" />
+      <span>Site</span>
+    </button>
+  </div>
+
+  {/* Second Group: WB / Private / Public */}
+  <div className="grid grid-cols-3 gap-4 w-full max-w-xl">
+    <button
+      onClick={() => setCategory("wb")}
+      className={`${
+        category === "wb"
+          ? "bg-white text-blue-600"
+          : "bg-[rgba(255,255,255,0.6)] text-black"
+      } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+    >
+      <Briefcase className="w-5 h-5" />
+      <span>WB</span>
+    </button>
+    <button
+      onClick={() => setCategory("private")}
+      className={`${
+        category === "private"
+          ? "bg-white text-blue-600"
+          : "bg-[rgba(255,255,255,0.6)] text-black"
+      } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+    >
+      <Lock className="w-5 h-5" />
+      <span>Private</span>
+    </button>
+    <button
+      onClick={() => setCategory("public")}
+      className={`${
+        category === "public"
+          ? "bg-white text-blue-600"
+          : "bg-[rgba(255,255,255,0.6)] text-black"
+      } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+    >
+      <Globe className="w-5 h-5" />
+      <span>Public</span>
+    </button>
+  </div>
+</div>
+
+
+
+
+
+
             </div>
           </div>
         </div>
-        
+
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative max-w-md">
@@ -856,7 +748,7 @@ const handleDelete = async (id) => {
                         />
                       </div>
 
-                      
+
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -1025,7 +917,7 @@ const handleDelete = async (id) => {
                     </div>
 
                     <div className="mt-4 mb-4"></div>
-                    
+
                   </div>
                 )}{" "}
                 {/* Common Delivery Checkbox */}
@@ -1185,7 +1077,7 @@ const handleDelete = async (id) => {
                           </p>
                         </div>
                       )}{" "}
-                      
+
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       {viewingRecord.typeOfJob && (
@@ -1271,7 +1163,7 @@ const handleDelete = async (id) => {
                           )}
                         </div>
                       )}{" "}
-                    
+
                   </div>
                 )}{" "}
                 {/* Delivery Status */}
@@ -1311,6 +1203,16 @@ const handleDelete = async (id) => {
           </div>
         )}
 
+{/* temp*/}
+        <div className="border p-4 rounded-xl bg-white shadow-lg">
+        <h2 className="font-bold mb-2 text-lg">
+          Showing Data for: {location} - {category}
+        </h2>
+        <pre className="text-sm overflow-x-auto bg-gray-50 p-3 rounded">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </div>
+      
       </main>
     </div>
   );
