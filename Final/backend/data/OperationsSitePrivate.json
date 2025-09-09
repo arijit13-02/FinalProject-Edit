@@ -22,5 +22,59 @@
     "Payment": "",
     "Amount": "",
     "SecurityDeposited": ""
+  },
+  {
+    "Client": "nji",
+    "WorkOrder": "adminsitepvt",
+    "Date": "2025-10-02",
+    "Category": "Private",
+    "SiteLocation": "hjnh",
+    "TypeOfJob": "Testing",
+    "TransformerDetails": [
+      {
+        "KVA": "9",
+        "SrNo": "9",
+        "Rating": "9",
+        "Note": "9"
+      },
+      {
+        "KVA": "3",
+        "SrNo": "3",
+        "Rating": "3",
+        "Note": "3"
+      }
+    ],
+    "FileNo": "",
+    "Make": "",
+    "OilQty": "",
+    "TestReportAttachment": "",
+    "BillSubmission": "",
+    "Payment": "",
+    "Amount": "",
+    "SecurityDeposited": ""
+  },
+  {
+    "Client": "DAF",
+    "WorkOrder": "staffsiteprivate",
+    "Date": "0005-04-04",
+    "Category": "Private",
+    "SiteLocation": "SDGD",
+    "TypeOfJob": "Testing",
+    "TransformerDetails": [
+      {
+        "KVA": "",
+        "SrNo": "",
+        "Rating": "",
+        "Note": ""
+      }
+    ],
+    "FileNo": "",
+    "Make": "",
+    "OilQty": "",
+    "TestReportAttachment": "",
+    "BillSubmission": "",
+    "Payment": "",
+    "Amount": "",
+    "SecurityDeposited": ""
   }
 ]

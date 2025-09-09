@@ -14,7 +14,8 @@ const ADMIN_FILE = path.join(__dirname, '../data/adminrtj.json');
 const STAFF_FILE = path.join(__dirname, '../data/staffrtj.json');
 const PENDING_FILE = path.join(__dirname, '../data/pendingChangesrtj.json');
 
-const OPERATIONS_WB_FILE = path.join(__dirname, '../data/OperationsWB.json');
+const OPERATIONS_inWB_FILE = path.join(__dirname, '../data/OperationsInHouseWB.json');
+const OPERATIONS_siteWB_FILE = path.join(__dirname, '../data/OperationsSiteWB.json');
 const OPERATIONS_inpvt_FILE = path.join(__dirname, '../data/OperationsInHousePrivate.json');
 const OPERATIONS_inpub_FILE = path.join(__dirname, '../data/OperationsInHousePublic.json');
 const OPERATIONS_sitepub_FILE = path.join(__dirname, '../data/OperationsSitePublic.json');
@@ -31,7 +32,7 @@ const syncToStaff = (adminData) => writeJson(STAFF_FILE, adminData);
 
 
 // Initialize files
-for (const file of [ADMIN_FILE, STAFF_FILE, PENDING_FILE, OPERATIONS_WB_FILE, OPERATIONS_inpub_FILE, OPERATIONS_inpvt_FILE,OPERATIONS_sitepub_FILE, OPERATIONS_sitepvt_FILE ]) {
+for (const file of [ADMIN_FILE, STAFF_FILE, PENDING_FILE, OPERATIONS_inWB_FILE,OPERATIONS_siteWB_FILE, OPERATIONS_inpub_FILE, OPERATIONS_inpvt_FILE,OPERATIONS_sitepub_FILE, OPERATIONS_sitepvt_FILE ]) {
     if (!fs.existsSync(file)) fs.writeFileSync(file, JSON.stringify([]));
 }
 
@@ -56,13 +57,16 @@ const cleanDataWB = (obj) => {
   return {
     LOINo: obj.orderNo || "",
     LOIDate: obj.date || "",
-    Division: obj.type || ""
+    Division: obj.type || "",
+    Location: obj.location || "",
   };
 };
 
 
 function handleWBCategoryadd(newItem) {
-  const operationsData = readJson(OPERATIONS_WB_FILE);
+
+  const inwb = readJson(OPERATIONS_inWB_FILE);
+  const sitewb = readJson(OPERATIONS_siteWB_FILE);
 
   // Remove empty fields
   let cleanedItem = cleanDataWB(newItem);
@@ -94,9 +98,15 @@ function handleWBCategoryadd(newItem) {
     SecurityDepositesubmitted: "",
     SecurityDepositeReceived: ""
   };
-
-  operationsData.push(cleanedItem);
-  writeJson(OPERATIONS_WB_FILE, operationsData);
+  
+  if ((cleanedItem.Location || "").trim().toUpperCase() === "IN HOUSE") {
+    inwb.push(cleanedItem);
+    writeJson(OPERATIONS_inWB_FILE, inwb);
+  } else if ((cleanedItem.Location || "").trim().toUpperCase() === "SITE") {
+    sitewb.push(cleanedItem);
+    writeJson(OPERATIONS_siteWB_FILE, sitewb);
+  }
+  
 }
 
 
@@ -260,38 +270,7 @@ router.post("/", (req, res) => {
   }
 });
 
-// Utility to add all required fields
-const addDefaultFields = (item) => {
-  return {
-    ...item,
-    status: "Pending",
-    createdAt: new Date().toISOString(),
-    Tender: "",
-    Division: "",
-    FileNo: "",
-    WorkOrder: "",
-    Dated1: "",
-    PrelimarySurvey: "",
-    SIRNofTransformer: "",
-    FinalSurvey: "",
-    SRNofDrainoutOil: "",
-    StageInspection: "",
-    OilStatement: "",
-    SIRNofOil: "",
-    TransfomerTesting: "",
-    Materialdeliveredon: "",
-    SRNofTransformer: "",
-    Estimate: "",
-    FormalOrderPlaced: "",
-    OrderReferanceno: "",
-    Dated2: "",
-    Billsubmission: "",
-    Payment: "",
-    NetAmount: "",
-    SecurityDepositesubmitted: "",
-    SecurityDepositeReceived: ""
-  };
-};
+
 
 
 // UPDATE item

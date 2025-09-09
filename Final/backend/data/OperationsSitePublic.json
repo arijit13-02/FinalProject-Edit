@@ -22,5 +22,53 @@
     "Payment": "",
     "Amount": "",
     "SecurityDeposited": ""
+  },
+  {
+    "Client": "hgh",
+    "WorkOrder": "adminsitepublic",
+    "Date": "2025-09-20",
+    "Category": "Public",
+    "SiteLocation": " bnm",
+    "TypeOfJob": "Maintain",
+    "TransformerDetails": [
+      {
+        "KVA": "4",
+        "SrNo": "55",
+        "Rating": "5",
+        "Note": "45"
+      }
+    ],
+    "FileNo": "",
+    "Make": "",
+    "OilQty": "",
+    "TestReportAttachment": "",
+    "BillSubmission": "",
+    "Payment": "",
+    "Amount": "",
+    "SecurityDeposited": ""
+  },
+  {
+    "Client": "tetrtg",
+    "WorkOrder": "STAFFSITEPUB",
+    "Date": "2025-09-17",
+    "Category": "Public",
+    "SiteLocation": "df",
+    "TypeOfJob": "Others",
+    "TransformerDetails": [
+      {
+        "KVA": "9",
+        "SrNo": "9",
+        "Rating": "9",
+        "Note": "9"
+      }
+    ],
+    "FileNo": "",
+    "Make": "",
+    "OilQty": "",
+    "TestReportAttachment": "",
+    "BillSubmission": "",
+    "Payment": "",
+    "Amount": "",
+    "SecurityDeposited": ""
   }
 ]
