@@ -94,5 +94,35 @@
     "Payment": "",
     "Amount": "",
     "SecurityDeposited": ""
+  },
+  {
+    "Client": "adity",
+    "WorkOrder": "kushal ka baby",
+    "Date": "2025-09-11",
+    "Category": "Public",
+    "SiteLocation": "oyo",
+    "TypeOfJob": "Maintain",
+    "TransformerDetails": [
+      {
+        "KVA": "1",
+        "SrNo": "2",
+        "Rating": "3",
+        "Note": "4"
+      },
+      {
+        "KVA": "3",
+        "SrNo": "3",
+        "Rating": "4",
+        "Note": "4"
+      }
+    ],
+    "FileNo": "",
+    "Make": "",
+    "OilQty": "",
+    "TestReportAttachment": "",
+    "BillSubmission": "",
+    "Payment": "",
+    "Amount": "",
+    "SecurityDeposited": ""
   }
 ]

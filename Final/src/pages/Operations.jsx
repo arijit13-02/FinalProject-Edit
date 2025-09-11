@@ -152,7 +152,7 @@ function Operations() {
     return () => clearInterval(interval); // cleanup
   }, [location, category]); // re-run when selection changes
 
-const exportToJSON = () => {
+  const exportToJSON = () => {
     const dataStr = JSON.stringify(records, null, 2);
     const dataUri =
       "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
@@ -168,20 +168,72 @@ const exportToJSON = () => {
 
   //checkehckehekcheckehcekcheckehcekcheck
   const filteredAndSortedRecords = React.useMemo(() => {
-    let filtered = records.filter(
-      (record) =>
-        record.orderNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (record.typeOfJob &&
-          record.typeOfJob.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (record.execution &&
-          record.execution.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    let filtered = data.filter((row) => {
+  // Normalize search term once
+  const search = searchTerm.toLowerCase();
 
-        (record.siteLocation &&
-          record.siteLocation.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+  // Collect all possible searchable fields safely
+  let searchableFields = [
+    row.Client,
+    row.WorkOrder,
+    row.Date,
+    row.Category,
+    row.FileNo,
+    row.Dismetalling,
+    row.Inspection,
+    row.InformToClient,
+    row.Approval,
+    row.Winding,
+    row.Assembly,
+    row.HeatChamber,
+    row.Testing,
+    row.ClientInspection,
+    row.Delivery,
+    row.BillSubmission,
+    row.Payment,
+    row.Amount,
+    row.SecurityDeposited,
+    row.SiteLocation,
+    row.TypeOfJob,
+    row.LOINo,
+    row.LOIDate,
+    row.Division,
+    row.Location,
+    row.Tender,
+    row.PrelimarySurvey,
+    row.SIRNofTransformer,
+    row.FinalSurvey,
+    row.SRNofDrainoutOil,
+    row.StageInspection,
+    row.OilStatement,
+    row.SIRNofOil,
+    row.TransfomerTesting,
+    row.Materialdeliveredon,
+    row.SRNofTransformer,
+    row.Estimate,
+    row.FormalOrderPlaced,
+    row.OrderReferanceno,
+    row.OrderDate,
+    row.Billsubmission,
+    row.NetAmount,
+    row.SecurityDepositesubmitted,
+    row.SecurityDepositeReceived,
+    row.Make,
+    row.OilQty,
+  ];
+
+  // Add transformer details if they exist
+  if (Array.isArray(row.TransformerDetails)) {
+    row.TransformerDetails.forEach((t) => {
+      searchableFields.push(t.KVA, t.SrNo, t.Rating, t.Note);
+    });
+  }
+
+  // Check if ANY field contains the search term
+  return searchableFields.some(
+    (field) => typeof field === "string" && field.toLowerCase().includes(search)
+  );
+});
     if (sortConfig.key) {
       filtered.sort((a, b) => {
         let aValue = a[sortConfig.key];
@@ -189,10 +241,6 @@ const exportToJSON = () => {
         if (sortConfig.key === "date" || sortConfig.key === "createdAt") {
           aValue = new Date(aValue);
           bValue = new Date(bValue);
-        }
-        if (sortConfig.key === "delivery") {
-          aValue = aValue ? "Delivered" : "Pending";
-          bValue = bValue ? "Delivered" : "Pending";
         }
         if (aValue < bValue) {
           return sortConfig.direction === "asc" ? -1 : 1;
@@ -204,7 +252,7 @@ const exportToJSON = () => {
       });
     }
     return filtered;
-  }, [records, searchTerm, sortConfig]);
+  }, [data, searchTerm, sortConfig]);
 
 
   const getCategoryColor = (category) => {
@@ -232,41 +280,87 @@ const exportToJSON = () => {
   const getDeliveryColor = (delivery) => {
     return delivery ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
   };
+  const getSortIcon = (columnKey) => {
+      if (sortConfig.key !== columnKey) {
+        return <ChevronUp className="w-4 h-4 text-gray-400" />;
+      }
+      return sortConfig.direction === "asc" ? (
+        <ChevronUp className="w-4 h-4 text-blue-600" />
+      ) : (
+        <ChevronDown className="w-4 h-4 text-blue-600" />
+      );
+    };
 
   const getTableHeaders = (location, category) => {
-  let headers = [];
-  if (location === "inhouse" && category === "wb")
-    headers = [
-  { key: "Tender", label: "Tender", sortable: true },
-  { key: "Division", label: "Division", sortable: true },
-  { key: "FileNo", label: "File No", sortable: true },
-  { key: "WorkOrder", label: "Work Order", sortable: true },
-  { key: "LOINo", label: "LOI NO", sortable: true },
-  { key: "LOIDate", label: "LOI Date", sortable: true },
-  { key: "PrelimarySurvey", label: "Prelimary Survey", sortable: true },
-  { key: "SIRNofTransformer", label: "SIRN of Transformer", sortable: true },
-  { key: "FinalSurvey", label: "Final Survey", sortable: true },
-  { key: "SRNofDrainoutOil", label: "SRN of Drainout Oil", sortable: true },
-  { key: "StageInspection", label: "Stage Inspection", sortable: true },
-  { key: "OilStatement", label: "Oil Statement", sortable: true },
-  { key: "SIRNofOil", label: "SIRN of Oil", sortable: true },
-  { key: "TransfomerTesting", label: "Transfomer Testing", sortable: true },
-  { key: "Materialdeliveredon", label: "Material delivered on", sortable: true },
-  { key: "SRNofTransformer", label: "SRN of Transformer", sortable: true },
-  { key: "Estimate", label: "Estimate", sortable: true },
-  { key: "FormalOrderPlaced", label: "Formal Order Placed", sortable: true },
-  { key: "OrderReferanceno", label: "Order Referance no", sortable: true },
-  { key: "OrderDate", label: "Order Date", sortable: true },
-  { key: "Billsubmission", label: "Bill submission", sortable: true },
-  { key: "Payment", label: "Payement", sortable: true },
-  { key: "NetAmount", label: "Net Amount", sortable: true },
-  { key: "SecurityDepositesubmitted", label: "Security Deposite submitted", sortable: true },
-  { key: "SecurityDepositeReceived", label: "Security Deposite Received", sortable: true }
-    ];
-  // Always add actions at the end
-  headers.push({ key: "actions", label: "Actions", sortable: false });
-  return headers;
+    let headers = [];
+    if (location === "inhouse" && category === "wb")
+      headers = [
+        { key: "Tender", label: "Tender", sortable: true },
+        { key: "Division", label: "Division", sortable: true },
+        { key: "FileNo", label: "File No", sortable: true },
+        { key: "WorkOrder", label: "Work Order", sortable: true },
+        { key: "LOINo", label: "LOI NO", sortable: true },
+        { key: "LOIDate", label: "LOI Date", sortable: true },
+        { key: "PrelimarySurvey", label: "Prelimary Survey", sortable: true },
+        { key: "SIRNofTransformer", label: "SIRN of Transformer", sortable: true },
+        { key: "FinalSurvey", label: "Final Survey", sortable: true },
+        { key: "SRNofDrainoutOil", label: "SRN of Drainout Oil", sortable: true },
+        { key: "StageInspection", label: "Stage Inspection", sortable: true },
+        { key: "OilStatement", label: "Oil Statement", sortable: true },
+        { key: "SIRNofOil", label: "SIRN of Oil", sortable: true },
+        { key: "TransfomerTesting", label: "Transfomer Testing", sortable: true },
+        { key: "Materialdeliveredon", label: "Material delivered on", sortable: true },
+        { key: "SRNofTransformer", label: "SRN of Transformer", sortable: true },
+        { key: "Estimate", label: "Estimate", sortable: true },
+        { key: "FormalOrderPlaced", label: "Formal Order Placed", sortable: true },
+        { key: "OrderReferanceno", label: "Order Referance no", sortable: true },
+        { key: "OrderDate", label: "Order Date", sortable: true },
+        { key: "Billsubmission", label: "Bill submission", sortable: true },
+        { key: "Payment", label: "Payement", sortable: true },
+        { key: "NetAmount", label: "Net Amount", sortable: true },
+        { key: "SecurityDepositesubmitted", label: "Security Deposite submitted", sortable: true },
+        { key: "SecurityDepositeReceived", label: "Security Deposite Received", sortable: true }
+      ];
+    // Always add actions at the end
+    headers.push({ key: "actions", label: "Actions", sortable: false });
+    return headers;
+  };
+  const getTableRowValues = (record, location, category) => {
+  if (location === "inhouse" && category === "wb") {
+    return {
+      Tender: record.Tender,
+      Division: record.Division,
+      FileNo: record.FileNo,
+      WorkOrder: record.WorkOrder,
+      LOINo: record.LOINo,
+      LOIDate: record.LOIDate,
+      PrelimarySurvey: record.PrelimarySurvey,
+      SIRNofTransformer: record.SIRNofTransformer,
+      FinalSurvey: record.FinalSurvey,
+      SRNofDrainoutOil: record.SRNofDrainoutOil,
+      StageInspection: record.StageInspection,
+      OilStatement: record.OilStatement,
+      SIRNofOil: record.SIRNofOil,
+      TransfomerTesting: record.TransfomerTesting,
+      Materialdeliveredon: record.Materialdeliveredon,
+      SRNofTransformer: record.SRNofTransformer,
+      Estimate: record.Estimate,
+      FormalOrderPlaced: record.FormalOrderPlaced,
+      OrderReferanceno: record.OrderReferanceno,
+      OrderDate: record.OrderDate,
+      Billsubmission: record.Billsubmission,
+      Payment: record.Payment,
+      NetAmount: record.NetAmount,
+      SecurityDepositesubmitted: record.SecurityDepositesubmitted,
+      SecurityDepositeReceived: record.SecurityDepositeReceived,
+    };
+  }
+
+  // fallback for unknown case
+  return record;
 };
+
+const headers = getTableHeaders(location, category);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600">
@@ -365,8 +459,8 @@ const exportToJSON = () => {
                   <button
                     onClick={() => setLocation("inhouse")}
                     className={`${location === "inhouse"
-                        ? "bg-white text-blue-600"
-                        : "bg-[rgba(255,255,255,0.6)] text-black"
+                      ? "bg-white text-blue-600"
+                      : "bg-[rgba(255,255,255,0.6)] text-black"
                       } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
                   >
                     <Home className="w-5 h-5" />
@@ -375,8 +469,8 @@ const exportToJSON = () => {
                   <button
                     onClick={() => setLocation("site")}
                     className={`${location === "site"
-                        ? "bg-white text-blue-600"
-                        : "bg-[rgba(255,255,255,0.6)] text-black"
+                      ? "bg-white text-blue-600"
+                      : "bg-[rgba(255,255,255,0.6)] text-black"
                       } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
                   >
                     <MapPin className="w-5 h-5" />
@@ -389,8 +483,8 @@ const exportToJSON = () => {
                   <button
                     onClick={() => setCategory("wb")}
                     className={`${category === "wb"
-                        ? "bg-white text-blue-600"
-                        : "bg-[rgba(255,255,255,0.6)] text-black"
+                      ? "bg-white text-blue-600"
+                      : "bg-[rgba(255,255,255,0.6)] text-black"
                       } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
                   >
                     <Briefcase className="w-5 h-5" />
@@ -399,8 +493,8 @@ const exportToJSON = () => {
                   <button
                     onClick={() => setCategory("private")}
                     className={`${category === "private"
-                        ? "bg-white text-blue-600"
-                        : "bg-[rgba(255,255,255,0.6)] text-black"
+                      ? "bg-white text-blue-600"
+                      : "bg-[rgba(255,255,255,0.6)] text-black"
                       } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
                   >
                     <Lock className="w-5 h-5" />
@@ -409,8 +503,8 @@ const exportToJSON = () => {
                   <button
                     onClick={() => setCategory("public")}
                     className={`${category === "public"
-                        ? "bg-white text-blue-600"
-                        : "bg-[rgba(255,255,255,0.6)] text-black"
+                      ? "bg-white text-blue-600"
+                      : "bg-[rgba(255,255,255,0.6)] text-black"
                       } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
                   >
                     <Globe className="w-5 h-5" />
@@ -424,42 +518,42 @@ const exportToJSON = () => {
 
         {/* Search Bar, export, add new record*/}
         <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-  {/* Search Input */}
-  <div className="relative max-w-md flex-1">
-    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-    <input
-      type="text"
-      placeholder="Search records..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      className="w-full pl-10 pr-4 py-3 bg-white/90 backdrop-blur-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-lg"
-    />
-  </div>
+          {/* Search Input */}
+          <div className="relative max-w-md flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search records..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white/90 backdrop-blur-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-lg"
+            />
+          </div>
 
-  {/* Buttons */}
-  <div className="flex space-x-3 max-w-md">
-    <button
-      onClick={exportToJSON}
-      className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
-    >
-      <Download className="w-5 h-4" />
-      <span>Export</span>
-    </button>
-    <button
-      onClick={() => setIsFormOpen(true)}
-      className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
-    >
-      <Plus className="w-5 h-5" />
-      <span>Add Operation Record</span>
-    </button>
-  </div>
-</div>
+          {/* Buttons */}
+          <div className="flex space-x-3 max-w-md">
+            <button
+              onClick={exportToJSON}
+              className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+            >
+              <Download className="w-5 h-4" />
+              <span>Export</span>
+            </button>
+            <button
+              onClick={() => setIsFormOpen(true)}
+              className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Operation Record</span>
+            </button>
+          </div>
+        </div>
 
 
         {/* Operations Records Table */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden">
           <div className="bg-blue-600 text-white p-4 font-semibold text-lg">
-            Operations Records ({records.length})
+            Operations Records ({data.length})
           </div>
 
           {filteredAndSortedRecords.length === 0 ? (
@@ -475,55 +569,59 @@ const exportToJSON = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
-  <tr>
-    {headers.map((header) => (
-      <th
-        key={header.key}
-        className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-        onClick={header.sortable ? () => handleSort(header.key) : undefined}
-      >
-        <div className="flex items-center space-x-1">
-          <span>{header.label}</span>
-          {header.sortable && getSortIcon(header.key)}
-        </div>
-      </th>
-    ))}
-  </tr>
-</thead>
+                  <tr>
+                    {headers.map((header) => (
+                      <th
+                        key={header.key}
+                        className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                        onClick={header.sortable ? () => handleSort(header.key) : undefined}
+                      >
+                        <div className="flex items-center space-x-1">
+                          <span>{header.label}</span>
+                          {header.sortable && getSortIcon(header.key)}
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
                 <tbody className="divide-y divide-gray-200">
-  {filteredAndSortedRecords.map((record) => (
-    <tr key={record.id} className="hover:bg-gray-50 transition-colors duration-200">
-      {headers.map((header) => {
-        if (header.key === "actions") {
+  {filteredAndSortedRecords.map((record, index) => {
+    const rowValues = getTableRowValues(record, location, category);
+
+    return (
+      <tr key={record.id || index} className="hover:bg-gray-50 transition-colors duration-200">
+        {headers.map((header) => {
+          if (header.key === "actions") {
+            return (
+              <td key={header.key} className="px-6 py-4">
+                <div className="flex space-x-2">
+                  <button onClick={() => handleView(record)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg">
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => handleEdit(record)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => handleDelete(record.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </td>
+            );
+          }
+
           return (
             <td key={header.key} className="px-6 py-4">
-              <div className="flex space-x-2">
-                <button onClick={() => handleView(record)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg">
-                  <Eye className="w-4 h-4" />
-                </button>
-                <button onClick={() => handleEdit(record)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                  <Edit3 className="w-4 h-4" />
-                </button>
-                <button onClick={() => handleDelete(record.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+              <div className="text-sm text-gray-800">
+                {rowValues[header.key] || "N/A"}
               </div>
             </td>
           );
-        }
-
-        // Render other cells
-        return (
-          <td key={header.key} className="px-6 py-4">
-            <div className="text-sm text-gray-800">
-              {record[header.key] || "N/A"}
-            </div>
-          </td>
-        );
-      })}
-    </tr>
-  ))}
+        })}
+      </tr>
+    );
+  })}
 </tbody>
+
 
               </table>
             </div>
