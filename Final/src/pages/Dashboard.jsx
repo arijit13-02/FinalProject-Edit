@@ -174,9 +174,9 @@ function Dashboard() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   //checks authentication
-  const [role, setRole] = useState(() => {
-  return localStorage.getItem("userRole") || "staff";
-  });
+  const [role, setRole] = useState(() => { 
+    return localStorage.getItem("userRole") || "staff"; 
+  }); 
   localStorage.setItem("userRole", role);
 
   const navigate = useNavigate();
@@ -228,7 +228,7 @@ function Dashboard() {
     },
   ];
   /*useEffect(() => {
-    // Disable right-click
+    // Disable right-click - ***and aadd to all the pages***
     document.addEventListener("contextmenu", (e) => e.preventDefault());
 
     // Disable certain keyboard shortcuts

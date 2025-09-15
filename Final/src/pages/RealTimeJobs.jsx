@@ -1,32 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  TrendingUp,
-  Plus,
-  Save,
-  Edit3,
-  Trash2,
-  Search,
-  ChevronUp,
-  ChevronDown,
-  Building2,
-  Eye,
-  X,
-  Download,
-  Upload,
-} from "lucide-react";
-import {
-  Menu,
-  User,
-  Settings,
-  CalendarClock,
-  Users,
-  Boxes,
-  FileText,
-  BarChart3,
-  BadgeCheck,
-  PieChart,
-  Activity,
+  TrendingUp,Plus,Save,Edit3,Trash2,Search,ChevronUp,ChevronDown,Building2,Eye,X,Hourglass,Download,Upload,Menu,User,Settings,CalendarClock,Users,Boxes,FileText,BarChart3,BadgeCheck,PieChart,Activity
 } from "lucide-react";
 import logo from "../assets/logo.png";
 import axios from "axios";
@@ -106,19 +81,39 @@ function RealTimeJobs() {
     testing: "",
     // Site specific fields
     siteLocation: "",
-    client: "",
     typeOfJob: "",
     otherJobType: "",
     fieldJobDetails: [{ kva: "", srNo: "", rating: "", note: "" }],
     execution: "",
-    jobCompletionCertificate: null,
     // Common field
     delivery: false,
   });
   // Load records from localStorage (simulating JSON file)
-  useEffect(() => {
+  
+
+useEffect(() => { 
   loadRecords();
+  const interval = setInterval(loadRecords, 2000); 
+  return () => clearInterval(interval); // cleanup 
+}, []); // empty dependency array
+
+useEffect(() => {
+  if (role === "admin") {
+    fetchPendingChanges();
+    const interval = setInterval(fetchPendingChanges, 2000); 
+    return () => clearInterval(interval); // cleanup
+  }
 }, [role]);
+
+
+  const fetchPendingChanges = async () => {
+    try {
+      const res = await axios.get("http://localhost:5050/api/realtimejobs/pending");
+      setHasPendingChanges(res.data.length > 0);
+    } catch (err) {
+      console.error("Failed to load pending changes:", err);
+    }
+  };
 
 
   const loadRecords = async () => {
@@ -133,17 +128,7 @@ function RealTimeJobs() {
 };
 
 
-  const saveRecords = async (recordsToSave) => {
-  try {
-    await axios.post("http://localhost:5050/api/realtimejobs", {
-      role,
-      records: recordsToSave
-    });
-    console.log("Records saved successfully.");
-  } catch (error) {
-    console.error("Failed to save records:", error);
-  }
-};
+
 
 
   const exportToJSON = () => {
@@ -158,24 +143,6 @@ function RealTimeJobs() {
     linkElement.click();
   };
 
-  //check import => pending changes for admin
-  const importFromJSON = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const importedRecords = JSON.parse(e.target.result);
-          setRecords(importedRecords);
-          saveRecords(importedRecords);
-          alert("Records imported successfully!");
-        } catch (error) {
-          alert("Error importing file. Please check the JSON format.");
-        }
-      };
-      reader.readAsText(file);
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -193,14 +160,12 @@ function RealTimeJobs() {
         if (value === "In House") {
           // Clear Site specific fields
           newData.siteLocation = "";
-          newData.client = "";
           newData.typeOfJob = "";
           newData.otherJobType = "";
           newData.fieldJobDetails = [
             { kva: "", srNo: "", rating: "", note: "" },
           ];
           newData.execution = "";
-          newData.jobCompletionCertificate = null;
         } else if (value === "Site") {
           // Clear In House specific fields
           newData.dismental = "";
@@ -238,7 +203,7 @@ function RealTimeJobs() {
     });
   };
 
-  //pdf and to check
+  /*//pdf and to check
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type === "application/pdf") {
@@ -249,12 +214,13 @@ function RealTimeJobs() {
     } else {
       alert("Please select a PDF file");
     }
-  };
+  };*/
 
   const handleSubmit = async (e) => {
   e.preventDefault();
 
   if (editingRecord) {
+  /*
     // Editing existing record locally
     const newRecords = records.map((record) =>
       record.id === editingRecord.id
@@ -267,7 +233,31 @@ function RealTimeJobs() {
         : record
     );
     setRecords(newRecords);
-    resetForm();
+    resetForm();*/
+    try {
+    const response = await axios.put(
+      `http://localhost:5050/api/realtimejobs/${editingRecord.id}?role=${role}`, // update by ID
+      {
+        ...formData,
+        id: editingRecord.id,
+        createdAt: editingRecord.createdAt,
+        updatedAt: new Date().toISOString(),
+      }
+    );
+
+    if (response.data.success) {
+      // Update UI with the edited record
+      const updatedRecords = records.map((record) =>
+        record.id === editingRecord.id ? response.data.item : record
+      );
+      setRecords(updatedRecords);
+      resetForm();
+    } else {
+      console.error("Failed to update:", response.data.message);
+    }
+  } catch (error) {
+    console.error("API error:", error);
+  }
   } else {
     // Adding new record
     try {
@@ -301,12 +291,10 @@ function RealTimeJobs() {
       assemble: "",
       testing: "",
       siteLocation: "",
-      client: "",
       typeOfJob: "",
       otherJobType: "",
       fieldJobDetails: [{ kva: "", srNo: "", rating: "", note: "" }],
       execution: "",
-      jobCompletionCertificate: null,
       delivery: false,
     });
     setIsFormOpen(false);
@@ -325,7 +313,6 @@ function RealTimeJobs() {
       assemble: record.assemble || "",
       testing: record.testing || "",
       siteLocation: record.siteLocation || "",
-      client: record.client || "",
       typeOfJob: record.typeOfJob || "",
       otherJobType: record.otherJobType || "",
       fieldJobDetails:
@@ -334,7 +321,6 @@ function RealTimeJobs() {
           : [{ kva: "", srNo: "", rating: "", note: "" }],
 
       execution: record.execution || "",
-      jobCompletionCertificate: record.jobCompletionCertificate || null,
       delivery: record.delivery || false,
     });
     setEditingRecord(record);
@@ -345,14 +331,19 @@ function RealTimeJobs() {
     setViewingRecord(record);
     setIsDetailOpen(true);
   };
-  
-  const handleDelete = (id) => {
-  if (window.confirm("Are you sure you want to delete this record?")) {
-    const newRecords = records.filter((record) => record.id !== id);
-    setRecords(newRecords);
-    saveRecords(newRecords);
-  }
-};
+  const [hasPendingChanges, setHasPendingChanges] = useState(false);
+
+const handleDelete = async (id) => {
+    try {
+      await axios.delete(
+        `http://localhost:5050/api/realtimejobs/${id}?role=${role}`
+      );
+      loadRecords();
+    } catch (err) {
+      console.error("Failed to delete item:", err);
+    }
+  };
+
   const handleSort = (key) => {
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
@@ -384,8 +375,7 @@ function RealTimeJobs() {
           record.typeOfJob.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (record.execution &&
           record.execution.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (record.client &&
-          record.client.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        
         (record.siteLocation &&
           record.siteLocation.toLowerCase().includes(searchTerm.toLowerCase()))
     );
@@ -528,6 +518,23 @@ function RealTimeJobs() {
               </div>
             </div>
             <div className="flex space-x-3">
+              {
+                role === "admin" && (
+                  <button
+                    onClick={() => (window.location.href = "/pendingchangesrealtimejobs")}
+                    className={`${hasPendingChanges 
+                      ? "bg-red-600 hover:bg-red-700" 
+                      : "bg-green-600 hover:bg-green-700"} text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg`}
+                  >
+                    <Hourglass className="w-4 h-4" />
+                    <span>
+                      {hasPendingChanges ? "RealTimeJobs Pending Changes" : "No RealTimeJobs Pending Changes"}
+                    </span>
+                  </button>
+                )
+              }
+
+
               <button
                 onClick={exportToJSON}
                 className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
@@ -535,16 +542,6 @@ function RealTimeJobs() {
                 <Download className="w-4 h-4" />
                 <span>Export</span>
               </button>
-              <label className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg cursor-pointer">
-                <Upload className="w-4 h-4" />
-                <span>Import</span>
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={importFromJSON}
-                  className="hidden"
-                />
-              </label>
               <button
                 onClick={() => setIsFormOpen(true)}
                 className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
@@ -838,19 +835,17 @@ function RealTimeJobs() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Type
+                        Client/Division
                       </label>
-                      <select
+                      <input
+                        type="text"
                         name="type"
                         value={formData.type}
                         onChange={handleInputChange}
                         required
+                        placeholder="Client/Division"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="">Select Type</option>
-                        <option value="Client">Client</option>
-                        <option value="Division">Division</option>
-                      </select>
+                      />
                     </div>
                   </div>
                 </div>
@@ -947,19 +942,7 @@ function RealTimeJobs() {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Client
-                        </label>
-                        <input
-                          type="text"
-                          name="client"
-                          value={formData.client}
-                          onChange={handleInputChange}
-                          placeholder="Enter client name"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
+                      
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -1128,22 +1111,7 @@ function RealTimeJobs() {
                     </div>
 
                     <div className="mt-4 mb-4"></div>
-                    <div>
-                      <h4 className="text-md font-medium text-gray-800 mb-3">
-                        Job Completion Certificate
-                      </h4>
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        onChange={handleFileChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />{" "}
-                      {formData.jobCompletionCertificate && (
-                        <p className="text-sm text-green-600 mt-1">
-                          File: {formData.jobCompletionCertificate}
-                        </p>
-                      )}
-                    </div>
+                    
                   </div>
                 )}{" "}
                 {/* Common Delivery Checkbox */}
@@ -1303,16 +1271,7 @@ function RealTimeJobs() {
                           </p>
                         </div>
                       )}{" "}
-                      {viewingRecord.client && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Client
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.client}
-                          </p>
-                        </div>
-                      )}
+                      
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       {viewingRecord.typeOfJob && (
@@ -1398,16 +1357,7 @@ function RealTimeJobs() {
                           )}
                         </div>
                       )}{" "}
-                    {viewingRecord.jobCompletionCertificate && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-500">
-                          Job Completion Certificate
-                        </label>
-                        <p className="text-lg font-semibold text-gray-800">
-                          {viewingRecord.jobCompletionCertificate}
-                        </p>
-                      </div>
-                    )}
+                    
                   </div>
                 )}{" "}
                 {/* Delivery Status */}

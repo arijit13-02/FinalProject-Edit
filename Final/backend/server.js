@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import realtimejobsRoutes from './routes/realtimejobs.js';
+import operationsRoutes from './routes/operations.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,10 +14,22 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 5050;
 
+// acting as middleware for open endpoint api protection, so that searching point blank dont give out the data
+const requireAdmin = (req, res, next) => {
+  const role = req.headers['x-user-role'];
+  if (role === 'admin') {
+    next(); // ✅ allow
+  } else {
+    res.status(403).json({ message: 'Forbidden: Admins only' });
+  }
+};
+
+
+
 app.use(cors({
   origin: 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
+    allowedHeaders: ['Content-Type', 'x-user-role'], // 👈 add this
   credentials: true,
 }));
 app.use(bodyParser.json());
@@ -46,7 +59,9 @@ app.post('/api/login', async (req, res) => {
 });
 
 
-app.post('/api/change-password', async (req, res) => {
+
+  app.post('/api/change-password', requireAdmin, async (req, res) => {
+
   const { oldPassword, newPassword } = req.body;
   const authData = readJson(AUTH_FILE);
   const isMatch = await bcrypt.compare(oldPassword, authData.adminPasswordHash);
@@ -58,6 +73,8 @@ app.post('/api/change-password', async (req, res) => {
 });
 
 app.use('/api/realtimejobs', realtimejobsRoutes);
+app.use('/api/operations', requireAdmin, operationsRoutes);
+//app.use('/api/operations', operationsRoutes);
 
 // === Health Check ===
 app.get('/api/health', (req, res) => {
