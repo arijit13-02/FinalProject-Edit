@@ -717,7 +717,14 @@ function Operations() {
     // fallback for unknown case
     return record;
   };
-
+const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+  
   const headers = getTableHeaders(location, category);
 
   const handleSubmit = async (e) => {
@@ -1438,96 +1445,96 @@ function Operations() {
 
         {/* Detail View Modal */}{" "}
         {isDetailOpen && viewingRecord && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
-      {/* Header */}
-      <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Job Record Details</h2>
-        <button
-          onClick={() => setIsDetailOpen(false)}
-          className="text-white hover:bg-blue-700 p-1 rounded"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Content */}
-      <div className="p-6 space-y-6">
-        {/* Record Title */}
-       
-
-        {/* All Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {Object.entries(viewingRecord).map(([key, value]) => {
-            // Handle array of objects (like fieldJobDetails, TransformerDetails)
-            if (Array.isArray(value)) {
-              return (
-                <div key={key} className="col-span-3">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                    {key}
-                  </h4>
-                  {value.length > 0 ? (
-                    value.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 p-3 border border-gray-200 rounded-lg"
-                      >
-                        {Object.entries(item).map(([subKey, subValue]) => (
-                          <div key={subKey}>
-                            <label className="block text-sm font-medium text-gray-500">
-                              {subKey}
-                            </label>
-                            <p className="text-lg font-semibold text-gray-800">
-                              {subValue || "N/A"}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-600 italic">No {key} data</p>
-                  )}
-                </div>
-              );
-            }
-
-            // Handle normal fields
-            return (
-              <div key={key}>
-                <label className="block text-sm font-medium text-gray-500">
-                  {key}
-                </label>
-                <p className="text-lg font-semibold text-gray-800">
-                  {value ? value.toString() : "N/A"}
-                </p>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Job Record Details</h2>
+                <button
+                  onClick={() => setIsDetailOpen(false)}
+                  className="text-white hover:bg-blue-700 p-1 rounded"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            );
-          })}
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex space-x-3 pt-6">
-          <button
-            onClick={() => {
-              setIsDetailOpen(false);
-              handleEdit(viewingRecord);
-            }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
-          >
-            <Edit3 className="w-4 h-4" />
-            <span>Edit Record</span>
-          </button>
-          <button
-            onClick={() => setIsDetailOpen(false)}
-            className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors duration-200"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+              {/* Content */}
+              <div className="p-6 space-y-6">
+                {/* Record Title */}
+
+
+                {/* All Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {Object.entries(viewingRecord).map(([key, value]) => {
+                    // Handle array of objects (like fieldJobDetails, TransformerDetails)
+                    if (Array.isArray(value)) {
+                      return (
+                        <div key={key} className="col-span-3">
+                          <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                            {key}
+                          </h4>
+                          {value.length > 0 ? (
+                            value.map((item, idx) => (
+                              <div
+                                key={idx}
+                                className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 p-3 border border-gray-200 rounded-lg"
+                              >
+                                {Object.entries(item).map(([subKey, subValue]) => (
+                                  <div key={subKey}>
+                                    <label className="block text-sm font-medium text-gray-500">
+                                      {subKey}
+                                    </label>
+                                    <p className="text-lg font-semibold text-gray-800">
+                                      {subValue || "N/A"}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-gray-600 italic">No {key} data</p>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    // Handle normal fields
+                    return (
+                      <div key={key}>
+                        <label className="block text-sm font-medium text-gray-500">
+                          {key}
+                        </label>
+                        <p className="text-lg font-semibold text-gray-800">
+                          {value ? value.toString() : "N/A"}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3 pt-6">
+                  <button
+                    onClick={() => {
+                      setIsDetailOpen(false);
+                      handleEdit(viewingRecord);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    <span>Edit Record</span>
+                  </button>
+                  <button
+                    onClick={() => setIsDetailOpen(false)}
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
 
         {/* temp*/}
