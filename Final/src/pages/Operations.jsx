@@ -85,29 +85,171 @@ function Operations() {
   const [viewingRecord, setViewingRecord] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-  const [formData, setFormData] = useState({
-    location: "",
-    category: "",
-    orderNo: "",
-    date: "",
-    type: "",
-    // In House specific fields
-    dismental: "",
-    wind: "",
-    assemble: "",
-    testing: "",
-    // Site specific fields
-    siteLocation: "",
-    typeOfJob: "",
-    otherJobType: "",
-    fieldJobDetails: [{ kva: "", srNo: "", rating: "", note: "" }],
-    execution: "",
-    // Common field
-    delivery: false,
-  });
   const [location, setLocation] = useState("inhouse");
   const [category, setCategory] = useState("wb");
   const [data, setData] = useState([]);
+
+  const formTemplates = {
+    "inhouse-wb": {
+      "LOINo": "",
+      "LOIDate": "",
+      "Division": "",
+      "Location": "",
+      "Tender": "",
+      "FileNo": "",
+      "WorkOrder": "",
+      "PrelimarySurvey": "",
+      "SIRNofTransformer": "",
+      "FinalSurvey": "",
+      "SRNofDrainoutOil": "",
+      "StageInspection": "",
+      "OilStatement": "",
+      "SIRNofOil": "",
+      "TransfomerTesting": "",
+      "Materialdeliveredon": "",
+      "SRNofTransformer": "",
+      "Estimate": "",
+      "FormalOrderPlaced": "",
+      "OrderReferanceno": "",
+      "OrderDate": "",
+      "Billsubmission": "",
+      "Payment": "",
+      "NetAmount": "",
+      "SecurityDepositesubmitted": "",
+      "SecurityDepositeReceived": ""
+    },
+    "site-wb": {
+      "LOINo": "",
+      "LOIDate": "",
+      "Division": "",
+      "Location": "",
+      "Tender": "",
+      "FileNo": "",
+      "WorkOrder": "",
+      "PrelimarySurvey": "",
+      "SIRNofTransformer": "",
+      "FinalSurvey": "",
+      "SRNofDrainoutOil": "",
+      "StageInspection": "",
+      "OilStatement": "",
+      "SIRNofOil": "",
+      "TransfomerTesting": "",
+      "Materialdeliveredon": "",
+      "SRNofTransformer": "",
+      "Estimate": "",
+      "FormalOrderPlaced": "",
+      "OrderReferanceno": "",
+      "OrderDate": "",
+      "Billsubmission": "",
+      "Payment": "",
+      "NetAmount": "",
+      "SecurityDepositesubmitted": "",
+      "SecurityDepositeReceived": ""
+    },
+    "inhouse-private": {
+      "Client": "",
+      "WorkOrder": "",
+      "Date": "",
+      "Category": "",
+      "FileNo": "",
+      "Dismetalling": "",
+      "Inspection": "",
+      "InformToClient": "",
+      "Approval": "",
+      "Winding": "",
+      "Assembly": "",
+      "HeatChamber": "",
+      "Testing": "",
+      "ClientInspection": "",
+      "Delivery": "",
+      "TestReportAttachment": "",
+      "BillSubmission": "",
+      "Payment": "",
+      "Amount": "",
+      "SecurityDeposited": ""
+    },
+    "inhouse-public": {
+      "Client": "",
+      "WorkOrder": "",
+      "Date": "",
+      "Category": "",
+      "FileNo": "",
+      "Dismetalling": "",
+      "Inspection": "",
+      "InformToClient": "",
+      "Approval": "",
+      "Winding": "",
+      "Assembly": "",
+      "HeatChamber": "",
+      "Testing": "",
+      "ClientInspection": "",
+      "Delivery": "",
+      "TestReportAttachment": "",
+      "BillSubmission": "",
+      "Payment": "",
+      "Amount": "",
+      "SecurityDeposited": ""
+    },
+    "site-private": {
+      "Client": "",
+      "WorkOrder": "",
+      "Date": "",
+      "Category": "",
+      "SiteLocation": "",
+      "TypeOfJob": "",
+      "TransformerDetails": [
+        {
+          "KVA": "",
+          "SrNo": "",
+          "Rating": "",
+          "Note": ""
+        }
+      ],
+      "FileNo": "",
+      "Make": "",
+      "OilQty": "",
+      "TestReportAttachment": "",
+      "BillSubmission": "",
+      "Payment": "",
+      "Amount": "",
+      "SecurityDeposited": ""
+    },
+    "site-public": {
+      "Client": "",
+      "WorkOrder": "",
+      "Date": "",
+      "Category": "",
+      "SiteLocation": "",
+      "TypeOfJob": "",
+      "TransformerDetails": [
+        {
+          "KVA": "",
+          "SrNo": "",
+          "Rating": "",
+          "Note": ""
+        }
+      ],
+      "FileNo": "",
+      "Make": "",
+      "OilQty": "",
+      "TestReportAttachment": "",
+      "BillSubmission": "",
+      "Payment": "",
+      "Amount": "",
+      "SecurityDeposited": ""
+    },
+  };
+  const [formData, setFormData] = useState(formTemplates["inhouse-wb"]);
+  // When location or category changes, reset formData based on template
+  useEffect(() => {
+    if (formData.location && formData.category) {
+      const key = `${formData.location}-${formData.category}`;
+      if (formTemplates[key]) {
+        setFormData(formTemplates[key]);
+      }
+    }
+  }, [location, category]);
+
 
   const getApiUrl = () => {
     if (location === "inhouse" && category === "wb")
@@ -169,71 +311,71 @@ function Operations() {
   //checkehckehekcheckehcekcheckehcekcheck
   const filteredAndSortedRecords = React.useMemo(() => {
     let filtered = data.filter((row) => {
-  // Normalize search term once
-  const search = searchTerm.toLowerCase();
+      // Normalize search term once
+      const search = searchTerm.toLowerCase();
 
-  // Collect all possible searchable fields safely
-  let searchableFields = [
-    row.Client,
-    row.WorkOrder,
-    row.Date,
-    row.Category,
-    row.FileNo,
-    row.Dismetalling,
-    row.Inspection,
-    row.InformToClient,
-    row.Approval,
-    row.Winding,
-    row.Assembly,
-    row.HeatChamber,
-    row.Testing,
-    row.ClientInspection,
-    row.Delivery,
-    row.BillSubmission,
-    row.Payment,
-    row.Amount,
-    row.SecurityDeposited,
-    row.SiteLocation,
-    row.TypeOfJob,
-    row.LOINo,
-    row.LOIDate,
-    row.Division,
-    row.Location,
-    row.Tender,
-    row.PrelimarySurvey,
-    row.SIRNofTransformer,
-    row.FinalSurvey,
-    row.SRNofDrainoutOil,
-    row.StageInspection,
-    row.OilStatement,
-    row.SIRNofOil,
-    row.TransfomerTesting,
-    row.Materialdeliveredon,
-    row.SRNofTransformer,
-    row.Estimate,
-    row.FormalOrderPlaced,
-    row.OrderReferanceno,
-    row.OrderDate,
-    row.Billsubmission,
-    row.NetAmount,
-    row.SecurityDepositesubmitted,
-    row.SecurityDepositeReceived,
-    row.Make,
-    row.OilQty,
-  ];
+      // Collect all possible searchable fields safely
+      let searchableFields = [
+        row.Client,
+        row.WorkOrder,
+        row.Date,
+        row.Category,
+        row.FileNo,
+        row.Dismetalling,
+        row.Inspection,
+        row.InformToClient,
+        row.Approval,
+        row.Winding,
+        row.Assembly,
+        row.HeatChamber,
+        row.Testing,
+        row.ClientInspection,
+        row.Delivery,
+        row.BillSubmission,
+        row.Payment,
+        row.Amount,
+        row.SecurityDeposited,
+        row.SiteLocation,
+        row.TypeOfJob,
+        row.LOINo,
+        row.LOIDate,
+        row.Division,
+        row.Location,
+        row.Tender,
+        row.PrelimarySurvey,
+        row.SIRNofTransformer,
+        row.FinalSurvey,
+        row.SRNofDrainoutOil,
+        row.StageInspection,
+        row.OilStatement,
+        row.SIRNofOil,
+        row.TransfomerTesting,
+        row.Materialdeliveredon,
+        row.SRNofTransformer,
+        row.Estimate,
+        row.FormalOrderPlaced,
+        row.OrderReferanceno,
+        row.OrderDate,
+        row.Billsubmission,
+        row.NetAmount,
+        row.SecurityDepositesubmitted,
+        row.SecurityDepositeReceived,
+        row.Make,
+        row.OilQty,
+      ];
 
-  // Add transformer details if they exist
-  if (Array.isArray(row.TransformerDetails)) {
-    row.TransformerDetails.forEach((t) => {
-      searchableFields.push(t.KVA, t.SrNo, t.Rating, t.Note);
+      // Add transformer details if they exist
+      if (Array.isArray(row.TransformerDetails)) {
+        row.TransformerDetails.forEach((t) => {
+          searchableFields.push(t.KVA, t.SrNo, t.Rating, t.Note);
+        });
+      }
+
+      // Check if ANY field contains the search term
+      return searchableFields.some(
+        (field) => typeof field === "string" && field.toLowerCase().includes(search)
+      );
     });
-  }
-
-  // Check if ANY field contains the search term
-  return searchableFields.some(
-    (field) => typeof field === "string" && field.toLowerCase().includes(search)
-  );
-});
     if (sortConfig.key) {
       filtered.sort((a, b) => {
         let aValue = a[sortConfig.key];
@@ -281,15 +423,15 @@ function Operations() {
     return delivery ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
   };
   const getSortIcon = (columnKey) => {
-      if (sortConfig.key !== columnKey) {
-        return <ChevronUp className="w-4 h-4 text-gray-400" />;
-      }
-      return sortConfig.direction === "asc" ? (
-        <ChevronUp className="w-4 h-4 text-blue-600" />
-      ) : (
-        <ChevronDown className="w-4 h-4 text-blue-600" />
-      );
-    };
+    if (sortConfig.key !== columnKey) {
+      return <ChevronUp className="w-4 h-4 text-gray-400" />;
+    }
+    return sortConfig.direction === "asc" ? (
+      <ChevronUp className="w-4 h-4 text-blue-600" />
+    ) : (
+      <ChevronDown className="w-4 h-4 text-blue-600" />
+    );
+  };
 
   const getTableHeaders = (location, category) => {
     let headers = [];
@@ -321,46 +463,310 @@ function Operations() {
         { key: "SecurityDepositesubmitted", label: "Security Deposite submitted", sortable: true },
         { key: "SecurityDepositeReceived", label: "Security Deposite Received", sortable: true }
       ];
+    if (location === "site" && category === "wb")
+      headers = [
+        { key: "Tender", label: "Tender", sortable: true },
+        { key: "Division", label: "Division", sortable: true },
+        { key: "FileNo", label: "File No", sortable: true },
+        { key: "WorkOrder", label: "Work Order", sortable: true },
+        { key: "LOINo", label: "LOI NO", sortable: true },
+        { key: "LOIDate", label: "LOI Date", sortable: true },
+        { key: "PrelimarySurvey", label: "Prelimary Survey", sortable: true },
+        { key: "SIRNofTransformer", label: "SIRN of Transformer", sortable: true },
+        { key: "FinalSurvey", label: "Final Survey", sortable: true },
+        { key: "SRNofDrainoutOil", label: "SRN of Drainout Oil", sortable: true },
+        { key: "StageInspection", label: "Stage Inspection", sortable: true },
+        { key: "OilStatement", label: "Oil Statement", sortable: true },
+        { key: "SIRNofOil", label: "SIRN of Oil", sortable: true },
+        { key: "TransfomerTesting", label: "Transfomer Testing", sortable: true },
+        { key: "Materialdeliveredon", label: "Material delivered on", sortable: true },
+        { key: "SRNofTransformer", label: "SRN of Transformer", sortable: true },
+        { key: "Estimate", label: "Estimate", sortable: true },
+        { key: "FormalOrderPlaced", label: "Formal Order Placed", sortable: true },
+        { key: "OrderReferanceno", label: "Order Referance no", sortable: true },
+        { key: "OrderDate", label: "Order Date", sortable: true },
+        { key: "Billsubmission", label: "Bill submission", sortable: true },
+        { key: "Payment", label: "Payement", sortable: true },
+        { key: "NetAmount", label: "Net Amount", sortable: true },
+        { key: "SecurityDepositesubmitted", label: "Security Deposite submitted", sortable: true },
+        { key: "SecurityDepositeReceived", label: "Security Deposite Received", sortable: true }
+      ];
+    if (location === "site" && category === "public")
+      headers = [
+        { key: "Client", label: "Client", sortable: true },
+        { key: "WorkOrder", label: "Work Order", sortable: true },
+        { key: "Date", label: "Date", sortable: true },
+        { key: "Category", label: "Category", sortable: true },
+        { key: "SiteLocation", label: "Site Location", sortable: true },
+        { key: "TypeOfJob", label: "Type of Job", sortable: true },
+
+
+        { key: "FileNo", label: "File No", sortable: true },
+        { key: "Make", label: "Make", sortable: true },
+        { key: "OilQty", label: "Oil Qty", sortable: true },
+        { key: "BillSubmission", label: "Bill Submission", sortable: true },
+        { key: "Payment", label: "Payment", sortable: true },
+        { key: "Amount", label: "Amount", sortable: true },
+        { key: "SecurityDeposited", label: "Security Deposited", sortable: true }
+      ];
+    if (location === "site" && category === "private")
+      headers = [
+        { key: "Client", label: "Client", sortable: true },
+        { key: "WorkOrder", label: "Work Order", sortable: true },
+        { key: "Date", label: "Date", sortable: true },
+        { key: "Category", label: "Category", sortable: true },
+        { key: "SiteLocation", label: "Site Location", sortable: true },
+        { key: "TypeOfJob", label: "Type of Job", sortable: true },
+
+
+        { key: "FileNo", label: "File No", sortable: true },
+        { key: "Make", label: "Make", sortable: true },
+        { key: "OilQty", label: "Oil Qty", sortable: true },
+        { key: "BillSubmission", label: "Bill Submission", sortable: true },
+        { key: "Payment", label: "Payment", sortable: true },
+        { key: "Amount", label: "Amount", sortable: true },
+        { key: "SecurityDeposited", label: "Security Deposited", sortable: true }
+      ];
+    if (location === "inhouse" && category === "public")
+      headers = [
+        { key: "Client", label: "Client", sortable: true },
+        { key: "WorkOrder", label: "Work Order", sortable: true },
+        { key: "Date", label: "Date", sortable: true },
+        { key: "Category", label: "Category", sortable: true },
+        { key: "FileNo", label: "File No", sortable: true },
+        { key: "Dismetalling", label: "Dismetalling", sortable: true },
+        { key: "Inspection", label: "Inspection", sortable: true },
+        { key: "InformToClient", label: "Inform To Client", sortable: true },
+        { key: "Approval", label: "Approval", sortable: true },
+        { key: "Winding", label: "Winding", sortable: true },
+        { key: "Assembly", label: "Assembly", sortable: true },
+        { key: "HeatChamber", label: "Heat Chamber", sortable: true },
+        { key: "Testing", label: "Testing", sortable: true },
+        { key: "ClientInspection", label: "Client Inspection", sortable: true },
+        { key: "Delivery", label: "Delivery", sortable: true },
+        { key: "BillSubmission", label: "Bill Submission", sortable: true },
+        { key: "Payment", label: "Payment", sortable: true },
+        { key: "Amount", label: "Amount", sortable: true },
+        { key: "SecurityDeposited", label: "Security Deposited", sortable: true }
+      ];
+    if (location === "inhouse" && category === "private")
+      headers = [
+        { key: "Client", label: "Client", sortable: true },
+        { key: "WorkOrder", label: "Work Order", sortable: true },
+        { key: "Date", label: "Date", sortable: true },
+        { key: "Category", label: "Category", sortable: true },
+        { key: "FileNo", label: "File No", sortable: true },
+        { key: "Dismetalling", label: "Dismetalling", sortable: true },
+        { key: "Inspection", label: "Inspection", sortable: true },
+        { key: "InformToClient", label: "Inform To Client", sortable: true },
+        { key: "Approval", label: "Approval", sortable: true },
+        { key: "Winding", label: "Winding", sortable: true },
+        { key: "Assembly", label: "Assembly", sortable: true },
+        { key: "HeatChamber", label: "Heat Chamber", sortable: true },
+        { key: "Testing", label: "Testing", sortable: true },
+        { key: "ClientInspection", label: "Client Inspection", sortable: true },
+        { key: "Delivery", label: "Delivery", sortable: true },
+        { key: "BillSubmission", label: "Bill Submission", sortable: true },
+        { key: "Payment", label: "Payment", sortable: true },
+        { key: "Amount", label: "Amount", sortable: true },
+        { key: "SecurityDeposited", label: "Security Deposited", sortable: true }
+      ];
     // Always add actions at the end
     headers.push({ key: "actions", label: "Actions", sortable: false });
     return headers;
   };
   const getTableRowValues = (record, location, category) => {
-  if (location === "inhouse" && category === "wb") {
-    return {
-      Tender: record.Tender,
-      Division: record.Division,
-      FileNo: record.FileNo,
-      WorkOrder: record.WorkOrder,
-      LOINo: record.LOINo,
-      LOIDate: record.LOIDate,
-      PrelimarySurvey: record.PrelimarySurvey,
-      SIRNofTransformer: record.SIRNofTransformer,
-      FinalSurvey: record.FinalSurvey,
-      SRNofDrainoutOil: record.SRNofDrainoutOil,
-      StageInspection: record.StageInspection,
-      OilStatement: record.OilStatement,
-      SIRNofOil: record.SIRNofOil,
-      TransfomerTesting: record.TransfomerTesting,
-      Materialdeliveredon: record.Materialdeliveredon,
-      SRNofTransformer: record.SRNofTransformer,
-      Estimate: record.Estimate,
-      FormalOrderPlaced: record.FormalOrderPlaced,
-      OrderReferanceno: record.OrderReferanceno,
-      OrderDate: record.OrderDate,
-      Billsubmission: record.Billsubmission,
-      Payment: record.Payment,
-      NetAmount: record.NetAmount,
-      SecurityDepositesubmitted: record.SecurityDepositesubmitted,
-      SecurityDepositeReceived: record.SecurityDepositeReceived,
-    };
-  }
+    if (location === "inhouse" && category === "wb") {
+      return {
+        Tender: record.Tender,
+        Division: record.Division,
+        FileNo: record.FileNo,
+        WorkOrder: record.WorkOrder,
+        LOINo: record.LOINo,
+        LOIDate: record.LOIDate,
+        PrelimarySurvey: record.PrelimarySurvey,
+        SIRNofTransformer: record.SIRNofTransformer,
+        FinalSurvey: record.FinalSurvey,
+        SRNofDrainoutOil: record.SRNofDrainoutOil,
+        StageInspection: record.StageInspection,
+        OilStatement: record.OilStatement,
+        SIRNofOil: record.SIRNofOil,
+        TransfomerTesting: record.TransfomerTesting,
+        Materialdeliveredon: record.Materialdeliveredon,
+        SRNofTransformer: record.SRNofTransformer,
+        Estimate: record.Estimate,
+        FormalOrderPlaced: record.FormalOrderPlaced,
+        OrderReferanceno: record.OrderReferanceno,
+        OrderDate: record.OrderDate,
+        Billsubmission: record.Billsubmission,
+        Payment: record.Payment,
+        NetAmount: record.NetAmount,
+        SecurityDepositesubmitted: record.SecurityDepositesubmitted,
+        SecurityDepositeReceived: record.SecurityDepositeReceived,
+      };
+    }
+    if (location === "site" && category === "wb") {
+      return {
+        Tender: record.Tender,
+        Division: record.Division,
+        FileNo: record.FileNo,
+        WorkOrder: record.WorkOrder,
+        LOINo: record.LOINo,
+        LOIDate: record.LOIDate,
+        PrelimarySurvey: record.PrelimarySurvey,
+        SIRNofTransformer: record.SIRNofTransformer,
+        FinalSurvey: record.FinalSurvey,
+        SRNofDrainoutOil: record.SRNofDrainoutOil,
+        StageInspection: record.StageInspection,
+        OilStatement: record.OilStatement,
+        SIRNofOil: record.SIRNofOil,
+        TransfomerTesting: record.TransfomerTesting,
+        Materialdeliveredon: record.Materialdeliveredon,
+        SRNofTransformer: record.SRNofTransformer,
+        Estimate: record.Estimate,
+        FormalOrderPlaced: record.FormalOrderPlaced,
+        OrderReferanceno: record.OrderReferanceno,
+        OrderDate: record.OrderDate,
+        Billsubmission: record.Billsubmission,
+        Payment: record.Payment,
+        NetAmount: record.NetAmount,
+        SecurityDepositesubmitted: record.SecurityDepositesubmitted,
+        SecurityDepositeReceived: record.SecurityDepositeReceived,
+      };
+    }
+    if (location === "site" && category === "public") {
+      return {
+        Client: record.Client,
+        WorkOrder: record.WorkOrder,
+        Date: record.Date,
+        Category: record.Category,
+        SiteLocation: record.SiteLocation,
+        TypeOfJob: record.TypeOfJob,
+        FileNo: record.FileNo,
+        Make: record.Make,
+        OilQty: record.OilQty,
+        BillSubmission: record.BillSubmission,
+        Payment: record.Payment,
+        Amount: record.Amount,
+        SecurityDeposited: record.SecurityDeposited,
+      };
+    }
+    if (location === "site" && category === "private") {
+      return {
+        Client: record.Client,
+        WorkOrder: record.WorkOrder,
+        Date: record.Date,
+        Category: record.Category,
+        SiteLocation: record.SiteLocation,
+        TypeOfJob: record.TypeOfJob,
+        FileNo: record.FileNo,
+        Make: record.Make,
+        OilQty: record.OilQty,
+        BillSubmission: record.BillSubmission,
+        Payment: record.Payment,
+        Amount: record.Amount,
+        SecurityDeposited: record.SecurityDeposited,
+      };
+    }
+    if (location === "inhouse" && category === "public") {
+      return {
+        Client: record.Client,
+        WorkOrder: record.WorkOrder,
+        Date: record.Date,
+        Category: record.Category,
+        FileNo: record.FileNo,
+        Dismetalling: record.Dismetalling,
+        Inspection: record.Inspection,
+        InformToClient: record.InformToClient,
+        Approval: record.Approval,
+        Winding: record.Winding,
+        Assembly: record.Assembly,
+        HeatChamber: record.HeatChamber,
+        Testing: record.Testing,
+        ClientInspection: record.ClientInspection,
+        Delivery: record.Delivery,
+        BillSubmission: record.BillSubmission,
+        Payment: record.Payment,
+        Amount: record.Amount,
+        SecurityDeposited: record.SecurityDeposited,
+      };
+    }
+    if (location === "inhouse" && category === "private") {
+      return {
+        Client: record.Client,
+        WorkOrder: record.WorkOrder,
+        Date: record.Date,
+        Category: record.Category,
+        FileNo: record.FileNo,
+        Dismetalling: record.Dismetalling,
+        Inspection: record.Inspection,
+        InformToClient: record.InformToClient,
+        Approval: record.Approval,
+        Winding: record.Winding,
+        Assembly: record.Assembly,
+        HeatChamber: record.HeatChamber,
+        Testing: record.Testing,
+        ClientInspection: record.ClientInspection,
+        Delivery: record.Delivery,
+        BillSubmission: record.BillSubmission,
+        Payment: record.Payment,
+        Amount: record.Amount,
+        SecurityDeposited: record.SecurityDeposited,
+      };
+    }
+    // fallback for unknown case
+    return record;
+  };
 
-  // fallback for unknown case
-  return record;
-};
+  const headers = getTableHeaders(location, category);
 
-const headers = getTableHeaders(location, category);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (editingRecord) {
+      try {
+        console.log(editingRecord.id);
+        console.log(editingRecord.createdAt);
+        console.log(new Date().toISOString());
+
+      } catch (error) {
+        console.log("cannot update");
+      }
+    } else {
+      try {
+
+        console.log(formData);
+      } catch (error) {
+        console.log("cannot add");
+      }
+    }
+  };
+
+  const resetForm = (location = "", category = "") => {
+    if (location && category) {
+      const key = `${location}-${category}`;
+      if (formTemplates[key]) {
+        setFormData({ location, category, ...formTemplates[key] });
+      } else {
+        setFormData({ location, category });
+      }
+    } else {
+      // No location/category chosen → completely blank
+      setFormData({
+        location: "",
+        category: "",
+      });
+    }
+
+    setIsFormOpen(false);
+    setEditingRecord(null);
+  };
+
+  const handleView = (data) => {
+    setViewingRecord(data);
+    setIsDetailOpen(true);
+  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600">
@@ -423,6 +829,8 @@ const headers = getTableHeaders(location, category);
           )}
         </div>
       </header>
+
+
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -549,6 +957,8 @@ const headers = getTableHeaders(location, category);
           </div>
         </div>
 
+      </main>
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4">
 
         {/* Operations Records Table */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden">
@@ -585,42 +995,42 @@ const headers = getTableHeaders(location, category);
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-  {filteredAndSortedRecords.map((record, index) => {
-    const rowValues = getTableRowValues(record, location, category);
+                  {filteredAndSortedRecords.map((record, index) => {
+                    const rowValues = getTableRowValues(record, location, category);
 
-    return (
-      <tr key={record.id || index} className="hover:bg-gray-50 transition-colors duration-200">
-        {headers.map((header) => {
-          if (header.key === "actions") {
-            return (
-              <td key={header.key} className="px-6 py-4">
-                <div className="flex space-x-2">
-                  <button onClick={() => handleView(record)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg">
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => handleEdit(record)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                    <Edit3 className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => handleDelete(record.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
-            );
-          }
+                    return (
+                      <tr key={record.id || index} className="hover:bg-gray-50 transition-colors duration-200">
+                        {headers.map((header) => {
+                          if (header.key === "actions") {
+                            return (
+                              <td key={header.key} className="px-6 py-4">
+                                <div className="flex space-x-2">
+                                  <button onClick={() => handleView(record)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg">
+                                    <Eye className="w-4 h-4" />
+                                  </button>
+                                  <button onClick={() => handleEdit(record)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                                    <Edit3 className="w-4 h-4" />
+                                  </button>
+                                  <button onClick={() => handleDelete(record.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </td>
+                            );
+                          }
 
-          return (
-            <td key={header.key} className="px-6 py-4">
-              <div className="text-sm text-gray-800">
-                {rowValues[header.key] || "N/A"}
-              </div>
-            </td>
-          );
-        })}
-      </tr>
-    );
-  })}
-</tbody>
+                          return (
+                            <td key={header.key} className="px-6 py-4">
+                              <div className="text-sm text-gray-800">
+                                {rowValues[header.key] || "N/A"}
+                              </div>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
 
 
               </table>
@@ -1028,250 +1438,97 @@ const headers = getTableHeaders(location, category);
 
         {/* Detail View Modal */}{" "}
         {isDetailOpen && viewingRecord && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Job Record Details</h2>
-                <button
-                  onClick={() => setIsDetailOpen(false)}
-                  className="text-white hover:bg-blue-700 p-1 rounded"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+      {/* Header */}
+      <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Job Record Details</h2>
+        <button
+          onClick={() => setIsDetailOpen(false)}
+          className="text-white hover:bg-blue-700 p-1 rounded"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="p-6 space-y-6">
+        {/* Record Title */}
+       
+
+        {/* All Fields */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Object.entries(viewingRecord).map(([key, value]) => {
+            // Handle array of objects (like fieldJobDetails, TransformerDetails)
+            if (Array.isArray(value)) {
+              return (
+                <div key={key} className="col-span-3">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                    {key}
+                  </h4>
+                  {value.length > 0 ? (
+                    value.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 p-3 border border-gray-200 rounded-lg"
+                      >
+                        {Object.entries(item).map(([subKey, subValue]) => (
+                          <div key={subKey}>
+                            <label className="block text-sm font-medium text-gray-500">
+                              {subKey}
+                            </label>
+                            <p className="text-lg font-semibold text-gray-800">
+                              {subValue || "N/A"}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-600 italic">No {key} data</p>
+                  )}
+                </div>
+              );
+            }
+
+            // Handle normal fields
+            return (
+              <div key={key}>
+                <label className="block text-sm font-medium text-gray-500">
+                  {key}
+                </label>
+                <p className="text-lg font-semibold text-gray-800">
+                  {value ? value.toString() : "N/A"}
+                </p>
               </div>
+            );
+          })}
+        </div>
 
-              <div className="p-6 space-y-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                    {viewingRecord.orderNo}
-                  </h3>
-                  <p className="text-gray-600">{viewingRecord.type}</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">
-                      Location
-                    </label>
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getLocationColor(
-                        viewingRecord.location
-                      )}`}
-                    >
-                      {viewingRecord.location}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">
-                      Category
-                    </label>
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
-                        viewingRecord.category
-                      )}`}
-                    >
-                      {viewingRecord.category}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">
-                      Date
-                    </label>
-                    <p className="text-lg font-semibold text-gray-800">
-                      {new Date(viewingRecord.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                {/* Location Specific Details */}{" "}
-                {viewingRecord.location === "In House" && (
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-800 mb-3">
-                      In House Operations
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      {viewingRecord.dismental && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Dismental
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.dismental}
-                          </p>
-                        </div>
-                      )}{" "}
-                      {viewingRecord.wind && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Wind
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.wind}
-                          </p>
-                        </div>
-                      )}{" "}
-                      {viewingRecord.assemble && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Assemble
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.assemble}
-                          </p>
-                        </div>
-                      )}{" "}
-                      {viewingRecord.testing && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Testing
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.testing}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}{" "}
-                {viewingRecord.location === "Site" && (
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-800 mb-3">
-                      Site Information
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      {viewingRecord.siteLocation && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Site Location
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.siteLocation}
-                          </p>
-                        </div>
-                      )}{" "}
+        {/* Action Buttons */}
+        <div className="flex space-x-3 pt-6">
+          <button
+            onClick={() => {
+              setIsDetailOpen(false);
+              handleEdit(viewingRecord);
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+          >
+            <Edit3 className="w-4 h-4" />
+            <span>Edit Record</span>
+          </button>
+          <button
+            onClick={() => setIsDetailOpen(false)}
+            className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors duration-200"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      {viewingRecord.typeOfJob && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Type of Job
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.typeOfJob}
-                          </p>
-                        </div>
-                      )}{" "}
-                      {viewingRecord.execution && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Execution
-                          </label>
-                          <span
-                            className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getExecutionColor(
-                              viewingRecord.execution
-                            )}`}
-                          >
-                            {viewingRecord.execution}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    {/* Field Job Details */}{" "}
-                    {viewingRecord.fieldJobDetails &&
-                      viewingRecord.fieldJobDetails.length > 0 && (
-                        <div>
-                          <h5 className="text-md font-semibold text-gray-800 mb-3">
-                            Field Job Details
-                          </h5>
-                          {viewingRecord.fieldJobDetails.map(
-                            (detail, index) => (
-                              <div
-                                key={index}
-                                className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 p-3 border border-gray-200 rounded-lg"
-                              >
-                                {detail.kva && (
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-500">
-                                      KVA
-                                    </label>
-                                    <p className="text-lg font-semibold text-gray-800">
-                                      {detail.kva}
-                                    </p>
-                                  </div>
-                                )}
-                                {detail.srNo && (
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-500">
-                                      Sr No
-                                    </label>
-                                    <p className="text-lg font-semibold text-gray-800">
-                                      {detail.srNo}
-                                    </p>
-                                  </div>
-                                )}
-                                {detail.rating && (
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-500">
-                                      Rating
-                                    </label>
-                                    <p className="text-lg font-semibold text-gray-800">
-                                      {detail.rating}
-                                    </p>
-                                  </div>
-                                )}
-                                {detail.note && (
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-500">
-                                      Note
-                                    </label>
-                                    <p className="text-lg font-semibold text-gray-800">
-                                      {detail.note}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          )}
-                        </div>
-                      )}{" "}
-
-                  </div>
-                )}{" "}
-                {/* Delivery Status */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-500">
-                    Delivery Status
-                  </label>
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getDeliveryColor(
-                      viewingRecord.delivery
-                    )}`}
-                  >
-                    {viewingRecord.delivery ? "Delivered" : "Pending"}
-                  </span>
-                </div>
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    onClick={() => {
-                      setIsDetailOpen(false);
-                      handleEdit(viewingRecord);
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                    <span>Edit Record</span>
-                  </button>
-                  <button
-                    onClick={() => setIsDetailOpen(false)}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors duration-200"
-                  >
-                    {" "}
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* temp*/}
         <div className="border p-4 rounded-xl bg-white shadow-lg">
@@ -1283,7 +1540,7 @@ const headers = getTableHeaders(location, category);
           </pre>
         </div>
 
-      </main>
+      </div>
     </div>
   );
 }
