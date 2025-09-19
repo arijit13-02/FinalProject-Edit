@@ -1,71 +1,25 @@
 [
   {
-    "Client": "v. h",
-    "WorkOrder": "site pvt staff",
-    "Date": "2025-09-27",
+    "ID": "1758317344189",
+    "Location": "Site",
     "Category": "Private",
-    "SiteLocation": "fg",
+    "Client": "sitepvtdiv",
+    "WorkOrder": "sitepvtloi",
+    "Date": "2025-09-10",
+    "SiteLocation": "siteinfoloc",
     "TypeOfJob": "Testing",
     "TransformerDetails": [
       {
-        "KVA": "sitepvtstaff",
-        "SrNo": "sitepvtstaff",
-        "Rating": "sitepvtstaff",
-        "Note": "sitepvtstaff"
-      }
-    ],
-    "FileNo": "",
-    "Make": "",
-    "OilQty": "",
-    "TestReportAttachment": "",
-    "BillSubmission": "",
-    "Payment": "",
-    "Amount": "",
-    "SecurityDeposited": ""
-  },
-  {
-    "Client": "nji",
-    "WorkOrder": "adminsitepvt",
-    "Date": "2025-10-02",
-    "Category": "Private",
-    "SiteLocation": "hjnh",
-    "TypeOfJob": "Testing",
-    "TransformerDetails": [
-      {
-        "KVA": "9",
-        "SrNo": "9",
-        "Rating": "9",
-        "Note": "9"
+        "KVA": "1",
+        "SrNo": "1",
+        "Rating": "1",
+        "Note": "1"
       },
       {
-        "KVA": "3",
-        "SrNo": "3",
-        "Rating": "3",
-        "Note": "3"
-      }
-    ],
-    "FileNo": "",
-    "Make": "",
-    "OilQty": "",
-    "TestReportAttachment": "",
-    "BillSubmission": "",
-    "Payment": "",
-    "Amount": "",
-    "SecurityDeposited": ""
-  },
-  {
-    "Client": "DAF",
-    "WorkOrder": "staffsiteprivate",
-    "Date": "0005-04-04",
-    "Category": "Private",
-    "SiteLocation": "SDGD",
-    "TypeOfJob": "Testing",
-    "TransformerDetails": [
-      {
-        "KVA": "",
-        "SrNo": "",
-        "Rating": "",
-        "Note": ""
+        "KVA": "2",
+        "SrNo": "2",
+        "Rating": "2",
+        "Note": "2"
       }
     ],
     "FileNo": "",
