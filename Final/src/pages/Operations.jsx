@@ -156,7 +156,7 @@ function Operations() {
       "SecurityDepositeReceived": ""
     },
     "inhouse-private": {
-      "Location":"Inhouse",
+      "Location": "Inhouse",
       "Category": "Private",
       "Client": "",
       "WorkOrder": "",
@@ -178,7 +178,7 @@ function Operations() {
       "SecurityDeposited": ""
     },
     "inhouse-public": {
-      "Location":"Inhouse",
+      "Location": "Inhouse",
       "Category": "Public",
       "Client": "",
       "WorkOrder": "",
@@ -200,7 +200,7 @@ function Operations() {
       "SecurityDeposited": ""
     },
     "site-private": {
-      "Location":"Site",
+      "Location": "Site",
       "Category": "Private",
       "Client": "",
       "WorkOrder": "",
@@ -224,7 +224,7 @@ function Operations() {
       "SecurityDeposited": ""
     },
     "site-public": {
-      "Location":"Site",
+      "Location": "Site",
       "Category": "Public",
       "Client": "",
       "WorkOrder": "",
@@ -305,10 +305,10 @@ function Operations() {
   }, [location, category]); // re-run when selection changes
 
   const exportToJSON = () => {
-    const dataStr = JSON.stringify(records, null, 2);
+    const dataStr = JSON.stringify(data, null, 2);
     const dataUri =
       "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-    const exportFileDefaultName = "job_tracking_records.json";
+    const exportFileDefaultName = "Operations"+location+category+".json";
 
     const linkElement = document.createElement("a");
     linkElement.setAttribute("href", dataUri);
@@ -316,7 +316,24 @@ function Operations() {
     linkElement.click();
   };
 
-
+  const handleDelete = async (ID) => {
+    try {
+      const url = getApiUrl(); // pick API based on location + category
+      if (!url) {
+        console.error("Invalid location/category combination.");
+        return;
+      }
+      await axios.delete(
+        `${url}/${ID}`,
+        {
+          headers: { "x-user-role": localStorage.getItem("userRole") },
+        }
+      );
+      fetchData();
+    } catch (err) {
+      console.error("Failed to delete item:", err);
+    }
+  };
 
   //checkehckehekcheckehcekcheckehcekcheck
   const filteredAndSortedRecords = React.useMemo(() => {
@@ -405,15 +422,22 @@ function Operations() {
     }
     return filtered;
   }, [data, searchTerm, sortConfig]);
+  const handleFieldJobDetailChange = (index, field, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.TransformerDetails];
+      updated[index][field] = value;
+      return { ...prev, TransformerDetails: updated };
+    });
+  };
 
-const removeFieldJobDetail = (index) => {
+  const removeFieldJobDetail = (index) => {
     setFormData((prev) => {
       if (prev.TransformerDetails.length === 1) return prev; // Don't remove if only one left
       const updated = prev.TransformerDetails.filter((_, i) => i !== index);
       return { ...prev, TransformerDetails: updated };
     });
   };
-const addFieldJobDetail = () => {
+  const addFieldJobDetail = () => {
     setFormData((prev) => ({
       ...prev,
       TransformerDetails: [
@@ -454,7 +478,6 @@ const addFieldJobDetail = () => {
         { key: "SIRNofOil", label: "SIRN of Oil", sortable: true },
         { key: "TransfomerTesting", label: "Transfomer Testing", sortable: true },
         { key: "Materialdeliveredon", label: "Material delivered on", sortable: true },
-        { key: "SRNofTransformer", label: "SRN of Transformer", sortable: true },
         { key: "Estimate", label: "Estimate", sortable: true },
         { key: "FormalOrderPlaced", label: "Formal Order Placed", sortable: true },
         { key: "OrderReferanceno", label: "Order Referance no", sortable: true },
@@ -756,25 +779,62 @@ const addFieldJobDetail = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (editingRecord) {
-      try {
-        console.log(editingRecord.id);
-        console.log(editingRecord.createdAt);
-        console.log(new Date().toISOString());
-
-      } catch (error) {
-        console.log("cannot update");
+    try {
+      const url = getApiUrl(); // pick API based on location + category
+      if (!url) {
+        console.error("Invalid location/category combination.");
+        return;
       }
-    } else {
-      try {
 
-        console.log(formData);
-      } catch (error) {
-        console.log("cannot add");
+      if (editingRecord) {
+        // 🔹 UPDATE existing record
+        const response = await axios.put(
+          `${url}/${editingRecord.ID}`, // update by ID
+          {
+            ...formData,
+            ID: editingRecord.ID,
+            createdAt: editingRecord.createdAt,
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            headers: { "x-user-role": localStorage.getItem("userRole") },
+          }
+        );
+
+        if (response.data.success) {
+          // Update UI with the edited record
+          const updatedRecords = data.map((record) =>
+            record.ID === editingRecord.ID ? response.data.item : record
+          );
+          setData(updatedRecords);
+          resetForm();
+        } else {
+          console.error("Failed to update:", response.data.message);
+        }
+      } else {
+        // 🔹 CREATE new record
+        const response = await axios.post(
+          url,
+          formData,
+          {
+            headers: { "x-user-role": localStorage.getItem("userRole") },
+          }
+        );
+
+        if (response.data.success) {
+          setData([...data, response.data.item]); // update UI with the added record
+          resetForm();
+        } else {
+          console.error("Failed to add:", response.data.message);
+        }
       }
+    } catch (error) {
+      console.error("API error:", error);
     }
   };
+
+
+
 
   const resetForm = () => {
     if (location && category) {
@@ -1031,7 +1091,7 @@ const addFieldJobDetail = () => {
                     const rowValues = getTableRowValues(record, location, category);
 
                     return (
-                      <tr key={record.id || index} className="hover:bg-gray-50 transition-colors duration-200">
+                      <tr key={record.ID || index} className="hover:bg-gray-50 transition-colors duration-200">
                         {headers.map((header) => {
                           if (header.key === "actions") {
                             return (
@@ -1043,7 +1103,7 @@ const addFieldJobDetail = () => {
                                   <button onClick={() => handleEdit(record)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
                                     <Edit3 className="w-4 h-4" />
                                   </button>
-                                  <button onClick={() => handleDelete(record.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                                  <button onClick={() => handleDelete(record.ID)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
                                     <Trash2 className="w-4 h-4" />
                                   </button>
                                 </div>
@@ -1087,126 +1147,166 @@ const addFieldJobDetail = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                {formData &&
-                  Object.entries(formData).map(([key, value]) => {
-                    // Handle array fields
-                    if (Array.isArray(value)) {
-                      return (
-                        <div key={key}>
-                          <h3 className="text-lg font-medium text-gray-800 mb-2">{key}</h3>
-                          {value.map((item, index) => (
-                            <div
-                              key={index}
-                              className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-center"
-                            >
-                              {Object.entries(item).map(([subKey, subValue]) => {
-                                const fieldKey = `${subKey}_${index}`;
-                                return (
-                                  <div key={subKey} className="flex flex-col">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                      {subKey}
-                                    </label>
-                                    <div className="flex">
-                                      <input
-                                        type={dateMode[fieldKey] ? "date" : "text"}
-                                        value={subValue || ""}
-                                        onChange={(e) =>
-                                          handleFieldJobDetailChange(index, subKey, e.target.value)
-                                        }
-                                        placeholder="Enter value"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                      />
-                                      <button
-                                        type="button"
-                                        onClick={() => toggleDateMode(fieldKey)}
-                                        className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
-                                      >
-                                        📅
-                                      </button>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                              <div className="flex items-center justify-center mt-5 -ml-20">
-                                <button
-                                  type="button"
-                                  onClick={() => removeFieldJobDetail(index)}
-                                  className="bg-red-500 hover:bg-red-300 text-white px-3 py-3 rounded-lg text-sm"
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                          <button
-                        type="button"
-                        onClick={addFieldJobDetail}
-                        className="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
-                      >
-                        + Add Another Row
-                      </button>
-                        </div>
-                      );
-                    }
+  {formData &&
+    Object.entries(formData).map(([key, value]) => {
+      // --- Special handling for system fields ---
+      if (key === "ID") {
+        return (
+          <div key={key} className="flex flex-col">
+            <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
+            <input
+              type="text"
+              value={value || ""}
+              readOnly
+              disabled
+              className="w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed"
+            />
+          </div>
+        );
+      }
 
-                    // Handle boolean fields (checkbox)
-                    if (typeof value === "boolean") {
-                      return (
-                        <div key={key} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={value}
-                            onChange={(e) =>
-                              setFormData({ ...formData, [key]: e.target.checked })
-                            }
-                            className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                          />
-                          <label className="ml-2 text-sm font-medium text-gray-700">{key}</label>
-                        </div>
-                      );
-                    }
+      if (key === "updatedAt") {
+        // Option 1: completely hide
+        return null;
 
-                    // Handle string/number/date fields
-                    return (
-                      <div key={key} className="flex flex-col">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
-                        <div className="flex">
-                          <input
-                            type={dateMode[key] ? "date" : "text"}
-                            value={value || ""}
-                            onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
-                            placeholder="Enter value"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => toggleDateMode(key)}
-                            className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
-                          >
-                            📅
-                          </button>
-                        </div>
+        // Option 2: show as read-only (uncomment below if you want to display it)
+        /*
+        return (
+          <div key={key} className="flex flex-col">
+            <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
+            <input
+              type="text"
+              value={value || ""}
+              readOnly
+              disabled
+              className="w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed"
+            />
+          </div>
+        );
+        */
+      }
+
+      // --- Handle array fields ---
+      if (Array.isArray(value)) {
+        return (
+          <div key={key}>
+            <h3 className="text-lg font-medium text-gray-800 mb-2">{key}</h3>
+            {value.map((item, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-center"
+              >
+                {Object.entries(item).map(([subKey, subValue]) => {
+                  const fieldKey = `${subKey}_${index}`;
+                  return (
+                    <div key={subKey} className="flex flex-col">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {subKey}
+                      </label>
+                      <div className="flex">
+                        <input
+                          type={dateMode[fieldKey] ? "date" : "text"}
+                          value={subValue || ""}
+                          onChange={(e) =>
+                            handleFieldJobDetailChange(index, subKey, e.target.value)
+                          }
+                          placeholder="Enter value"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => toggleDateMode(fieldKey)}
+                          className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
+                        >
+                          📅
+                        </button>
                       </div>
-                    );
-                  })}
+                    </div>
+                  );
+                })}
 
-                <div className="flex space-x-3 pt-4">
+                <div className="flex justify-end space-x-3 mt-4">
                   <button
-                    type="submit"
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+                    type="button"
+                    onClick={addFieldJobDetail}
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
                   >
-                    <Save className="w-4 h-4" />
-                    <span>{editingRecord ? "Update" : "Save"}</span>
+                    + Add Another Row
                   </button>
                   <button
                     type="button"
-                    onClick={resetForm}
-                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                    onClick={() => removeFieldJobDetail(index)}
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm"
                   >
-                    Cancel
+                    Remove
                   </button>
                 </div>
-              </form>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      // --- Handle boolean fields (checkbox) ---
+      if (typeof value === "boolean") {
+        return (
+          <div key={key} className="flex items-center">
+            <input
+              type="checkbox"
+              checked={value}
+              onChange={(e) =>
+                setFormData({ ...formData, [key]: e.target.checked })
+              }
+              className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+            <label className="ml-2 text-sm font-medium text-gray-700">{key}</label>
+          </div>
+        );
+      }
+
+      // --- Handle string/number/date fields ---
+      return (
+        <div key={key} className="flex flex-col">
+          <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
+          <div className="flex">
+            <input
+              type={dateMode[key] ? "date" : "text"}
+              value={value || ""}
+              onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+              placeholder="Enter value"
+              className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              type="button"
+              onClick={() => toggleDateMode(key)}
+              className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
+            >
+              📅
+            </button>
+          </div>
+        </div>
+      );
+    })}
+
+  {/* --- Footer buttons --- */}
+  <div className="flex space-x-3 pt-4">
+    <button
+      type="submit"
+      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+    >
+      <Save className="w-4 h-4" />
+      <span>{editingRecord ? "Update" : "Save"}</span>
+    </button>
+    <button
+      type="button"
+      onClick={resetForm}
+      className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+    >
+      Cancel
+    </button>
+  </div>
+</form>
+
             </div>
           </div>
         )}
@@ -1311,6 +1411,7 @@ const addFieldJobDetail = () => {
 
 
         {/* temp*/}
+        {/* 
         <div className="border p-4 rounded-xl bg-white shadow-lg">
           <h2 className="font-bold mb-2 text-lg">
             Showing Data for: {location} - {category}
@@ -1318,7 +1419,7 @@ const addFieldJobDetail = () => {
           <pre className="text-sm overflow-x-auto bg-gray-50 p-3 rounded">
             {JSON.stringify(data, null, 2)}
           </pre>
-        </div>
+        </div>*/}
 
       </div>
     </div>
