@@ -26,6 +26,13 @@ function Operations() {
     }
   }, [role, navigate]);
 
+// Tracks which fields are in date mode
+const [dateMode, setDateMode] = useState({}); 
+
+// Function to toggle text/date mode
+const toggleDateMode = (key) => {
+  setDateMode(prev => ({ ...prev, [key]: !prev[key] }));
+};
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -717,14 +724,39 @@ function Operations() {
     // fallback for unknown case
     return record;
   };
-const handleSort = (key) => {
+  const handleEdit = (record) => {
+    // build a key like "inhouse-wb", "site-public", etc.
+    const templateKey = `${record.location}-${record.category}`.toLowerCase();
+
+    // get the matching template, fallback to empty object if not found
+    const template = formTemplates[templateKey] || {};
+
+    // merge template with record (record values take priority)
+    const filledData = {
+      ...template,
+      ...record,
+    };
+
+    // if the template has TransformerDetails but record doesn’t, ensure default
+    if (template.TransformerDetails && (!record.TransformerDetails || record.TransformerDetails.length === 0)) {
+      filledData.TransformerDetails = [
+        { KVA: "", SrNo: "", Rating: "", Note: "" }
+      ];
+    }
+
+    setFormData(filledData);        // put merged data into state
+    setEditingRecord(record);       // remember which record is being edited
+    setIsFormOpen(true);            // open the modal
+  };
+
+  const handleSort = (key) => {
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
       direction = "desc";
     }
     setSortConfig({ key, direction });
   };
-  
+
   const headers = getTableHeaders(location, category);
 
   const handleSubmit = async (e) => {
@@ -836,8 +868,6 @@ const handleSort = (key) => {
           )}
         </div>
       </header>
-
-
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -1047,401 +1077,143 @@ const handleSort = (key) => {
 
         {/* Form Modal */}{" "}
         {isFormOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="bg-blue-600 text-white p-4 rounded-t-xl">
-                <h2 className="text-xl font-semibold">
-                  {editingRecord ? "Edit Job Record" : "Add New Job Record"}
-                </h2>
-              </div>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-blue-600 text-white p-4 rounded-t-xl">
+        <h2 className="text-xl font-semibold">
+          {editingRecord ? "Edit Job Record" : "Add New Job Record"}
+        </h2>
+      </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                {/* Common Fields */}
-                <div>
-                  <h3 className="text-lg font-medium text-gray-800 mb-4">
-                    Basic Information
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Location
-                      </label>
-                      <select
-                        name="location"
-                        value={formData.location}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="">Select Location</option>
-                        <option value="In House">In House</option>
-                        <option value="Site">Site</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Category
-                      </label>
-                      <select
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="">Select Category</option>
-                        <option value="WB">WB</option>
-                        <option value="Private">Private</option>
-                        <option value="Public">Public</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Order No / LOI No
-                      </label>
-                      <input
-                        type="text"
-                        name="orderNo"
-                        value={formData.orderNo}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="Order No/ LOI No"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Date
-                      </label>
-                      <input
-                        type="date"
-                        name="date"
-                        value={formData.date}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Client/Division
-                      </label>
-                      <input
-                        type="text"
-                        name="type"
-                        value={formData.type}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="Client/Division"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-                </div>
-                {/* Location Specific Fields */}{" "}
-                {formData.location === "In House" && (
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-800 mb-4">
-                      In House Operations
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Dismental
-                        </label>
-                        <select
-                          name="dismental"
-                          value={formData.dismental}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="Started">Started</option>
-                          <option value="Completed">Completed</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Wind
-                        </label>
-                        <select
-                          name="wind"
-                          value={formData.wind}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="Started">Started</option>
-                          <option value="Completed">Completed</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Assemble
-                        </label>
-                        <select
-                          name="assemble"
-                          value={formData.assemble}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="Started">Started</option>
-                          <option value="Completed">Completed</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Testing
-                        </label>
-                        <select
-                          name="testing"
-                          value={formData.testing}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="Started">Started</option>
-                          <option value="Completed">Completed</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                )}{" "}
-                {formData.location === "Site" && (
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-800 mb-4">
-                      Site Information
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Site Location
-                        </label>
-                        <input
-                          type="text"
-                          name="siteLocation"
-                          value={formData.siteLocation}
-                          onChange={handleInputChange}
-                          placeholder="Enter site location"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-
-
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Type of Job
-                        </label>
-                        <select
-                          name="typeOfJob"
-                          value={formData.typeOfJob}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Job Type</option>
-                          <option value="Testing">Testing</option>
-                          <option value="Maintain">Maintain</option>
-                          <option value="Filter">Filter</option>
-                          <option value="Others">Others</option>
-                        </select>
-                      </div>
-                      {formData.typeOfJob === "Others" && (
-                        <div className="mt-3">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Specify Job Type
-                          </label>
-                          <input
-                            type="text"
-                            name="otherJobType"
-                            value={formData.otherJobType || ""}
-                            onChange={handleInputChange}
-                            placeholder="Enter job type"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                      )}
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Execution
-                        </label>
-                        <select
-                          name="execution"
-                          value={formData.execution}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Execution Status</option>
-                          <option value="Started">Started</option>
-                          <option value="Completed">Completed</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Field Job Details */}
-                    <div>
-                      <h4 className="text-md font-medium text-gray-800 mb-3">
-                        Field Job Details
-                      </h4>
-
-                      {formData.fieldJobDetails.map((detail, index) => (
-                        <div
-                          key={index}
-                          className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4 items-center"
-                        >
-                          {/* KVA */}
-                          <div className="flex flex-col">
+      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        {formData &&
+          Object.entries(formData).map(([key, value]) => {
+            // Handle array fields
+            if (Array.isArray(value)) {
+              return (
+                <div key={key}>
+                  <h3 className="text-lg font-medium text-gray-800 mb-2">{key}</h3>
+                  {value.map((item, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-center"
+                    >
+                      {Object.entries(item).map(([subKey, subValue]) => {
+                        const fieldKey = `${subKey}_${index}`;
+                        return (
+                          <div key={subKey} className="flex flex-col">
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              KVA
+                              {subKey}
                             </label>
-                            <input
-                              type="text"
-                              value={detail.kva}
-                              onChange={(e) =>
-                                handleFieldJobDetailChange(
-                                  index,
-                                  "kva",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Enter KVA"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
+                            <div className="flex">
+                              <input
+                                type={dateMode[fieldKey] ? "date" : "text"}
+                                value={subValue || ""}
+                                onChange={(e) =>
+                                  handleFieldJobDetailChange(index, subKey, e.target.value)
+                                }
+                                placeholder="Enter value"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => toggleDateMode(fieldKey)}
+                                className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
+                              >
+                                📅
+                              </button>
+                            </div>
                           </div>
-
-                          {/* Sr No */}
-                          <div className="flex flex-col">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Sr No
-                            </label>
-                            <input
-                              type="text"
-                              value={detail.srNo}
-                              onChange={(e) =>
-                                handleFieldJobDetailChange(
-                                  index,
-                                  "srNo",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Enter Serial Number"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-
-                          {/* Rating */}
-                          <div className="flex flex-col">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Rating
-                            </label>
-                            <input
-                              type="text"
-                              value={detail.rating}
-                              onChange={(e) =>
-                                handleFieldJobDetailChange(
-                                  index,
-                                  "rating",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Enter Rating"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-
-                          {/* Note */}
-                          <div className="flex flex-col">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Note
-                            </label>
-                            <input
-                              type="text"
-                              value={detail.note}
-                              onChange={(e) =>
-                                handleFieldJobDetailChange(
-                                  index,
-                                  "note",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Enter Note"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-
-                          {/* Remove Button */}
-                          {/* Remove Button */}
-                          <div className="flex items-center justify-center mt-5 -ml-20">
-                            <button
-                              type="button"
-                              onClick={() => removeFieldJobDetail(index)}
-                              className="bg-red-500 hover:bg-red-300 text-white px-3 py-3 rounded-lg text-sm"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-
-                      <button
-                        type="button"
-                        onClick={addFieldJobDetail}
-                        className="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
-                      >
-                        + Add Another Row
-                      </button>
+                        );
+                      })}
+                      <div className="flex items-center justify-center mt-5 -ml-20">
+                        <button
+                          type="button"
+                          onClick={() => removeFieldJobDetail(index)}
+                          className="bg-red-500 hover:bg-red-300 text-white px-3 py-3 rounded-lg text-sm"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
-
-                    <div className="mt-4 mb-4"></div>
-
-                  </div>
-                )}{" "}
-                {/* Common Delivery Checkbox */}
-                <div>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="delivery"
-                      checked={formData.delivery}
-                      onChange={handleInputChange}
-                      className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    />
-                    <span className="ml-2 text-sm font-medium text-gray-700">
-                      Delivery
-                    </span>
-                  </label>
-                </div>
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>{editingRecord ? "Update" : "Save"}</span>
-                  </button>
+                  ))}
                   <button
                     type="button"
-                    onClick={resetForm}
-                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                    onClick={addFieldJobDetail}
+                    className="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
                   >
-                    Cancel
+                    + Add Another Row
                   </button>
                 </div>
-              </form>
-            </div>
-          </div>
-        )}
+              );
+            }
+
+            // Handle boolean fields (checkbox)
+            if (typeof value === "boolean") {
+              return (
+                <div key={key} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={value}
+                    onChange={(e) =>
+                      setFormData({ ...formData, [key]: e.target.checked })
+                    }
+                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  />
+                  <label className="ml-2 text-sm font-medium text-gray-700">{key}</label>
+                </div>
+              );
+            }
+
+            // Handle string/number/date fields
+            return (
+              <div key={key} className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
+                <div className="flex">
+                  <input
+                    type={dateMode[key] ? "date" : "text"}
+                    value={value || ""}
+                    onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                    placeholder="Enter value"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => toggleDateMode(key)}
+                    className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
+                  >
+                    📅
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
+        <div className="flex space-x-3 pt-4">
+          <button
+            type="submit"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+          >
+            <Save className="w-4 h-4" />
+            <span>{editingRecord ? "Update" : "Save"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={resetForm}
+            className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
+
+
+
+
 
         {/* Detail View Modal */}{" "}
         {isDetailOpen && viewingRecord && (
