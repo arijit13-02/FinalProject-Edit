@@ -1,119 +1,31 @@
 [
   {
-    "Client": "afdsgg",
-    "WorkOrder": "site pub staff",
-    "Date": "2025-10-02",
+    "ID": "1758317455122",
+    "Location": "Site",
     "Category": "Public",
-    "SiteLocation": "afdsgfnb",
-    "TypeOfJob": "Maintain",
-    "TransformerDetails": [
-      {
-        "KVA": "sitepuob staff",
-        "SrNo": "sitepuob staff",
-        "Rating": "sitepuob staff",
-        "Note": "sitepuob staff"
-      }
-    ],
-    "FileNo": "",
-    "Make": "",
-    "OilQty": "",
-    "TestReportAttachment": "",
-    "BillSubmission": "",
-    "Payment": "",
-    "Amount": "",
-    "SecurityDeposited": ""
-  },
-  {
-    "Client": "hgh",
-    "WorkOrder": "adminsitepublic",
-    "Date": "2025-09-20",
-    "Category": "Public",
-    "SiteLocation": " bnm",
-    "TypeOfJob": "Maintain",
-    "TransformerDetails": [
-      {
-        "KVA": "4",
-        "SrNo": "55",
-        "Rating": "5",
-        "Note": "45"
-      }
-    ],
-    "FileNo": "",
-    "Make": "",
-    "OilQty": "",
-    "TestReportAttachment": "",
-    "BillSubmission": "",
-    "Payment": "",
-    "Amount": "",
-    "SecurityDeposited": ""
-  },
-  {
-    "Client": "tetrtg",
-    "WorkOrder": "STAFFSITEPUB",
+    "Client": "sitepubclidiv",
+    "WorkOrder": "sitepubLOINO",
     "Date": "2025-09-17",
-    "Category": "Public",
-    "SiteLocation": "df",
-    "TypeOfJob": "Others",
-    "TransformerDetails": [
-      {
-        "KVA": "9",
-        "SrNo": "9",
-        "Rating": "9",
-        "Note": "9"
-      }
-    ],
-    "FileNo": "",
-    "Make": "",
-    "OilQty": "",
-    "TestReportAttachment": "",
-    "BillSubmission": "",
-    "Payment": "",
-    "Amount": "",
-    "SecurityDeposited": ""
-  },
-  {
-    "Client": "sitepubnewnew",
-    "WorkOrder": "newnew",
-    "Date": "2025-09-11",
-    "Category": "Public",
-    "SiteLocation": "asdgf",
-    "TypeOfJob": "Testing",
-    "TransformerDetails": [
-      {
-        "KVA": "76",
-        "SrNo": "76",
-        "Rating": "76",
-        "Note": "7"
-      }
-    ],
-    "FileNo": "",
-    "Make": "",
-    "OilQty": "",
-    "TestReportAttachment": "",
-    "BillSubmission": "",
-    "Payment": "",
-    "Amount": "",
-    "SecurityDeposited": ""
-  },
-  {
-    "Client": "adity",
-    "WorkOrder": "kushal ka baby",
-    "Date": "2025-09-11",
-    "Category": "Public",
-    "SiteLocation": "oyo",
+    "SiteLocation": "sitepublocationinfo",
     "TypeOfJob": "Maintain",
     "TransformerDetails": [
       {
-        "KVA": "1",
-        "SrNo": "2",
-        "Rating": "3",
-        "Note": "4"
+        "KVA": "99",
+        "SrNo": "99",
+        "Rating": "99",
+        "Note": "99"
       },
       {
-        "KVA": "3",
-        "SrNo": "3",
-        "Rating": "4",
-        "Note": "4"
+        "KVA": "22",
+        "SrNo": "22",
+        "Rating": "22",
+        "Note": "22"
+      },
+      {
+        "KVA": "11",
+        "SrNo": "11",
+        "Rating": "11",
+        "Note": "11"
       }
     ],
     "FileNo": "",

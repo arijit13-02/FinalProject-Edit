@@ -756,10 +756,16 @@ const handleDelete = async (id) => {
         {isFormOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="bg-blue-600 text-white p-4 rounded-t-xl">
+              <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
                   {editingRecord ? "Edit Job Record" : "Add New Job Record"}
                 </h2>
+                <button
+                  onClick={resetForm}
+                  className="text-white hover:bg-blue-700 p-1 rounded"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-6">

@@ -54,10 +54,13 @@ router.get("/", (req, res) => {
 // Utility: remove empty/null/false fields
 const cleanDataWB = (obj) => {
   return {
+    ID: obj.id || "",
+    Location: obj.location || "",
+    Category: obj.category || "",
     LOINo: obj.orderNo || "",
     LOIDate: obj.date || "",
     Division: obj.type || "",
-    Location: obj.location || "",
+    
   };
 };
 
@@ -111,10 +114,12 @@ function handleWBCategoryadd(newItem) {
 
 const cleanDataInhouse = (obj) => {
   return {
+    ID: obj.id || "",
+    Location: obj.location || "",
+    Category: obj.category || "",
     Client: obj.type || "",
     WorkOrder: obj.orderNo || "",
     Date: obj.date || "",
-    Category: obj.category || "",
   };
 };
 
@@ -158,10 +163,12 @@ function handleInhouse(newItem) {
 
 const cleanDataSite = (obj) => {
   return {
+    ID: obj.id || "",
+    Location: obj.location || "",
+    Category: obj.category || "",
     Client: obj.type || "",                
     WorkOrder: obj.orderNo || "",
     Date: obj.date || "",
-    Category: obj.category || "",
     SiteLocation: obj.siteLocation || "",
     TypeOfJob: obj.typeOfJob || "",
     TransformerDetails: (obj.fieldJobDetails || []).map((item) => ({
