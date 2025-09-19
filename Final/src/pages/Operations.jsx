@@ -1322,7 +1322,7 @@ function Operations() {
             <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
               {/* Header */}
               <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Job Record Details</h2>
+                <h2 className="text-xl font-semibold">Operation Record Details</h2>
                 <button
                   onClick={() => setIsDetailOpen(false)}
                   className="text-white hover:bg-blue-700 p-1 rounded"
