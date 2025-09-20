@@ -1,7 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  TrendingUp,Plus,Save,Edit3,Trash2,Search,ChevronUp,ChevronDown,Building2,Eye,X,Hourglass,Download,Upload,Menu,User,Settings,CalendarClock,Users,Boxes,FileText,BarChart3,BadgeCheck,PieChart,Activity
+  TrendingUp,
+  Plus,
+  Save,
+  Edit3,
+  Trash2,
+  Search,
+  ChevronUp,
+  ChevronDown,
+  Building2,
+  Eye,
+  X,
+  Hourglass,
+  Download,
+  Upload,
+  Menu,
+  User,
+  Settings,
+  CalendarClock,
+  Users,
+  Boxes,
+  FileText,
+  BarChart3,
+  BadgeCheck,
+  PieChart,
+  Activity
 } from "lucide-react";
 import logo from "../assets/logo.png";
 import axios from "axios";
@@ -31,35 +55,35 @@ function RealTimeJobs() {
     {
       name: "RealTime Jobs",
       icon: Activity,
-      onClick: () => navigate("/realtimejobs"),
+      onClick: () => navigate("/realtimejobs")
     },
     {
       name: "Operations",
       icon: Settings,
-      onClick: () => handleProtectedNav("/operations"),
+      onClick: () => handleProtectedNav("/operations")
     },
     {
       name: "Upcoming Jobs",
       icon: CalendarClock,
-      onClick: () => handleProtectedNav("/upcoming-jobs"),
+      onClick: () => handleProtectedNav("/upcoming-jobs")
     },
     {
       name: "Vendors",
       icon: Building2,
-      onClick: () => handleProtectedNav("/vendors"),
+      onClick: () => handleProtectedNav("/vendors")
     },
     { name: "Staff", icon: Users, onClick: () => handleProtectedNav("/staff") },
     { name: "Inventory", icon: Boxes, onClick: () => navigate("/inventory") },
     {
       name: "Billing",
       icon: FileText,
-      onClick: () => handleProtectedNav("/billing"),
+      onClick: () => handleProtectedNav("/billing")
     },
     {
       name: "Certifications",
       icon: BadgeCheck,
-      onClick: () => handleProtectedNav("/certifications"),
-    },
+      onClick: () => handleProtectedNav("/certifications")
+    }
   ];
   const [records, setRecords] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -86,50 +110,45 @@ function RealTimeJobs() {
     fieldJobDetails: [{ kva: "", srNo: "", rating: "", note: "" }],
     execution: "",
     // Common field
-    delivery: false,
+    delivery: false
   });
   // Load records from localStorage (simulating JSON file)
-  
 
-useEffect(() => { 
-  loadRecords();
-  const interval = setInterval(loadRecords, 2000); 
-  return () => clearInterval(interval); // cleanup 
-}, []); // empty dependency array
-
-useEffect(() => {
-  if (role === "admin") {
-    fetchPendingChanges();
-    const interval = setInterval(fetchPendingChanges, 2000); 
+  useEffect(() => {
+    loadRecords();
+    const interval = setInterval(loadRecords, 2000);
     return () => clearInterval(interval); // cleanup
-  }
-}, [role]);
+  }, []); // empty dependency array
 
+  useEffect(() => {
+    if (role === "admin") {
+      fetchPendingChanges();
+      const interval = setInterval(fetchPendingChanges, 2000);
+      return () => clearInterval(interval); // cleanup
+    }
+  }, [role]);
 
   const fetchPendingChanges = async () => {
     try {
-      const res = await axios.get("http://localhost:5050/api/realtimejobs/pending");
+      const res = await axios.get(
+        "http://192.168.0.10:5050/api/realtimejobs/pending"
+      );
       setHasPendingChanges(res.data.length > 0);
     } catch (err) {
       console.error("Failed to load pending changes:", err);
     }
   };
 
-
   const loadRecords = async () => {
-  try {
-    const res = await axios.get("http://localhost:5050/api/realtimejobs", {
-      params: { role }
-    });
-    setRecords(res.data);
-  } catch (error) {
-    console.error("Failed to fetch records:", error);
-  }
-};
-
-
-
-
+    try {
+      const res = await axios.get("http://192.168.0.10:5050/api/realtimejobs", {
+        params: { role }
+      });
+      setRecords(res.data);
+    } catch (error) {
+      console.error("Failed to fetch records:", error);
+    }
+  };
 
   const exportToJSON = () => {
     const dataStr = JSON.stringify(records, null, 2);
@@ -142,7 +161,6 @@ useEffect(() => {
     linkElement.setAttribute("download", exportFileDefaultName);
     linkElement.click();
   };
-
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -163,7 +181,7 @@ useEffect(() => {
           newData.typeOfJob = "";
           newData.otherJobType = "";
           newData.fieldJobDetails = [
-            { kva: "", srNo: "", rating: "", note: "" },
+            { kva: "", srNo: "", rating: "", note: "" }
           ];
           newData.execution = "";
         } else if (value === "Site") {
@@ -191,8 +209,8 @@ useEffect(() => {
       ...prev,
       fieldJobDetails: [
         ...prev.fieldJobDetails,
-        { kva: "", srNo: "", rating: "", note: "" },
-      ],
+        { kva: "", srNo: "", rating: "", note: "" }
+      ]
     }));
   };
   const removeFieldJobDetail = (index) => {
@@ -217,10 +235,10 @@ useEffect(() => {
   };*/
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (editingRecord) {
-  /*
+    if (editingRecord) {
+      /*
     // Editing existing record locally
     const newRecords = records.map((record) =>
       record.id === editingRecord.id
@@ -234,51 +252,50 @@ useEffect(() => {
     );
     setRecords(newRecords);
     resetForm();*/
-    try {
-    const response = await axios.put(
-      `http://localhost:5050/api/realtimejobs/${editingRecord.id}?role=${role}`, // update by ID
-      {
-        ...formData,
-        id: editingRecord.id,
-        createdAt: editingRecord.createdAt,
-        updatedAt: new Date().toISOString(),
-      }
-    );
+      try {
+        const response = await axios.put(
+          `http://192.168.0.10:5050/api/realtimejobs/${editingRecord.id}?role=${role}`, // update by ID
+          {
+            ...formData,
+            id: editingRecord.id,
+            createdAt: editingRecord.createdAt,
+            updatedAt: new Date().toISOString()
+          }
+        );
 
-    if (response.data.success) {
-      // Update UI with the edited record
-      const updatedRecords = records.map((record) =>
-        record.id === editingRecord.id ? response.data.item : record
-      );
-      setRecords(updatedRecords);
-      resetForm();
+        if (response.data.success) {
+          // Update UI with the edited record
+          const updatedRecords = records.map((record) =>
+            record.id === editingRecord.id ? response.data.item : record
+          );
+          setRecords(updatedRecords);
+          resetForm();
+        } else {
+          console.error("Failed to update:", response.data.message);
+        }
+      } catch (error) {
+        console.error("API error:", error);
+      }
     } else {
-      console.error("Failed to update:", response.data.message);
-    }
-  } catch (error) {
-    console.error("API error:", error);
-  }
-  } else {
-    // Adding new record
-    try {
-      const response = await axios.post(
-        `http://localhost:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
-        formData
-      );
+      // Adding new record
+      try {
+        const response = await axios.post(
+          `http://192.168.0.10:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
+          formData
+        );
 
-      if (response.data.success) {
-        setRecords([...records, response.data.item]); // update UI with the added record
-        resetForm();
-      } else {
-        console.error('Failed to add:', response.data.message);
+        if (response.data.success) {
+          setRecords([...records, response.data.item]); // update UI with the added record
+          resetForm();
+        } else {
+          console.error("Failed to add:", response.data.message);
+        }
+      } catch (error) {
+        console.error("API error:", error);
       }
-    } catch (error) {
-      console.error('API error:', error);
     }
-  }
-};
+  };
 
- 
   const resetForm = () => {
     setFormData({
       location: "",
@@ -295,7 +312,7 @@ useEffect(() => {
       otherJobType: "",
       fieldJobDetails: [{ kva: "", srNo: "", rating: "", note: "" }],
       execution: "",
-      delivery: false,
+      delivery: false
     });
     setIsFormOpen(false);
     setEditingRecord(null);
@@ -321,7 +338,7 @@ useEffect(() => {
           : [{ kva: "", srNo: "", rating: "", note: "" }],
 
       execution: record.execution || "",
-      delivery: record.delivery || false,
+      delivery: record.delivery || false
     });
     setEditingRecord(record);
     setIsFormOpen(true);
@@ -333,10 +350,10 @@ useEffect(() => {
   };
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
 
-const handleDelete = async (id) => {
+  const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://localhost:5050/api/realtimejobs/${id}?role=${role}`
+        `http://192.168.0.10:5050/api/realtimejobs/${id}?role=${role}`
       );
       loadRecords();
     } catch (err) {
@@ -375,7 +392,6 @@ const handleDelete = async (id) => {
           record.typeOfJob.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (record.execution &&
           record.execution.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        
         (record.siteLocation &&
           record.siteLocation.toLowerCase().includes(searchTerm.toLowerCase()))
     );
@@ -402,27 +418,26 @@ const handleDelete = async (id) => {
     }
     return filtered;
   }, [records, searchTerm, sortConfig]);
-  
 
   const getCategoryColor = (category) => {
     const colors = {
       WB: "bg-blue-100 text-blue-800",
       Private: "bg-green-100 text-green-800",
-      Public: "bg-purple-100 text-purple-800",
+      Public: "bg-purple-100 text-purple-800"
     };
     return colors[category] || "bg-gray-100 text-gray-800";
   };
   const getExecutionColor = (execution) => {
     const colors = {
       Started: "bg-yellow-100 text-yellow-800",
-      Completed: "bg-green-100 text-green-800",
+      Completed: "bg-green-100 text-green-800"
     };
     return colors[execution] || "bg-gray-100 text-gray-800";
   };
   const getLocationColor = (location) => {
     const colors = {
       "In House": "bg-indigo-100 text-indigo-800",
-      Site: "bg-orange-100 text-orange-800",
+      Site: "bg-orange-100 text-orange-800"
     };
     return colors[location] || "bg-gray-100 text-gray-800";
   };
@@ -518,22 +533,25 @@ const handleDelete = async (id) => {
               </div>
             </div>
             <div className="flex space-x-3">
-              {
-                role === "admin" && (
-                  <button
-                    onClick={() => (window.location.href = "/pendingchangesrealtimejobs")}
-                    className={`${hasPendingChanges 
-                      ? "bg-red-600 hover:bg-red-700" 
-                      : "bg-green-600 hover:bg-green-700"} text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg`}
-                  >
-                    <Hourglass className="w-4 h-4" />
-                    <span>
-                      {hasPendingChanges ? "RealTimeJobs Pending Changes" : "No RealTimeJobs Pending Changes"}
-                    </span>
-                  </button>
-                )
-              }
-
+              {role === "admin" && (
+                <button
+                  onClick={() =>
+                    (window.location.href = "/pendingchangesrealtimejobs")
+                  }
+                  className={`${
+                    hasPendingChanges
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-green-600 hover:bg-green-700"
+                  } text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg`}
+                >
+                  <Hourglass className="w-4 h-4" />
+                  <span>
+                    {hasPendingChanges
+                      ? "RealTimeJobs Pending Changes"
+                      : "No RealTimeJobs Pending Changes"}
+                  </span>
+                </button>
+              )}
 
               <button
                 onClick={exportToJSON}
@@ -552,7 +570,6 @@ const handleDelete = async (id) => {
             </div>
           </div>
         </div>
-        
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative max-w-md">
@@ -566,7 +583,6 @@ const handleDelete = async (id) => {
             />
           </div>
         </div>
-
         {/* Job Records Table */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden">
           <div className="bg-blue-600 text-white p-4 font-semibold text-lg">
@@ -751,7 +767,6 @@ const handleDelete = async (id) => {
             </div>
           )}
         </div>
-
         {/* Form Modal */}{" "}
         {isFormOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -947,8 +962,6 @@ const handleDelete = async (id) => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
-
-                      
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -1117,7 +1130,6 @@ const handleDelete = async (id) => {
                     </div>
 
                     <div className="mt-4 mb-4"></div>
-                    
                   </div>
                 )}{" "}
                 {/* Common Delivery Checkbox */}
@@ -1155,7 +1167,6 @@ const handleDelete = async (id) => {
             </div>
           </div>
         )}
-
         {/* Detail View Modal */}{" "}
         {isDetailOpen && viewingRecord && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1277,7 +1288,6 @@ const handleDelete = async (id) => {
                           </p>
                         </div>
                       )}{" "}
-                      
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       {viewingRecord.typeOfJob && (
@@ -1363,7 +1373,6 @@ const handleDelete = async (id) => {
                           )}
                         </div>
                       )}{" "}
-                    
                   </div>
                 )}{" "}
                 {/* Delivery Status */}
@@ -1402,7 +1411,6 @@ const handleDelete = async (id) => {
             </div>
           </div>
         )}
-
       </main>
     </div>
   );

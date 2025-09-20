@@ -1,7 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  TrendingUp, Plus, Save, Edit3, Trash2, Search, ChevronUp, ChevronDown, Building2, Eye, X, Hourglass, Download, Upload, Menu, User, Settings, CalendarClock, Users, Boxes, FileText, BarChart3, BadgeCheck, PieChart, MapPin, Activity, Home, Briefcase, Lock, Globe
+  TrendingUp,
+  Plus,
+  Save,
+  Edit3,
+  Trash2,
+  Search,
+  ChevronUp,
+  ChevronDown,
+  Building2,
+  Eye,
+  X,
+  Hourglass,
+  Download,
+  Upload,
+  Menu,
+  User,
+  Settings,
+  CalendarClock,
+  Users,
+  Boxes,
+  FileText,
+  BarChart3,
+  BadgeCheck,
+  PieChart,
+  MapPin,
+  Activity,
+  Home,
+  Briefcase,
+  Lock,
+  Globe
 } from "lucide-react";
 
 import logo from "../assets/logo.png";
@@ -31,7 +60,7 @@ function Operations() {
 
   // Function to toggle text/date mode
   const toggleDateMode = (key) => {
-    setDateMode(prev => ({ ...prev, [key]: !prev[key] }));
+    setDateMode((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -52,37 +81,36 @@ function Operations() {
     {
       name: "RealTime Jobs",
       icon: Activity,
-      onClick: () => navigate("/realtimejobs"),
+      onClick: () => navigate("/realtimejobs")
     },
     {
       name: "Operations",
       icon: Settings,
-      onClick: () => handleProtectedNav("/operations"),
+      onClick: () => handleProtectedNav("/operations")
     },
     {
       name: "Upcoming Jobs",
       icon: CalendarClock,
-      onClick: () => handleProtectedNav("/upcoming-jobs"),
+      onClick: () => handleProtectedNav("/upcoming-jobs")
     },
     {
       name: "Vendors",
       icon: Building2,
-      onClick: () => handleProtectedNav("/vendors"),
+      onClick: () => handleProtectedNav("/vendors")
     },
     { name: "Staff", icon: Users, onClick: () => handleProtectedNav("/staff") },
     { name: "Inventory", icon: Boxes, onClick: () => navigate("/inventory") },
     {
       name: "Billing",
       icon: FileText,
-      onClick: () => handleProtectedNav("/billing"),
+      onClick: () => handleProtectedNav("/billing")
     },
     {
       name: "Certifications",
       icon: BadgeCheck,
-      onClick: () => handleProtectedNav("/certifications"),
-    },
+      onClick: () => handleProtectedNav("/certifications")
+    }
   ];
-
 
   //checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
   const [records, setRecords] = useState([]);
@@ -98,155 +126,155 @@ function Operations() {
 
   const formTemplates = {
     "inhouse-wb": {
-      "Location": "Inhouse",
-      "Category": "WB",
-      "LOINo": "",
-      "LOIDate": "",
-      "Division": "",
-      "Tender": "",
-      "FileNo": "",
-      "WorkOrder": "",
-      "PrelimarySurvey": "",
-      "SIRNofTransformer": "",
-      "FinalSurvey": "",
-      "SRNofDrainoutOil": "",
-      "StageInspection": "",
-      "OilStatement": "",
-      "SIRNofOil": "",
-      "TransfomerTesting": "",
-      "Materialdeliveredon": "",
-      "SRNofTransformer": "",
-      "Estimate": "",
-      "FormalOrderPlaced": "",
-      "OrderReferanceno": "",
-      "OrderDate": "",
-      "Billsubmission": "",
-      "Payment": "",
-      "NetAmount": "",
-      "SecurityDepositesubmitted": "",
-      "SecurityDepositeReceived": ""
+      Location: "Inhouse",
+      Category: "WB",
+      LOINo: "",
+      LOIDate: "",
+      Division: "",
+      Tender: "",
+      FileNo: "",
+      WorkOrder: "",
+      PrelimarySurvey: "",
+      SIRNofTransformer: "",
+      FinalSurvey: "",
+      SRNofDrainoutOil: "",
+      StageInspection: "",
+      OilStatement: "",
+      SIRNofOil: "",
+      TransfomerTesting: "",
+      Materialdeliveredon: "",
+      SRNofTransformer: "",
+      Estimate: "",
+      FormalOrderPlaced: "",
+      OrderReferanceno: "",
+      OrderDate: "",
+      Billsubmission: "",
+      Payment: "",
+      NetAmount: "",
+      SecurityDepositesubmitted: "",
+      SecurityDepositeReceived: ""
     },
     "site-wb": {
-      "Location": "Site",
-      "Category": "WB",
-      "LOINo": "",
-      "LOIDate": "",
-      "Division": "",
-      "Tender": "",
-      "FileNo": "",
-      "WorkOrder": "",
-      "PrelimarySurvey": "",
-      "SIRNofTransformer": "",
-      "FinalSurvey": "",
-      "SRNofDrainoutOil": "",
-      "StageInspection": "",
-      "OilStatement": "",
-      "SIRNofOil": "",
-      "TransfomerTesting": "",
-      "Materialdeliveredon": "",
-      "SRNofTransformer": "",
-      "Estimate": "",
-      "FormalOrderPlaced": "",
-      "OrderReferanceno": "",
-      "OrderDate": "",
-      "Billsubmission": "",
-      "Payment": "",
-      "NetAmount": "",
-      "SecurityDepositesubmitted": "",
-      "SecurityDepositeReceived": ""
+      Location: "Site",
+      Category: "WB",
+      LOINo: "",
+      LOIDate: "",
+      Division: "",
+      Tender: "",
+      FileNo: "",
+      WorkOrder: "",
+      PrelimarySurvey: "",
+      SIRNofTransformer: "",
+      FinalSurvey: "",
+      SRNofDrainoutOil: "",
+      StageInspection: "",
+      OilStatement: "",
+      SIRNofOil: "",
+      TransfomerTesting: "",
+      Materialdeliveredon: "",
+      SRNofTransformer: "",
+      Estimate: "",
+      FormalOrderPlaced: "",
+      OrderReferanceno: "",
+      OrderDate: "",
+      Billsubmission: "",
+      Payment: "",
+      NetAmount: "",
+      SecurityDepositesubmitted: "",
+      SecurityDepositeReceived: ""
     },
     "inhouse-private": {
-      "Location": "Inhouse",
-      "Category": "Private",
-      "Client": "",
-      "WorkOrder": "",
-      "Date": "",
-      "FileNo": "",
-      "Dismetalling": "",
-      "Inspection": "",
-      "InformToClient": "",
-      "Approval": "",
-      "Winding": "",
-      "Assembly": "",
-      "HeatChamber": "",
-      "Testing": "",
-      "ClientInspection": "",
-      "Delivery": "",
-      "BillSubmission": "",
-      "Payment": "",
-      "Amount": "",
-      "SecurityDeposited": ""
+      Location: "Inhouse",
+      Category: "Private",
+      Client: "",
+      WorkOrder: "",
+      Date: "",
+      FileNo: "",
+      Dismetalling: "",
+      Inspection: "",
+      InformToClient: "",
+      Approval: "",
+      Winding: "",
+      Assembly: "",
+      HeatChamber: "",
+      Testing: "",
+      ClientInspection: "",
+      Delivery: "",
+      BillSubmission: "",
+      Payment: "",
+      Amount: "",
+      SecurityDeposited: ""
     },
     "inhouse-public": {
-      "Location": "Inhouse",
-      "Category": "Public",
-      "Client": "",
-      "WorkOrder": "",
-      "Date": "",
-      "FileNo": "",
-      "Dismetalling": "",
-      "Inspection": "",
-      "InformToClient": "",
-      "Approval": "",
-      "Winding": "",
-      "Assembly": "",
-      "HeatChamber": "",
-      "Testing": "",
-      "ClientInspection": "",
-      "Delivery": "",
-      "BillSubmission": "",
-      "Payment": "",
-      "Amount": "",
-      "SecurityDeposited": ""
+      Location: "Inhouse",
+      Category: "Public",
+      Client: "",
+      WorkOrder: "",
+      Date: "",
+      FileNo: "",
+      Dismetalling: "",
+      Inspection: "",
+      InformToClient: "",
+      Approval: "",
+      Winding: "",
+      Assembly: "",
+      HeatChamber: "",
+      Testing: "",
+      ClientInspection: "",
+      Delivery: "",
+      BillSubmission: "",
+      Payment: "",
+      Amount: "",
+      SecurityDeposited: ""
     },
     "site-private": {
-      "Location": "Site",
-      "Category": "Private",
-      "Client": "",
-      "WorkOrder": "",
-      "Date": "",
-      "SiteLocation": "",
-      "TypeOfJob": "",
-      "TransformerDetails": [
+      Location: "Site",
+      Category: "Private",
+      Client: "",
+      WorkOrder: "",
+      Date: "",
+      SiteLocation: "",
+      TypeOfJob: "",
+      TransformerDetails: [
         {
-          "KVA": "",
-          "SrNo": "",
-          "Rating": "",
-          "Note": ""
+          KVA: "",
+          SrNo: "",
+          Rating: "",
+          Note: ""
         }
       ],
-      "FileNo": "",
-      "Make": "",
-      "OilQty": "",
-      "BillSubmission": "",
-      "Payment": "",
-      "Amount": "",
-      "SecurityDeposited": ""
+      FileNo: "",
+      Make: "",
+      OilQty: "",
+      BillSubmission: "",
+      Payment: "",
+      Amount: "",
+      SecurityDeposited: ""
     },
     "site-public": {
-      "Location": "Site",
-      "Category": "Public",
-      "Client": "",
-      "WorkOrder": "",
-      "Date": "",
-      "SiteLocation": "",
-      "TypeOfJob": "",
-      "TransformerDetails": [
+      Location: "Site",
+      Category: "Public",
+      Client: "",
+      WorkOrder: "",
+      Date: "",
+      SiteLocation: "",
+      TypeOfJob: "",
+      TransformerDetails: [
         {
-          "KVA": "",
-          "SrNo": "",
-          "Rating": "",
-          "Note": ""
+          KVA: "",
+          SrNo: "",
+          Rating: "",
+          Note: ""
         }
       ],
-      "FileNo": "",
-      "Make": "",
-      "OilQty": "",
-      "BillSubmission": "",
-      "Payment": "",
-      "Amount": "",
-      "SecurityDeposited": ""
-    },
+      FileNo: "",
+      Make: "",
+      OilQty: "",
+      BillSubmission: "",
+      Payment: "",
+      Amount: "",
+      SecurityDeposited: ""
+    }
   };
   const [formData, setFormData] = useState(formTemplates["inhouse-wb"]);
   // When location or category changes, reset formData based on template
@@ -260,23 +288,22 @@ function Operations() {
     }
   }, [location, category]);
 
-
   const getApiUrl = () => {
     if (location === "inhouse" && category === "wb")
-      return "http://localhost:5050/api/operations/inhousewb";
+      return "http://192.168.0.10:5050/api/operations/inhousewb";
 
     if (location === "inhouse" && category === "private")
-      return "http://localhost:5050/api/operations/inhousepvt";
+      return "http://192.168.0.10:5050/api/operations/inhousepvt";
 
     if (location === "inhouse" && category === "public")
-      return "http://localhost:5050/api/operations/inhousepub";
+      return "http://192.168.0.10:5050/api/operations/inhousepub";
 
     if (location === "site" && category === "wb")
-      return "http://localhost:5050/api/operations/sitewb";
+      return "http://192.168.0.10:5050/api/operations/sitewb";
     if (location === "site" && category === "private")
-      return "http://localhost:5050/api/operations/sitepvt";
+      return "http://192.168.0.10:5050/api/operations/sitepvt";
     if (location === "site" && category === "public")
-      return "http://localhost:5050/api/operations/sitepub";
+      return "http://192.168.0.10:5050/api/operations/sitepub";
 
     return null;
   };
@@ -299,7 +326,7 @@ function Operations() {
 
     const interval = setInterval(() => {
       fetchData();
-    }, 2000); // 
+    }, 2000); //
 
     return () => clearInterval(interval); // cleanup
   }, [location, category]); // re-run when selection changes
@@ -308,7 +335,7 @@ function Operations() {
     const dataStr = JSON.stringify(data, null, 2);
     const dataUri =
       "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-    const exportFileDefaultName = "Operations"+location+category+".json";
+    const exportFileDefaultName = "Operations" + location + category + ".json";
 
     const linkElement = document.createElement("a");
     linkElement.setAttribute("href", dataUri);
@@ -323,12 +350,9 @@ function Operations() {
         console.error("Invalid location/category combination.");
         return;
       }
-      await axios.delete(
-        `${url}/${ID}`,
-        {
-          headers: { "x-user-role": localStorage.getItem("userRole") },
-        }
-      );
+      await axios.delete(`${url}/${ID}`, {
+        headers: { "x-user-role": localStorage.getItem("userRole") }
+      });
       fetchData();
     } catch (err) {
       console.error("Failed to delete item:", err);
@@ -388,7 +412,7 @@ function Operations() {
         row.SecurityDepositesubmitted,
         row.SecurityDepositeReceived,
         row.Make,
-        row.OilQty,
+        row.OilQty
       ];
 
       // Add transformer details if they exist
@@ -400,7 +424,8 @@ function Operations() {
 
       // Check if ANY field contains the search term
       return searchableFields.some(
-        (field) => typeof field === "string" && field.toLowerCase().includes(search)
+        (field) =>
+          typeof field === "string" && field.toLowerCase().includes(search)
       );
     });
     if (sortConfig.key) {
@@ -442,11 +467,10 @@ function Operations() {
       ...prev,
       TransformerDetails: [
         ...prev.TransformerDetails,
-        { kva: "", srNo: "", rating: "", note: "" },
-      ],
+        { kva: "", srNo: "", rating: "", note: "" }
+      ]
     }));
   };
-
 
   const getSortIcon = (columnKey) => {
     if (sortConfig.key !== columnKey) {
@@ -470,23 +494,55 @@ function Operations() {
         { key: "LOINo", label: "LOI NO", sortable: true },
         { key: "LOIDate", label: "LOI Date", sortable: true },
         { key: "PrelimarySurvey", label: "Prelimary Survey", sortable: true },
-        { key: "SIRNofTransformer", label: "SIRN of Transformer", sortable: true },
+        {
+          key: "SIRNofTransformer",
+          label: "SIRN of Transformer",
+          sortable: true
+        },
         { key: "FinalSurvey", label: "Final Survey", sortable: true },
-        { key: "SRNofDrainoutOil", label: "SRN of Drainout Oil", sortable: true },
+        {
+          key: "SRNofDrainoutOil",
+          label: "SRN of Drainout Oil",
+          sortable: true
+        },
         { key: "StageInspection", label: "Stage Inspection", sortable: true },
         { key: "OilStatement", label: "Oil Statement", sortable: true },
         { key: "SIRNofOil", label: "SIRN of Oil", sortable: true },
-        { key: "TransfomerTesting", label: "Transfomer Testing", sortable: true },
-        { key: "Materialdeliveredon", label: "Material delivered on", sortable: true },
+        {
+          key: "TransfomerTesting",
+          label: "Transfomer Testing",
+          sortable: true
+        },
+        {
+          key: "Materialdeliveredon",
+          label: "Material delivered on",
+          sortable: true
+        },
         { key: "Estimate", label: "Estimate", sortable: true },
-        { key: "FormalOrderPlaced", label: "Formal Order Placed", sortable: true },
-        { key: "OrderReferanceno", label: "Order Referance no", sortable: true },
+        {
+          key: "FormalOrderPlaced",
+          label: "Formal Order Placed",
+          sortable: true
+        },
+        {
+          key: "OrderReferanceno",
+          label: "Order Referance no",
+          sortable: true
+        },
         { key: "OrderDate", label: "Order Date", sortable: true },
         { key: "Billsubmission", label: "Bill submission", sortable: true },
         { key: "Payment", label: "Payement", sortable: true },
         { key: "NetAmount", label: "Net Amount", sortable: true },
-        { key: "SecurityDepositesubmitted", label: "Security Deposite submitted", sortable: true },
-        { key: "SecurityDepositeReceived", label: "Security Deposite Received", sortable: true }
+        {
+          key: "SecurityDepositesubmitted",
+          label: "Security Deposite submitted",
+          sortable: true
+        },
+        {
+          key: "SecurityDepositeReceived",
+          label: "Security Deposite Received",
+          sortable: true
+        }
       ];
     if (location === "site" && category === "wb")
       headers = [
@@ -497,24 +553,60 @@ function Operations() {
         { key: "LOINo", label: "LOI NO", sortable: true },
         { key: "LOIDate", label: "LOI Date", sortable: true },
         { key: "PrelimarySurvey", label: "Prelimary Survey", sortable: true },
-        { key: "SIRNofTransformer", label: "SIRN of Transformer", sortable: true },
+        {
+          key: "SIRNofTransformer",
+          label: "SIRN of Transformer",
+          sortable: true
+        },
         { key: "FinalSurvey", label: "Final Survey", sortable: true },
-        { key: "SRNofDrainoutOil", label: "SRN of Drainout Oil", sortable: true },
+        {
+          key: "SRNofDrainoutOil",
+          label: "SRN of Drainout Oil",
+          sortable: true
+        },
         { key: "StageInspection", label: "Stage Inspection", sortable: true },
         { key: "OilStatement", label: "Oil Statement", sortable: true },
         { key: "SIRNofOil", label: "SIRN of Oil", sortable: true },
-        { key: "TransfomerTesting", label: "Transfomer Testing", sortable: true },
-        { key: "Materialdeliveredon", label: "Material delivered on", sortable: true },
-        { key: "SRNofTransformer", label: "SRN of Transformer", sortable: true },
+        {
+          key: "TransfomerTesting",
+          label: "Transfomer Testing",
+          sortable: true
+        },
+        {
+          key: "Materialdeliveredon",
+          label: "Material delivered on",
+          sortable: true
+        },
+        {
+          key: "SRNofTransformer",
+          label: "SRN of Transformer",
+          sortable: true
+        },
         { key: "Estimate", label: "Estimate", sortable: true },
-        { key: "FormalOrderPlaced", label: "Formal Order Placed", sortable: true },
-        { key: "OrderReferanceno", label: "Order Referance no", sortable: true },
+        {
+          key: "FormalOrderPlaced",
+          label: "Formal Order Placed",
+          sortable: true
+        },
+        {
+          key: "OrderReferanceno",
+          label: "Order Referance no",
+          sortable: true
+        },
         { key: "OrderDate", label: "Order Date", sortable: true },
         { key: "Billsubmission", label: "Bill submission", sortable: true },
         { key: "Payment", label: "Payement", sortable: true },
         { key: "NetAmount", label: "Net Amount", sortable: true },
-        { key: "SecurityDepositesubmitted", label: "Security Deposite submitted", sortable: true },
-        { key: "SecurityDepositeReceived", label: "Security Deposite Received", sortable: true }
+        {
+          key: "SecurityDepositesubmitted",
+          label: "Security Deposite submitted",
+          sortable: true
+        },
+        {
+          key: "SecurityDepositeReceived",
+          label: "Security Deposite Received",
+          sortable: true
+        }
       ];
     if (location === "site" && category === "public")
       headers = [
@@ -525,14 +617,17 @@ function Operations() {
         { key: "SiteLocation", label: "Site Location", sortable: true },
         { key: "TypeOfJob", label: "Type of Job", sortable: true },
 
-
         { key: "FileNo", label: "File No", sortable: true },
         { key: "Make", label: "Make", sortable: true },
         { key: "OilQty", label: "Oil Qty", sortable: true },
         { key: "BillSubmission", label: "Bill Submission", sortable: true },
         { key: "Payment", label: "Payment", sortable: true },
         { key: "Amount", label: "Amount", sortable: true },
-        { key: "SecurityDeposited", label: "Security Deposited", sortable: true }
+        {
+          key: "SecurityDeposited",
+          label: "Security Deposited",
+          sortable: true
+        }
       ];
     if (location === "site" && category === "private")
       headers = [
@@ -543,14 +638,17 @@ function Operations() {
         { key: "SiteLocation", label: "Site Location", sortable: true },
         { key: "TypeOfJob", label: "Type of Job", sortable: true },
 
-
         { key: "FileNo", label: "File No", sortable: true },
         { key: "Make", label: "Make", sortable: true },
         { key: "OilQty", label: "Oil Qty", sortable: true },
         { key: "BillSubmission", label: "Bill Submission", sortable: true },
         { key: "Payment", label: "Payment", sortable: true },
         { key: "Amount", label: "Amount", sortable: true },
-        { key: "SecurityDeposited", label: "Security Deposited", sortable: true }
+        {
+          key: "SecurityDeposited",
+          label: "Security Deposited",
+          sortable: true
+        }
       ];
     if (location === "inhouse" && category === "public")
       headers = [
@@ -572,7 +670,11 @@ function Operations() {
         { key: "BillSubmission", label: "Bill Submission", sortable: true },
         { key: "Payment", label: "Payment", sortable: true },
         { key: "Amount", label: "Amount", sortable: true },
-        { key: "SecurityDeposited", label: "Security Deposited", sortable: true }
+        {
+          key: "SecurityDeposited",
+          label: "Security Deposited",
+          sortable: true
+        }
       ];
     if (location === "inhouse" && category === "private")
       headers = [
@@ -594,7 +696,11 @@ function Operations() {
         { key: "BillSubmission", label: "Bill Submission", sortable: true },
         { key: "Payment", label: "Payment", sortable: true },
         { key: "Amount", label: "Amount", sortable: true },
-        { key: "SecurityDeposited", label: "Security Deposited", sortable: true }
+        {
+          key: "SecurityDeposited",
+          label: "Security Deposited",
+          sortable: true
+        }
       ];
     // Always add actions at the end
     headers.push({ key: "actions", label: "Actions", sortable: false });
@@ -627,7 +733,7 @@ function Operations() {
         Payment: record.Payment,
         NetAmount: record.NetAmount,
         SecurityDepositesubmitted: record.SecurityDepositesubmitted,
-        SecurityDepositeReceived: record.SecurityDepositeReceived,
+        SecurityDepositeReceived: record.SecurityDepositeReceived
       };
     }
     if (location === "site" && category === "wb") {
@@ -656,7 +762,7 @@ function Operations() {
         Payment: record.Payment,
         NetAmount: record.NetAmount,
         SecurityDepositesubmitted: record.SecurityDepositesubmitted,
-        SecurityDepositeReceived: record.SecurityDepositeReceived,
+        SecurityDepositeReceived: record.SecurityDepositeReceived
       };
     }
     if (location === "site" && category === "public") {
@@ -673,7 +779,7 @@ function Operations() {
         BillSubmission: record.BillSubmission,
         Payment: record.Payment,
         Amount: record.Amount,
-        SecurityDeposited: record.SecurityDeposited,
+        SecurityDeposited: record.SecurityDeposited
       };
     }
     if (location === "site" && category === "private") {
@@ -690,7 +796,7 @@ function Operations() {
         BillSubmission: record.BillSubmission,
         Payment: record.Payment,
         Amount: record.Amount,
-        SecurityDeposited: record.SecurityDeposited,
+        SecurityDeposited: record.SecurityDeposited
       };
     }
     if (location === "inhouse" && category === "public") {
@@ -713,7 +819,7 @@ function Operations() {
         BillSubmission: record.BillSubmission,
         Payment: record.Payment,
         Amount: record.Amount,
-        SecurityDeposited: record.SecurityDeposited,
+        SecurityDeposited: record.SecurityDeposited
       };
     }
     if (location === "inhouse" && category === "private") {
@@ -736,7 +842,7 @@ function Operations() {
         BillSubmission: record.BillSubmission,
         Payment: record.Payment,
         Amount: record.Amount,
-        SecurityDeposited: record.SecurityDeposited,
+        SecurityDeposited: record.SecurityDeposited
       };
     }
     // fallback for unknown case
@@ -752,19 +858,22 @@ function Operations() {
     // merge template with record (record values take priority)
     const filledData = {
       ...template,
-      ...record,
+      ...record
     };
 
     // if the template has TransformerDetails but record doesn’t, ensure default
-    if (template.TransformerDetails && (!record.TransformerDetails || record.TransformerDetails.length === 0)) {
+    if (
+      template.TransformerDetails &&
+      (!record.TransformerDetails || record.TransformerDetails.length === 0)
+    ) {
       filledData.TransformerDetails = [
         { KVA: "", SrNo: "", Rating: "", Note: "" }
       ];
     }
 
-    setFormData(filledData);        // put merged data into state
-    setEditingRecord(record);       // remember which record is being edited
-    setIsFormOpen(true);            // open the modal
+    setFormData(filledData); // put merged data into state
+    setEditingRecord(record); // remember which record is being edited
+    setIsFormOpen(true); // open the modal
   };
 
   const handleSort = (key) => {
@@ -794,10 +903,10 @@ function Operations() {
             ...formData,
             ID: editingRecord.ID,
             createdAt: editingRecord.createdAt,
-            updatedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
           },
           {
-            headers: { "x-user-role": localStorage.getItem("userRole") },
+            headers: { "x-user-role": localStorage.getItem("userRole") }
           }
         );
 
@@ -813,13 +922,9 @@ function Operations() {
         }
       } else {
         // 🔹 CREATE new record
-        const response = await axios.post(
-          url,
-          formData,
-          {
-            headers: { "x-user-role": localStorage.getItem("userRole") },
-          }
-        );
+        const response = await axios.post(url, formData, {
+          headers: { "x-user-role": localStorage.getItem("userRole") }
+        });
 
         if (response.data.success) {
           setData([...data, response.data.item]); // update UI with the added record
@@ -833,9 +938,6 @@ function Operations() {
     }
   };
 
-
-
-
   const resetForm = () => {
     if (location && category) {
       const key = `${location}-${category}`;
@@ -844,12 +946,11 @@ function Operations() {
       } else {
         setFormData({ location, category });
       }
-
     } else {
       // No location/category chosen → completely blank
       setFormData({
         location: "",
-        category: "",
+        category: ""
       });
     }
     setIsFormOpen(false);
@@ -860,7 +961,6 @@ function Operations() {
     setViewingRecord(data);
     setIsDetailOpen(true);
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600">
@@ -950,28 +1050,27 @@ function Operations() {
               </div>
             </div>
             <div className="flex space-x-3">
-
-
-
               <div className="flex flex-col space-y-6 w-full items-center">
                 {/* First Group: In House / Site */}
                 <div className="grid grid-cols-2 gap-4 w-full max-w-md">
                   <button
                     onClick={() => setLocation("inhouse")}
-                    className={`${location === "inhouse"
-                      ? "bg-white text-blue-600"
-                      : "bg-[rgba(255,255,255,0.6)] text-black"
-                      } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+                    className={`${
+                      location === "inhouse"
+                        ? "bg-white text-blue-600"
+                        : "bg-[rgba(255,255,255,0.6)] text-black"
+                    } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
                   >
                     <Home className="w-5 h-5" />
                     <span>In House</span>
                   </button>
                   <button
                     onClick={() => setLocation("site")}
-                    className={`${location === "site"
-                      ? "bg-white text-blue-600"
-                      : "bg-[rgba(255,255,255,0.6)] text-black"
-                      } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+                    className={`${
+                      location === "site"
+                        ? "bg-white text-blue-600"
+                        : "bg-[rgba(255,255,255,0.6)] text-black"
+                    } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
                   >
                     <MapPin className="w-5 h-5" />
                     <span>Site</span>
@@ -982,30 +1081,33 @@ function Operations() {
                 <div className="grid grid-cols-3 gap-4 w-full max-w-xl">
                   <button
                     onClick={() => setCategory("wb")}
-                    className={`${category === "wb"
-                      ? "bg-white text-blue-600"
-                      : "bg-[rgba(255,255,255,0.6)] text-black"
-                      } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+                    className={`${
+                      category === "wb"
+                        ? "bg-white text-blue-600"
+                        : "bg-[rgba(255,255,255,0.6)] text-black"
+                    } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
                   >
                     <Briefcase className="w-5 h-5" />
                     <span>WB</span>
                   </button>
                   <button
                     onClick={() => setCategory("private")}
-                    className={`${category === "private"
-                      ? "bg-white text-blue-600"
-                      : "bg-[rgba(255,255,255,0.6)] text-black"
-                      } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+                    className={`${
+                      category === "private"
+                        ? "bg-white text-blue-600"
+                        : "bg-[rgba(255,255,255,0.6)] text-black"
+                    } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
                   >
                     <Lock className="w-5 h-5" />
                     <span>Private</span>
                   </button>
                   <button
                     onClick={() => setCategory("public")}
-                    className={`${category === "public"
-                      ? "bg-white text-blue-600"
-                      : "bg-[rgba(255,255,255,0.6)] text-black"
-                      } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+                    className={`${
+                      category === "public"
+                        ? "bg-white text-blue-600"
+                        : "bg-[rgba(255,255,255,0.6)] text-black"
+                    } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
                   >
                     <Globe className="w-5 h-5" />
                     <span>Public</span>
@@ -1048,10 +1150,8 @@ function Operations() {
             </button>
           </div>
         </div>
-
       </main>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4">
-
         {/* Operations Records Table */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden">
           <div className="bg-blue-600 text-white p-4 font-semibold text-lg">
@@ -1076,7 +1176,11 @@ function Operations() {
                       <th
                         key={header.key}
                         className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-                        onClick={header.sortable ? () => handleSort(header.key) : undefined}
+                        onClick={
+                          header.sortable
+                            ? () => handleSort(header.key)
+                            : undefined
+                        }
                       >
                         <div className="flex items-center space-x-1">
                           <span>{header.label}</span>
@@ -1088,22 +1192,38 @@ function Operations() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredAndSortedRecords.map((record, index) => {
-                    const rowValues = getTableRowValues(record, location, category);
+                    const rowValues = getTableRowValues(
+                      record,
+                      location,
+                      category
+                    );
 
                     return (
-                      <tr key={record.ID || index} className="hover:bg-gray-50 transition-colors duration-200">
+                      <tr
+                        key={record.ID || index}
+                        className="hover:bg-gray-50 transition-colors duration-200"
+                      >
                         {headers.map((header) => {
                           if (header.key === "actions") {
                             return (
                               <td key={header.key} className="px-6 py-4">
                                 <div className="flex space-x-2">
-                                  <button onClick={() => handleView(record)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg">
+                                  <button
+                                    onClick={() => handleView(record)}
+                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+                                  >
                                     <Eye className="w-4 h-4" />
                                   </button>
-                                  <button onClick={() => handleEdit(record)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                                  <button
+                                    onClick={() => handleEdit(record)}
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                  >
                                     <Edit3 className="w-4 h-4" />
                                   </button>
-                                  <button onClick={() => handleDelete(record.ID)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                                  <button
+                                    onClick={() => handleDelete(record.ID)}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                                  >
                                     <Trash2 className="w-4 h-4" />
                                   </button>
                                 </div>
@@ -1123,20 +1243,19 @@ function Operations() {
                     );
                   })}
                 </tbody>
-
-
               </table>
             </div>
           )}
         </div>
-
         {/* Form Modal */}{" "}
         {isFormOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
               <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
-                  {editingRecord ? "Edit Operation Record" : "Add New Operation Record"}
+                  {editingRecord
+                    ? "Edit Operation Record"
+                    : "Add New Operation Record"}
                 </h2>
                 <button
                   onClick={resetForm}
@@ -1147,30 +1266,32 @@ function Operations() {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
-  {formData &&
-    Object.entries(formData).map(([key, value]) => {
-      // --- Special handling for system fields ---
-      if (key === "ID") {
-        return (
-          <div key={key} className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
-            <input
-              type="text"
-              value={value || ""}
-              readOnly
-              disabled
-              className="w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed"
-            />
-          </div>
-        );
-      }
+                {formData &&
+                  Object.entries(formData).map(([key, value]) => {
+                    // --- Special handling for system fields ---
+                    if (key === "ID") {
+                      return (
+                        <div key={key} className="flex flex-col">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {key}
+                          </label>
+                          <input
+                            type="text"
+                            value={value || ""}
+                            readOnly
+                            disabled
+                            className="w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed"
+                          />
+                        </div>
+                      );
+                    }
 
-      if (key === "updatedAt") {
-        // Option 1: completely hide
-        return null;
+                    if (key === "updatedAt") {
+                      // Option 1: completely hide
+                      return null;
 
-        // Option 2: show as read-only (uncomment below if you want to display it)
-        /*
+                      // Option 2: show as read-only (uncomment below if you want to display it)
+                      /*
         return (
           <div key={key} className="flex flex-col">
             <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
@@ -1184,145 +1305,164 @@ function Operations() {
           </div>
         );
         */
-      }
+                    }
 
-      // --- Handle array fields ---
-      if (Array.isArray(value)) {
-        return (
-          <div key={key}>
-            <h3 className="text-lg font-medium text-gray-800 mb-2">{key}</h3>
-            {value.map((item, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-center"
-              >
-                {Object.entries(item).map(([subKey, subValue]) => {
-                  const fieldKey = `${subKey}_${index}`;
-                  return (
-                    <div key={subKey} className="flex flex-col">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {subKey}
-                      </label>
-                      <div className="flex">
-                        <input
-                          type={dateMode[fieldKey] ? "date" : "text"}
-                          value={subValue || ""}
-                          onChange={(e) =>
-                            handleFieldJobDetailChange(index, subKey, e.target.value)
-                          }
-                          placeholder="Enter value"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => toggleDateMode(fieldKey)}
-                          className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
-                        >
-                          📅
-                        </button>
+                    // --- Handle array fields ---
+                    if (Array.isArray(value)) {
+                      return (
+                        <div key={key}>
+                          <h3 className="text-lg font-medium text-gray-800 mb-2">
+                            {key}
+                          </h3>
+                          {value.map((item, index) => (
+                            <div
+                              key={index}
+                              className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-center"
+                            >
+                              {Object.entries(item).map(
+                                ([subKey, subValue]) => {
+                                  const fieldKey = `${subKey}_${index}`;
+                                  return (
+                                    <div key={subKey} className="flex flex-col">
+                                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        {subKey}
+                                      </label>
+                                      <div className="flex">
+                                        <input
+                                          type={
+                                            dateMode[fieldKey] ? "date" : "text"
+                                          }
+                                          value={subValue || ""}
+                                          onChange={(e) =>
+                                            handleFieldJobDetailChange(
+                                              index,
+                                              subKey,
+                                              e.target.value
+                                            )
+                                          }
+                                          placeholder="Enter value"
+                                          className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            toggleDateMode(fieldKey)
+                                          }
+                                          className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
+                                        >
+                                          📅
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                              )}
+
+                              <div className="flex justify-end space-x-3 mt-4">
+                                <button
+                                  type="button"
+                                  onClick={addFieldJobDetail}
+                                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
+                                >
+                                  + Add Another Row
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeFieldJobDetail(index)}
+                                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    }
+
+                    // --- Handle boolean fields (checkbox) ---
+                    if (typeof value === "boolean") {
+                      return (
+                        <div key={key} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={value}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                [key]: e.target.checked
+                              })
+                            }
+                            className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                          />
+                          <label className="ml-2 text-sm font-medium text-gray-700">
+                            {key}
+                          </label>
+                        </div>
+                      );
+                    }
+
+                    // --- Handle string/number/date fields ---
+                    return (
+                      <div key={key} className="flex flex-col">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {key}
+                        </label>
+                        <div className="flex">
+                          <input
+                            type={dateMode[key] ? "date" : "text"}
+                            value={value || ""}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                [key]: e.target.value
+                              })
+                            }
+                            placeholder="Enter value"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => toggleDateMode(key)}
+                            className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
+                          >
+                            📅
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
 
-                <div className="flex justify-end space-x-3 mt-4">
+                {/* --- Footer buttons --- */}
+                <div className="flex space-x-3 pt-4">
                   <button
-                    type="button"
-                    onClick={addFieldJobDetail}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
+                    type="submit"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
-                    + Add Another Row
+                    <Save className="w-4 h-4" />
+                    <span>{editingRecord ? "Update" : "Save"}</span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => removeFieldJobDetail(index)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm"
+                    onClick={resetForm}
+                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
                   >
-                    Remove
+                    Cancel
                   </button>
                 </div>
-              </div>
-            ))}
-          </div>
-        );
-      }
-
-      // --- Handle boolean fields (checkbox) ---
-      if (typeof value === "boolean") {
-        return (
-          <div key={key} className="flex items-center">
-            <input
-              type="checkbox"
-              checked={value}
-              onChange={(e) =>
-                setFormData({ ...formData, [key]: e.target.checked })
-              }
-              className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-            <label className="ml-2 text-sm font-medium text-gray-700">{key}</label>
-          </div>
-        );
-      }
-
-      // --- Handle string/number/date fields ---
-      return (
-        <div key={key} className="flex flex-col">
-          <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
-          <div className="flex">
-            <input
-              type={dateMode[key] ? "date" : "text"}
-              value={value || ""}
-              onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
-              placeholder="Enter value"
-              className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <button
-              type="button"
-              onClick={() => toggleDateMode(key)}
-              className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
-            >
-              📅
-            </button>
-          </div>
-        </div>
-      );
-    })}
-
-  {/* --- Footer buttons --- */}
-  <div className="flex space-x-3 pt-4">
-    <button
-      type="submit"
-      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
-    >
-      <Save className="w-4 h-4" />
-      <span>{editingRecord ? "Update" : "Save"}</span>
-    </button>
-    <button
-      type="button"
-      onClick={resetForm}
-      className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
-    >
-      Cancel
-    </button>
-  </div>
-</form>
-
+              </form>
             </div>
           </div>
         )}
-
-
-
-
-
-
         {/* Detail View Modal */}{" "}
         {isDetailOpen && viewingRecord && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
               {/* Header */}
               <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Operation Record Details</h2>
+                <h2 className="text-xl font-semibold">
+                  Operation Record Details
+                </h2>
                 <button
                   onClick={() => setIsDetailOpen(false)}
                   className="text-white hover:bg-blue-700 p-1 rounded"
@@ -1334,7 +1474,6 @@ function Operations() {
               {/* Content */}
               <div className="p-6 space-y-6">
                 {/* Record Title */}
-
 
                 {/* All Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1352,20 +1491,24 @@ function Operations() {
                                 key={idx}
                                 className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 p-3 border border-gray-200 rounded-lg"
                               >
-                                {Object.entries(item).map(([subKey, subValue]) => (
-                                  <div key={subKey}>
-                                    <label className="block text-sm font-medium text-gray-500">
-                                      {subKey}
-                                    </label>
-                                    <p className="text-lg font-semibold text-gray-800">
-                                      {subValue || "N/A"}
-                                    </p>
-                                  </div>
-                                ))}
+                                {Object.entries(item).map(
+                                  ([subKey, subValue]) => (
+                                    <div key={subKey}>
+                                      <label className="block text-sm font-medium text-gray-500">
+                                        {subKey}
+                                      </label>
+                                      <p className="text-lg font-semibold text-gray-800">
+                                        {subValue || "N/A"}
+                                      </p>
+                                    </div>
+                                  )
+                                )}
                               </div>
                             ))
                           ) : (
-                            <p className="text-gray-600 italic">No {key} data</p>
+                            <p className="text-gray-600 italic">
+                              No {key} data
+                            </p>
                           )}
                         </div>
                       );
@@ -1408,8 +1551,6 @@ function Operations() {
             </div>
           </div>
         )}
-
-
         {/* temp*/}
         {/* 
         <div className="border p-4 rounded-xl bg-white shadow-lg">
@@ -1420,7 +1561,6 @@ function Operations() {
             {JSON.stringify(data, null, 2)}
           </pre>
         </div>*/}
-
       </div>
     </div>
   );
