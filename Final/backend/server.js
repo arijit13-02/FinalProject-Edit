@@ -26,7 +26,7 @@ const requireAdmin = (req, res, next) => {
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://192.168.0.10:5173" // LAN access
+  "http://192.168.0.112:5173" // LAN access
 ];
 
 app.use(

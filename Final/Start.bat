@@ -7,4 +7,4 @@ start "" cmd /k "npm run dev -- --host"
 
 REM Move into backend folder and start server
 cd backend
-node server.js
+npx nodemon server.js
