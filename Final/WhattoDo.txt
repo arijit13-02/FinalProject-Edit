@@ -8,10 +8,7 @@ Go inside the 'Final' folder and click on the address bar, and type 'cmd' enter.
 Now a black window will open showing some text which ends with "Final>". 
 Type "npm install" Enter. It might take some time.
 
-3. Disable firewall, defender and temporarily remove antivirus if any. 
-Why? The files are stored on your pc. It acts as a server and all the devices on the network are supposed to access and change the files as well. This is usually not allowed by firewall, windows defender or antivirus installed. Hence its better to temporarily disable them when this system is running.
-
-4. Change the IP in the code
+3. Change the IP in the code
 Open command prompt and run "ipconfig"
 In the output go down and see "IPv4 Address...192.168.xx.xxx"
 Copy the IP address(192.168.xx.xxx). Double click on 'ReplaceIp.bat' file in the Final Folder. Paste the IP there and press enter. It will run for a small time and press any kep to exit.
@@ -22,6 +19,9 @@ Now there is a "Start.bat" file inside the Final folder. Double click on it and 
 The server machine will run the website when using the address shown as "local" something like "http://localhost:5173/".
 And other devices can access this using the one in the network ip.
 
+If even after all these, its not working properly as expected, follow:
+Disable firewall, defender and temporarily remove antivirus if any. 
+Why? The files are stored on your pc. It acts as a server and all the devices on the network are supposed to access and change the files as well. This is usually not allowed by firewall, windows defender or antivirus installed. Hence its better to temporarily disable them when this system is running.
 
 
 
