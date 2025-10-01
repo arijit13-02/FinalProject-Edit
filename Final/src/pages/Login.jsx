@@ -13,7 +13,7 @@ const Login = () => {
     if (role === "admin") {
       try {
         const res = await axios.post(
-          "http://192.168.0.10:5050/api/login",
+          "http://192.168.0.112:5050/api/login",
           {
             role,
             password
