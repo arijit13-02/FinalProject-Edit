@@ -303,20 +303,20 @@ function Operations() {
 
   const getApiUrl = () => {
     if (location === "inhouse" && category === "WBSEDCL")
-      return "http://192.168.0.112:5050/api/operations/inhousewb";
+      return "http://192.168.0.111:5050/api/operations/inhousewb";
 
     if (location === "inhouse" && category === "private")
-      return "http://192.168.0.112:5050/api/operations/inhousepvt";
+      return "http://192.168.0.111:5050/api/operations/inhousepvt";
 
     if (location === "inhouse" && category === "public")
-      return "http://192.168.0.112:5050/api/operations/inhousepub";
+      return "http://192.168.0.111:5050/api/operations/inhousepub";
 
     if (location === "site" && category === "WBSEDCL")
-      return "http://192.168.0.112:5050/api/operations/sitewb";
+      return "http://192.168.0.111:5050/api/operations/sitewb";
     if (location === "site" && category === "private")
-      return "http://192.168.0.112:5050/api/operations/sitepvt";
+      return "http://192.168.0.111:5050/api/operations/sitepvt";
     if (location === "site" && category === "public")
-      return "http://192.168.0.112:5050/api/operations/sitepub";
+      return "http://192.168.0.111:5050/api/operations/sitepub";
 
     return null;
   };
@@ -1285,7 +1285,7 @@ function Operations() {
     onClick={() => document.getElementById("importFileInput").click()}
     className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
   >
-    <Download className="w-4 h-4 rotate-180" />
+    <Upload className="w-4 h-4" />
     <span>Import</span>
   </button>
 
