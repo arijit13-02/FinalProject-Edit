@@ -227,7 +227,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white mb-2">
-                  Operations
+                  Inventory
                 </h1>
                 <p className="text-blue-100">
                   Manage and track your job records

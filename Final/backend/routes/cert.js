@@ -10,7 +10,7 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const File = path.join(__dirname, '../data/upcomingjobs.json');
+const File = path.join(__dirname, '../data/cert.json');
 
 // Utility functions
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf-8"));
@@ -29,9 +29,9 @@ router.get("/", (req, res) => {
 		const data = readJson(File);
 		res.json(data);
 	} catch (err) {
-		console.error("GET UpcomingJobs error:", err);
+		console.error("GET Cert error:", err);
 		res.status(500).json({
-			message: "Failed to read UpcomingJobs"
+			message: "Failed to read Cert"
 		});
 	}
 });
@@ -56,7 +56,7 @@ router.post("/", (req, res) => {
       item: newItem
     });
   } catch (err) {
-    console.error("POST UpcomingJobs error:", err);
+    console.error("POST Cert error:", err);
     res.status(500).json({
       success: false,
       message: "Failed to add item"
@@ -89,7 +89,7 @@ router.put("/:id", (req, res) => {
 			item: updatedItem
 		});
 	} catch (err) {
-		console.error("PUT Upcoming Jobs error:", err);
+		console.error("PUT Cert error:", err);
 		res.status(500).json({
 			message: "Failed to update item"
 		});
@@ -112,7 +112,7 @@ router.delete("/:id", (req, res) => {
 			message: "Item deleted"
 		});
 	} catch (err) {
-		console.error("DELETE UpcomingJobs error:", err);
+		console.error("DELETE Cert error:", err);
 		res.status(500).json({
 			message: "Failed to delete item"
 		});

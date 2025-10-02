@@ -9,6 +9,7 @@ import realtimejobsRoutes from "./routes/realtimejobs.js";
 import operationsRoutes from "./routes/operations.js";
 import upcomingjobsRoutes from "./routes/upcomingjobs.js";
 import staffRoutes from "./routes/staff.js";
+import certRoutes from "./routes/cert.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -102,6 +103,7 @@ app.use("/api/realtimejobs", realtimejobsRoutes);
 app.use("/api/operations", requireAdmin, operationsRoutes);
 app.use("/api/upcomingjobs", requireAdmin, upcomingjobsRoutes);
 app.use("/api/staff", requireAdmin, staffRoutes);
+app.use("/api/cert", requireAdmin, certRoutes);
 
 // --- Health Check ---
 app.get("/api/health", (req, res) => {
