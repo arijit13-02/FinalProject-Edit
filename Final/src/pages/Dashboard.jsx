@@ -83,18 +83,25 @@ const mockData3 = [
 
 function AutoScrollingPanel({ data, title, className = "" }) {
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [hovered, setHovered] = useState(false); // track hover
   const itemHeight = 100;
   const totalHeight = data.length * itemHeight;
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setScrollPosition((prev) => (prev + 1 >= totalHeight ? 0 : prev + 1));
+      if (!hovered) {
+        setScrollPosition((prev) => (prev + 1 >= totalHeight ? 0 : prev + 1));
+      }
     }, 30);
     return () => clearInterval(interval);
-  }, [totalHeight]);
+  }, [totalHeight, hovered]);
 
   return (
-    <div className={`flex flex-col rounded-xl overflow-hidden ${className}`}>
+    <div
+      className={`flex flex-col rounded-xl overflow-hidden ${className}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <div className="bg-blue-600 text-white p-4 font-semibold text-lg flex-shrink-0">
         {title}
       </div>
@@ -152,6 +159,7 @@ function AutoScrollingPanel({ data, title, className = "" }) {
     </div>
   );
 }
+
 
 function GraphPlaceholder({ title, icon: Icon }) {
   return (

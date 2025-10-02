@@ -1,0 +1,20 @@
+Only change the ip config thing and will work fine closing the windows defender firewall and disabling any other antivirus software.
+
+On his system:
+local: http://localhost:5173/
+network: http://192.168.1.200:5173/
+network: http://192.168.0.164:5173/
+
+
+Changes to be made:
+======================
+Done 1. New jobs created to be shown at the top of the list of operations.
+Done 2. In dashboard autoscrolling should stop when hovered on.
+Done 3. Naming changes: WB -> WBSEDCL ; Wind -> Winding ; Assemble -> Assembley
+Done 4. In operations page, Location: and Sector: infront of the buttons. button size to be reduced
+Done 5. SRN of transformer in operations data table - Already there. Just scroll. Fields are made according to the excel. 
+Done 6. In Real Time jobs, Change Category to Sector and Select Category to Select Sector
+Done 7. Change the import and export button accordingly so that excel to json and vice versa changes happen on its own	
+Done 8. Change password in login page
+Done 9. Expand the operations table
+Done 10. Change the operations edit window alignment and make the Location and category uneditable while adding and editing both

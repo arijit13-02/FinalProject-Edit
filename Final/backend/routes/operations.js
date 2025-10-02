@@ -46,7 +46,7 @@ Object.entries(files).forEach(([route, file]) => {
         try {
             const data = readJson(file);
             const newItem = { ID: Date.now().toString(), ...req.body };
-            data.push(newItem);
+            data.unshift(newItem);
             writeJson(file, data);
 
             res.json({ success: true, message: "Item added", item: newItem });

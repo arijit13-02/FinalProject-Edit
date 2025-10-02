@@ -5,20 +5,20 @@ import { Home, MapPin, Building2 } from "lucide-react";
 export default function DataPanel() {
   // State for button selections
   const [location, setLocation] = useState("Inhouse"); // default
-  const [category, setCategory] = useState("WB"); // default
+  const [category, setCategory] = useState("WBSEDCL"); // default
   const [data, setData] = useState([]);
 
   // Function to build API URL depending on selection
   const getApiUrl = () => {
-    if (location === "Inhouse" && category === "WB")
-      return "/api/inhouse/wb";
+    if (location === "Inhouse" && category === "WBSEDCL")
+      return "/api/inhouse/WBSEDCL";
     if (location === "Inhouse" && category === "Private")
       return "/api/inhouse/private";
     if (location === "Inhouse" && category === "Public")
       return "/api/inhouse/public";
 
-    if (location === "Site" && category === "WB")
-      return "/api/site/wb";
+    if (location === "Site" && category === "WBSEDCL")
+      return "/api/site/WBSEDCL";
     if (location === "Site" && category === "Private")
       return "/api/site/private";
     if (location === "Site" && category === "Public")
@@ -82,7 +82,7 @@ export default function DataPanel() {
       {/* Category buttons */}
       <div className="flex space-x-4">
         {[
-          { key: "WB", label: "WB", icon: <Building2 className="w-5 h-5" /> },
+          { key: "WBSEDCL", label: "WBSEDCL", icon: <Building2 className="w-5 h-5" /> },
           { key: "Private", label: "Private", icon: <Home className="w-5 h-5" /> },
           { key: "Public", label: "Public", icon: <MapPin className="w-5 h-5" /> },
         ].map((cat) => (
