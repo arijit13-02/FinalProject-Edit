@@ -23,3 +23,8 @@ Done 10. Change the operations edit window alignment and make the Location and c
 New Changes to Do:
 =======================
 1. After import check for date format mismatch
+2. Dashboard autoscroll thing
+3. Vendors with IMPORT and EXPORT
+4. Billing with IMPORT and EXPORT
+5. Certification
+6. Inventory with admin and staff and pending changes
