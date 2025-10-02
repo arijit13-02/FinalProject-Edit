@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import realtimejobsRoutes from "./routes/realtimejobs.js";
 import operationsRoutes from "./routes/operations.js";
 import upcomingjobsRoutes from "./routes/upcomingjobs.js";
+import staffRoutes from "./routes/staff.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -100,6 +101,7 @@ app.post("/api/change-password", async (req, res) => {
 app.use("/api/realtimejobs", realtimejobsRoutes);
 app.use("/api/operations", requireAdmin, operationsRoutes);
 app.use("/api/upcomingjobs", requireAdmin, upcomingjobsRoutes);
+app.use("/api/staff", requireAdmin, staffRoutes);
 
 // --- Health Check ---
 app.get("/api/health", (req, res) => {

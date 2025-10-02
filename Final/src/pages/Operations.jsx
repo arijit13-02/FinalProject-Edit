@@ -1165,7 +1165,7 @@ function Operations() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-20xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header with Logo */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
