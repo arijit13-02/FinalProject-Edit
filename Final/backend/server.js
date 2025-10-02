@@ -7,6 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import realtimejobsRoutes from "./routes/realtimejobs.js";
 import operationsRoutes from "./routes/operations.js";
+import upcomingjobsRoutes from "./routes/upcomingjobs.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,7 +28,7 @@ const requireAdmin = (req, res, next) => {
 // --- CORS configuration ---
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://192.168.0.112:5173" // LAN access
+  "http://192.168.0.111:5173" // LAN access
 ];
 
 app.use(
@@ -98,6 +99,7 @@ app.post("/api/change-password", async (req, res) => {
 // --- API Routes ---
 app.use("/api/realtimejobs", realtimejobsRoutes);
 app.use("/api/operations", requireAdmin, operationsRoutes);
+app.use("/api/upcomingjobs", requireAdmin, upcomingjobsRoutes);
 
 // --- Health Check ---
 app.get("/api/health", (req, res) => {

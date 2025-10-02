@@ -18,3 +18,8 @@ Done 7. Change the import and export button accordingly so that excel to json an
 Done 8. Change password in login page
 Done 9. Expand the operations table
 Done 10. Change the operations edit window alignment and make the Location and category uneditable while adding and editing both
+
+
+New Changes to Do:
+=======================
+1. After import check for date format mismatch
