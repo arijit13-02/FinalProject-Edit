@@ -102,10 +102,10 @@ function handleWBCategoryadd(newItem) {
   };
   
   if ((cleanedItem.Location || "").trim().toUpperCase() === "IN HOUSE") {
-    inwb.push(cleanedItem);
+    inwb.unshift(cleanedItem);
     writeJson(OPERATIONS_inWB_FILE, inwb);
   } else if ((cleanedItem.Location || "").trim().toUpperCase() === "SITE") {
-    sitewb.push(cleanedItem);
+    sitewb.unshift(cleanedItem);
     writeJson(OPERATIONS_siteWB_FILE, sitewb);
   }
   
@@ -152,10 +152,10 @@ function handleInhouse(newItem) {
   };
 
   if ((cleanedItem.Category || "").trim().toUpperCase() === "PRIVATE") {
-    inpvt.push(cleanedItem);
+    inpvt.unshift(cleanedItem);
     writeJson(OPERATIONS_inpvt_FILE, inpvt);
   } else if ((cleanedItem.Category || "").trim().toUpperCase() === "PUBLIC") {
-    inpub.push(cleanedItem);
+    inpub.unshift(cleanedItem);
     writeJson(OPERATIONS_inpub_FILE, inpub);
   }
 }
@@ -203,10 +203,10 @@ function handleSite(newItem) {
 
 
   if ((cleanedItem.Category || "").trim().toUpperCase() === "PRIVATE") {
-    sitepvt.push(cleanedItem);
+    sitepvt.unshift(cleanedItem);
     writeJson(OPERATIONS_sitepvt_FILE, sitepvt);
   } else if ((cleanedItem.Category || "").trim().toUpperCase() === "PUBLIC") {
-    sitepub.push(cleanedItem);
+    sitepub.unshift(cleanedItem);
     writeJson(OPERATIONS_sitepub_FILE, sitepub);
   }
 }
@@ -223,14 +223,14 @@ router.post("/", (req, res) => {
       id: Date.now().toString()
     };
 
-    data.push(newItem);
+    data.unshift(newItem);
     writeJson(file, data);
 
     if (role === "admin") 
     {
       syncToStaff(data);
 
-      if (newItem.category === "WB") 
+      if (newItem.category === "WBSEDCL") 
       {
         handleWBCategoryadd(newItem);
       }
@@ -251,7 +251,7 @@ router.post("/", (req, res) => {
       
     } else {
       const pending = readJson(PENDING_FILE);
-      pending.push({
+      pending.unshift({
         type: "add",
         item: newItem
       });
@@ -324,7 +324,7 @@ router.put("/:id", (req, res) => {
 				if (existingIndex !== -1) {
 					pending[existingIndex].item = updatedItem;
 				} else {
-					pending.push({
+					pending.unshift({
 						type: "edit",
 						item: updatedItem
 					});
@@ -365,7 +365,7 @@ router.delete("/:id", (req, res) => {
 			syncToStaff(updated);
 		} else {
 			const pending = readJson(PENDING_FILE);
-			pending.push({
+			pending.unshift({
 				type: "delete",
 				item
 			});
@@ -423,7 +423,7 @@ router.post("/pending/apply", (req, res) => {
             const action = actions.find(a => a.id === pendingItem.item.id);
 
             if (!action) {
-                remainingPending.push(pendingItem); // No decision made — keep
+                remainingPending.unshift(pendingItem); // No decision made — keep
                 continue;
             }
 
@@ -431,10 +431,10 @@ router.post("/pending/apply", (req, res) => {
 
             if (action.approved) {
                 if (type === "add") {
-          adminData.push(item);
+          adminData.unshift(item);
 
-         // ✅ Call WB handler
-          if ((item.category || "").trim().toUpperCase() === "WB") {
+         // ✅ Call WBSEDCL handler
+          if ((item.category || "").trim().toUpperCase() === "WBSEDCL") {
             handleWBCategoryadd(item);
           }
           else
@@ -481,7 +481,7 @@ router.post("/pending/apply", (req, res) => {
                     const i = staffData.findIndex(x => x.id === item.id);
                     if (i !== -1 && orig) staffData[i] = orig;
                 } else if (type === "delete") {
-                    staffData.push(item);
+                    staffData.unshift(item);
                 }
             }
         }

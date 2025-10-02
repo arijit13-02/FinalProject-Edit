@@ -30,6 +30,8 @@ import {
 import logo from "../assets/logo.png";
 import axios from "axios";
 
+  import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 function RealTimeJobs() {
   //checks authentication
   const [role, setRole] = useState(() => {
@@ -100,8 +102,8 @@ function RealTimeJobs() {
     type: "",
     // In House specific fields
     dismental: "",
-    wind: "",
-    assemble: "",
+    Winding: "",
+    Assembley: "",
     testing: "",
     // Site specific fields
     siteLocation: "",
@@ -150,17 +152,51 @@ function RealTimeJobs() {
     }
   };
 
-  const exportToJSON = () => {
-    const dataStr = JSON.stringify(records, null, 2);
-    const dataUri =
-      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-    const exportFileDefaultName = "job_tracking_records.json";
+ 
 
-    const linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", exportFileDefaultName);
-    linkElement.click();
-  };
+const exportToXls = () => {
+  // 1. Process records to flatten fieldJobDetails
+  const processedRecords = records.map((rec) => {
+    const newRec = { ...rec };
+
+    if (Array.isArray(rec.fieldJobDetails)) {
+      // Check if all fieldJobDetails objects are empty
+      const allEmpty = rec.fieldJobDetails.every(
+        (fj) => !fj.kva && !fj.srNo && !fj.rating && !fj.note
+      );
+
+      if (allEmpty) {
+        newRec.fieldJobDetails = ""; // Export as blank
+      } else {
+        newRec.fieldJobDetails = rec.fieldJobDetails
+          .map(
+            (fj, index) =>
+              `#${index + 1} KVA:${fj.kva}, SR#: ${fj.srNo}, Rating:${fj.rating}, Note:${fj.note}`
+          )
+          .join(" | ");
+      }
+    }
+
+    return newRec;
+  });
+
+  // 2. Convert processed records JSON to a worksheet
+  const ws = XLSX.utils.json_to_sheet(processedRecords);
+
+  // 3. Create a new workbook and append the worksheet
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "JobTrackingRecords");
+
+  // 4. Generate Excel file buffer
+  const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+
+  // 5. Save as .xlsx file
+  const exportFileName = "job_tracking_records.xlsx";
+  const blob = new Blob([wbout], { type: "application/octet-stream" });
+  saveAs(blob, exportFileName);
+};
+
+
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -187,8 +223,8 @@ function RealTimeJobs() {
         } else if (value === "Site") {
           // Clear In House specific fields
           newData.dismental = "";
-          newData.wind = "";
-          newData.assemble = "";
+          newData.Winding = "";
+          newData.Assembley = "";
           newData.testing = "";
         }
       }
@@ -304,8 +340,8 @@ function RealTimeJobs() {
       date: "",
       type: "",
       dismental: "",
-      wind: "",
-      assemble: "",
+      Winding: "",
+      Assembley: "",
       testing: "",
       siteLocation: "",
       typeOfJob: "",
@@ -326,8 +362,8 @@ function RealTimeJobs() {
       date: record.date,
       type: record.type,
       dismental: record.dismental || "",
-      wind: record.wind || "",
-      assemble: record.assemble || "",
+      Winding: record.Winding || "",
+      Assembley: record.Assembley || "",
       testing: record.testing || "",
       siteLocation: record.siteLocation || "",
       typeOfJob: record.typeOfJob || "",
@@ -421,7 +457,7 @@ function RealTimeJobs() {
 
   const getCategoryColor = (category) => {
     const colors = {
-      WB: "bg-blue-100 text-blue-800",
+      WBSEDCL: "bg-blue-100 text-blue-800",
       Private: "bg-green-100 text-green-800",
       Public: "bg-purple-100 text-purple-800"
     };
@@ -538,11 +574,10 @@ function RealTimeJobs() {
                   onClick={() =>
                     (window.location.href = "/pendingchangesrealtimejobs")
                   }
-                  className={`${
-                    hasPendingChanges
+                  className={`${hasPendingChanges
                       ? "bg-red-600 hover:bg-red-700"
                       : "bg-green-600 hover:bg-green-700"
-                  } text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg`}
+                    } text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg`}
                 >
                   <Hourglass className="w-4 h-4" />
                   <span>
@@ -554,7 +589,7 @@ function RealTimeJobs() {
               )}
 
               <button
-                onClick={exportToJSON}
+                onClick={exportToXls}
                 className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
               >
                 <Download className="w-4 h-4" />
@@ -626,7 +661,7 @@ function RealTimeJobs() {
                       onClick={() => handleSort("category")}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Category</span>
+                        <span>Sector</span>
                         {getSortIcon("category")}
                       </div>
                     </th>
@@ -809,7 +844,7 @@ function RealTimeJobs() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Category
+                        Sector
                       </label>
                       <select
                         name="category"
@@ -818,8 +853,8 @@ function RealTimeJobs() {
                         required
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
-                        <option value="">Select Category</option>
-                        <option value="WB">WB</option>
+                        <option value="">Select Sector</option>
+                        <option value="WBSEDCL">WBSEDCL</option>
                         <option value="Private">Private</option>
                         <option value="Public">Public</option>
                       </select>
@@ -895,11 +930,11 @@ function RealTimeJobs() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Wind
+                          Winding
                         </label>
                         <select
-                          name="wind"
-                          value={formData.wind}
+                          name="Winding"
+                          value={formData.Winding}
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
@@ -911,11 +946,11 @@ function RealTimeJobs() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Assemble
+                          Assembley
                         </label>
                         <select
-                          name="assemble"
-                          value={formData.assemble}
+                          name="Assembley"
+                          value={formData.Assembley}
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
@@ -1203,7 +1238,7 @@ function RealTimeJobs() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-500">
-                      Category
+                      Sector
                     </label>
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
@@ -1239,23 +1274,23 @@ function RealTimeJobs() {
                           </p>
                         </div>
                       )}{" "}
-                      {viewingRecord.wind && (
+                      {viewingRecord.Winding && (
                         <div>
                           <label className="block text-sm font-medium text-gray-500">
-                            Wind
+                            Winding
                           </label>
                           <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.wind}
+                            {viewingRecord.Winding}
                           </p>
                         </div>
                       )}{" "}
-                      {viewingRecord.assemble && (
+                      {viewingRecord.Assembley && (
                         <div>
                           <label className="block text-sm font-medium text-gray-500">
-                            Assemble
+                            Assembley
                           </label>
                           <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.assemble}
+                            {viewingRecord.Assembley}
                           </p>
                         </div>
                       )}{" "}

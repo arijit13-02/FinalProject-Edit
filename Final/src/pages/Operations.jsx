@@ -35,6 +35,8 @@ import {
 
 import logo from "../assets/logo.png";
 import axios from "axios";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import { data } from "autoprefixer";
 
 function Operations() {
@@ -62,6 +64,17 @@ function Operations() {
   const toggleDateMode = (key) => {
     setDateMode((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const formatDateForDisplay = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    if (isNaN(date)) return dateStr; // fallback if invalid date
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`; // dd.mm.yyyy
+  };
+
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -121,13 +134,13 @@ function Operations() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [location, setLocation] = useState("inhouse");
-  const [category, setCategory] = useState("wb");
+  const [category, setCategory] = useState("WBSEDCL");
   const [data, setData] = useState([]);
 
   const formTemplates = {
-    "inhouse-wb": {
+    "inhouse-WBSEDCL": {
       Location: "Inhouse",
-      Category: "WB",
+      Category: "WBSEDCL",
       LOINo: "",
       LOIDate: "",
       Division: "",
@@ -154,9 +167,9 @@ function Operations() {
       SecurityDepositesubmitted: "",
       SecurityDepositeReceived: ""
     },
-    "site-wb": {
+    "site-WBSEDCL": {
       Location: "Site",
-      Category: "WB",
+      Category: "WBSEDCL",
       LOINo: "",
       LOIDate: "",
       Division: "",
@@ -276,7 +289,7 @@ function Operations() {
       SecurityDeposited: ""
     }
   };
-  const [formData, setFormData] = useState(formTemplates["inhouse-wb"]);
+  const [formData, setFormData] = useState(formTemplates["inhouse-WBSEDCL"]);
   // When location or category changes, reset formData based on template
   useEffect(() => {
     if (location && category) {
@@ -289,7 +302,7 @@ function Operations() {
   }, [location, category]);
 
   const getApiUrl = () => {
-    if (location === "inhouse" && category === "wb")
+    if (location === "inhouse" && category === "WBSEDCL")
       return "http://192.168.0.112:5050/api/operations/inhousewb";
 
     if (location === "inhouse" && category === "private")
@@ -298,7 +311,7 @@ function Operations() {
     if (location === "inhouse" && category === "public")
       return "http://192.168.0.112:5050/api/operations/inhousepub";
 
-    if (location === "site" && category === "wb")
+    if (location === "site" && category === "WBSEDCL")
       return "http://192.168.0.112:5050/api/operations/sitewb";
     if (location === "site" && category === "private")
       return "http://192.168.0.112:5050/api/operations/sitepvt";
@@ -331,17 +344,144 @@ function Operations() {
     return () => clearInterval(interval); // cleanup
   }, [location, category]); // re-run when selection changes
 
-  const exportToJSON = () => {
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataUri =
-      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-    const exportFileDefaultName = "Operations" + location + category + ".json";
 
-    const linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", exportFileDefaultName);
-    linkElement.click();
+
+  const exportToXls = () => {
+    // 1. Process data
+    const processedData = data.map((record) => {
+      const flatRecord = JSON.parse(JSON.stringify(record)); // deep copy
+
+      if (
+        flatRecord.Location === "Site" &&
+        (flatRecord.Category === "Public" || flatRecord.Category === "Private")
+      ) {
+        const transformers = flatRecord.TransformerDetails || [];
+        delete flatRecord.TransformerDetails;
+
+        transformers.forEach((t, index) => {
+          const idx = index + 1;
+          flatRecord[`KVA_${idx}`] = t.KVA || "";
+          flatRecord[`SrNo_${idx}`] = t.SrNo || "";
+          flatRecord[`Rating_${idx}`] = t.Rating || "";
+          flatRecord[`Note_${idx}`] = t.Note || "";
+        });
+      }
+
+
+      return flatRecord;
+    });
+
+
+    // 2. Convert processed data to worksheet
+    const ws = XLSX.utils.json_to_sheet(processedData);
+
+    // 3. Create workbook and append worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Operations");
+
+    // 4. Generate Excel file buffer
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+
+    // 5. Save as file
+    const exportFileName = `Operations_${location}_${category}.xlsx`;
+    const blob = new Blob([wbout], { type: "application/octet-stream" });
+    saveAs(blob, exportFileName);
   };
+
+
+
+  const importFromXls = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const Data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(Data, { type: "array" });
+
+      const firstSheet = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheet];
+
+      // Convert sheet to JSON
+      let importedData = XLSX.utils.sheet_to_json(worksheet);
+
+      // Normalize numeric-keyed rows (0,1,...)
+      importedData = importedData.flatMap((row) => {
+        const keys = Object.keys(row);
+        if (keys.some((k) => !isNaN(k))) {
+          return keys
+            .filter((k) => !isNaN(k))
+            .map((k) => ({ ...row[k] }));
+        }
+        return row;
+      });
+
+      // Reconstruct TransformerDetails conditionally
+      const reconstructedData = importedData.map((record) => {
+        if (
+          record.Location === "Site" &&
+          (record.Category === "Public" || record.Category === "Private")
+        ) {
+          const transformers = [];
+          let idx = 1;
+          while (record[`KVA_${idx}`] !== undefined) {
+            transformers.push({
+              KVA: record[`KVA_${idx}`],
+              SrNo: record[`SrNo_${idx}`],
+              Rating: record[`Rating_${idx}`],
+              Note: record[`Note_${idx}`],
+            });
+
+            delete record[`KVA_${idx}`];
+            delete record[`SrNo_${idx}`];
+            delete record[`Rating_${idx}`];
+            delete record[`Note_${idx}`];
+
+            idx++;
+          }
+
+          if (transformers.length > 0) {
+            record.TransformerDetails = transformers;
+          }
+        }
+        return record;
+      });
+
+      console.log("Normalized & reconstructed:", reconstructedData);
+
+      // Insert each record individually
+      for (const record of reconstructedData) {
+        const url = getApiUrl(record.Location, record.Category); // API endpoint may depend on location/category
+        if (!url) {
+          console.error("Invalid location/category combination for record:", record);
+          continue;
+        }
+
+        try {
+          const response = await axios.post(url, record, {
+            headers: { "x-user-role": localStorage.getItem("userRole") },
+          });
+
+          if (response.data.success) {
+            // Add inserted record to state
+            setData((prevData) => [...prevData, response.data.item || record]);
+          } else {
+            console.error("Failed to insert record:", response.data.message, record);
+          }
+        } catch (err) {
+          console.error("Error inserting record:", err, record);
+        }
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+
+
+
+
 
   const handleDelete = async (ID) => {
     try {
@@ -467,7 +607,7 @@ function Operations() {
       ...prev,
       TransformerDetails: [
         ...prev.TransformerDetails,
-        { kva: "", srNo: "", rating: "", note: "" }
+        { KVA: "", SrNo: "", Rating: "", Note: "" }
       ]
     }));
   };
@@ -485,7 +625,7 @@ function Operations() {
 
   const getTableHeaders = (location, category) => {
     let headers = [];
-    if (location === "inhouse" && category === "wb")
+    if (location === "inhouse" && category === "WBSEDCL")
       headers = [
         { key: "Tender", label: "Tender", sortable: true },
         { key: "Division", label: "Division", sortable: true },
@@ -544,7 +684,7 @@ function Operations() {
           sortable: true
         }
       ];
-    if (location === "site" && category === "wb")
+    if (location === "site" && category === "WBSEDCL")
       headers = [
         { key: "Tender", label: "Tender", sortable: true },
         { key: "Division", label: "Division", sortable: true },
@@ -707,7 +847,7 @@ function Operations() {
     return headers;
   };
   const getTableRowValues = (record, location, category) => {
-    if (location === "inhouse" && category === "wb") {
+    if (location === "inhouse" && category === "WBSEDCL") {
       return {
         Tender: record.Tender,
         Division: record.Division,
@@ -736,7 +876,7 @@ function Operations() {
         SecurityDepositeReceived: record.SecurityDepositeReceived
       };
     }
-    if (location === "site" && category === "wb") {
+    if (location === "site" && category === "WBSEDCL") {
       return {
         Tender: record.Tender,
         Division: record.Division,
@@ -849,7 +989,7 @@ function Operations() {
     return record;
   };
   const handleEdit = (record) => {
-    // build a key like "inhouse-wb", "site-public", etc.
+    // build a key like "inhouse-WBSEDCL", "site-public", etc.
     const templateKey = `${record.location}-${record.category}`.toLowerCase();
 
     // get the matching template, fallback to empty object if not found
@@ -1049,72 +1189,79 @@ function Operations() {
                 </p>
               </div>
             </div>
+
+            {/* Buttons*/}
             <div className="flex space-x-3">
               <div className="flex flex-col space-y-6 w-full items-center">
-                {/* First Group: In House / Site */}
-                <div className="grid grid-cols-2 gap-4 w-full max-w-md">
-                  <button
-                    onClick={() => setLocation("inhouse")}
-                    className={`${
-                      location === "inhouse"
+
+                {/* First Group: Location */}
+                <div className="flex items-center w-full max-w-md space-x-4">
+                  <span className="font-bold text-lg text-white">Location:</span>
+                  <div className="grid grid-cols-2 gap-4 flex-1">
+                    <button
+                      onClick={() => setLocation("inhouse")}
+                      className={`${location === "inhouse"
                         ? "bg-white text-blue-600"
                         : "bg-[rgba(255,255,255,0.6)] text-black"
-                    } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
-                  >
-                    <Home className="w-5 h-5" />
-                    <span>In House</span>
-                  </button>
-                  <button
-                    onClick={() => setLocation("site")}
-                    className={`${
-                      location === "site"
+                        } hover:bg-white hover:text-blue-600 px-3 py-2 rounded-lg text-sm transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+                    >
+                      <Home className="w-5 h-5" />
+                      <span>In House</span>
+                    </button>
+                    <button
+                      onClick={() => setLocation("site")}
+                      className={`${location === "site"
                         ? "bg-white text-blue-600"
                         : "bg-[rgba(255,255,255,0.6)] text-black"
-                    } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
-                  >
-                    <MapPin className="w-5 h-5" />
-                    <span>Site</span>
-                  </button>
+                        } hover:bg-white hover:text-blue-600 px-3 py-2 rounded-lg text-sm transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+                    >
+                      <MapPin className="w-5 h-5" />
+                      <span>Site</span>
+                    </button>
+                  </div>
                 </div>
 
-                {/* Second Group: WB / Private / Public */}
-                <div className="grid grid-cols-3 gap-4 w-full max-w-xl">
-                  <button
-                    onClick={() => setCategory("wb")}
-                    className={`${
-                      category === "wb"
+                {/* Second Group: Sector */}
+                <div className="flex items-center w-full max-w-xl space-x-4">
+                  <span className="font-bold text-lg text-white">Sector:</span>
+                  <div className="grid grid-cols-3 gap-4 flex-1">
+                    <button
+                      onClick={() => setCategory("WBSEDCL")}
+                      className={`${category === "WBSEDCL"
                         ? "bg-white text-blue-600"
                         : "bg-[rgba(255,255,255,0.6)] text-black"
-                    } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
-                  >
-                    <Briefcase className="w-5 h-5" />
-                    <span>WB</span>
-                  </button>
-                  <button
-                    onClick={() => setCategory("private")}
-                    className={`${
-                      category === "private"
+                        } hover:bg-white hover:text-blue-600 px-3 py-2 rounded-lg text-sm transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+                    >
+                      <Briefcase className="w-5 h-5" />
+                      <span>WBSEDCL</span>
+                    </button>
+                    <button
+                      onClick={() => setCategory("private")}
+                      className={`${category === "private"
                         ? "bg-white text-blue-600"
                         : "bg-[rgba(255,255,255,0.6)] text-black"
-                    } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
-                  >
-                    <Lock className="w-5 h-5" />
-                    <span>Private</span>
-                  </button>
-                  <button
-                    onClick={() => setCategory("public")}
-                    className={`${
-                      category === "public"
+                        } hover:bg-white hover:text-blue-600 px-3 py-2 rounded-lg text-sm transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+                    >
+                      <Lock className="w-5 h-5" />
+                      <span>Private</span>
+                    </button>
+                    <button
+                      onClick={() => setCategory("public")}
+                      className={`${category === "public"
                         ? "bg-white text-blue-600"
                         : "bg-[rgba(255,255,255,0.6)] text-black"
-                    } hover:bg-white hover:text-blue-600 w-full px-6 py-4 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
-                  >
-                    <Globe className="w-5 h-5" />
-                    <span>Public</span>
-                  </button>
+                        } hover:bg-white hover:text-blue-600 px-3 py-2 rounded-lg text-sm transition-colors duration-200 flex items-center justify-center space-x-2 shadow-lg`}
+                    >
+                      <Globe className="w-5 h-5" />
+                      <span>Public</span>
+                    </button>
+                  </div>
                 </div>
+
               </div>
             </div>
+
+
           </div>
         </div>
 
@@ -1134,24 +1281,42 @@ function Operations() {
 
           {/* Buttons */}
           <div className="flex space-x-3 max-w-md">
-            <button
-              onClick={exportToJSON}
-              className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
-            >
-              <Download className="w-5 h-4" />
-              <span>Export</span>
-            </button>
-            <button
-              onClick={() => setIsFormOpen(true)}
-              className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
-            >
-              <Plus className="w-5 h-5" />
-              <span>Add Operation Record</span>
-            </button>
-          </div>
+  <button
+    onClick={() => document.getElementById("importFileInput").click()}
+    className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+  >
+    <Download className="w-4 h-4 rotate-180" />
+    <span>Import</span>
+  </button>
+
+  <input
+    type="file"
+    id="importFileInput"
+    accept=".xlsx,.xls"
+    onChange={importFromXls}
+    style={{ display: "none" }}
+  />
+
+  <button
+    onClick={exportToXls}
+    className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+  >
+    <Download className="w-4 h-4" />
+    <span>Export</span>
+  </button>
+
+  <button
+    onClick={() => setIsFormOpen(true)}
+    className="bg-white/90 hover:bg-white text-blue-600 px-4 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+  >
+    <Plus className="w-4 h-4" />
+    <span>Add Record</span>
+  </button>
+</div>
+
         </div>
       </main>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4">
+      <div className="max-w-20xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4">
         {/* Operations Records Table */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden">
           <div className="bg-blue-600 text-white p-4 font-semibold text-lg">
@@ -1249,211 +1414,85 @@ function Operations() {
         </div>
         {/* Form Modal */}{" "}
         {isFormOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
             <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
-                <h2 className="text-xl font-semibold">
-                  {editingRecord
-                    ? "Edit Operation Record"
-                    : "Add New Operation Record"}
-                </h2>
-                <button
-                  onClick={resetForm}
-                  className="text-white hover:bg-blue-700 p-1 rounded"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+              <div className="bg-blue-600 text-white p-2 rounded-t-xl flex items-center justify-between">
+                <h2 className="text-lg font-semibold">{editingRecord ? "Edit Operation Record" : "Add New Operation Record"}</h2>
+                <button onClick={resetForm} className="text-white hover:bg-blue-700 p-1 rounded"><X className="w-5 h-5" /></button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                {formData &&
-                  Object.entries(formData).map(([key, value]) => {
-                    // --- Special handling for system fields ---
-                    if (key === "ID") {
-                      return (
-                        <div key={key} className="flex flex-col">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            {key}
-                          </label>
-                          <input
-                            type="text"
-                            value={value || ""}
-                            readOnly
-                            disabled
-                            className="w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed"
-                          />
-                        </div>
-                      );
-                    }
+              <form onSubmit={handleSubmit} className="p-4 space-y-2">
+                {formData && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {Object.entries(formData).map(([key, value]) => {
+                      if (["ID", "Location", "Category"].includes(key))
+                        return (
+                          <div key={key} className="flex flex-col">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
+                            <input type="text" value={value || ""} readOnly disabled className="w-full px-2 py-1 border border-gray-300 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed" />
+                          </div>
+                        );
 
-                    if (key === "updatedAt") {
-                      // Option 1: completely hide
-                      return null;
+                      if (key === "updatedAt") return null;
 
-                      // Option 2: show as read-only (uncomment below if you want to display it)
-                      /*
-        return (
-          <div key={key} className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
-            <input
-              type="text"
-              value={value || ""}
-              readOnly
-              disabled
-              className="w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed"
-            />
-          </div>
-        );
-        */
-                    }
-
-                    // --- Handle array fields ---
-                    if (Array.isArray(value)) {
-                      return (
-                        <div key={key}>
-                          <h3 className="text-lg font-medium text-gray-800 mb-2">
-                            {key}
-                          </h3>
-                          {value.map((item, index) => (
-                            <div
-                              key={index}
-                              className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-center"
-                            >
-                              {Object.entries(item).map(
-                                ([subKey, subValue]) => {
+                      if (Array.isArray(value))
+                        return (
+                          <div key={key} className="col-span-1 md:col-span-2">
+                            <h3 className="text-sm font-medium text-gray-800 mb-1">{key}</h3>
+                            {value.map((item, index) => (
+                              <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 items-center">
+                                {Object.entries(item).map(([subKey, subValue]) => {
                                   const fieldKey = `${subKey}_${index}`;
                                   return (
                                     <div key={subKey} className="flex flex-col">
-                                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        {subKey}
-                                      </label>
+                                      <label className="block text-xs font-medium text-gray-700 mb-1">{subKey}</label>
                                       <div className="flex">
-                                        <input
-                                          type={
-                                            dateMode[fieldKey] ? "date" : "text"
-                                          }
-                                          value={subValue || ""}
-                                          onChange={(e) =>
-                                            handleFieldJobDetailChange(
-                                              index,
-                                              subKey,
-                                              e.target.value
-                                            )
-                                          }
-                                          placeholder="Enter value"
-                                          className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            toggleDateMode(fieldKey)
-                                          }
-                                          className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
-                                        >
-                                          📅
-                                        </button>
+                                        <input type={dateMode[fieldKey] ? "date" : "text"} value={subValue || ""} onChange={e => handleFieldJobDetailChange(index, subKey, e.target.value)} placeholder="Enter value" className="w-full px-2 py-1 border border-gray-300 rounded-l-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent" />
+                                        <button type="button" onClick={() => toggleDateMode(fieldKey)} className="px-2 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300">📅</button>
                                       </div>
                                     </div>
                                   );
-                                }
-                              )}
-
-                              <div className="flex justify-end space-x-3 mt-4">
-                                <button
-                                  type="button"
-                                  onClick={addFieldJobDetail}
-                                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
-                                >
-                                  + Add Another Row
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => removeFieldJobDetail(index)}
-                                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm"
-                                >
-                                  Remove
-                                </button>
+                                })}
+                                <div className="flex justify-end space-x-2 mt-2 col-span-4">
+                                  <button type="button" onClick={addFieldJobDetail} className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs">+ Add</button>
+                                  <button type="button" onClick={() => removeFieldJobDetail(index)} className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">Remove</button>
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    }
+                            ))}
+                          </div>
+                        );
 
-                    // --- Handle boolean fields (checkbox) ---
-                    if (typeof value === "boolean") {
+                      if (typeof value === "boolean")
+                        return (
+                          <div key={key} className="flex items-center">
+                            <input type="checkbox" checked={value} onChange={e => setFormData({ ...formData, [key]: e.target.checked })} className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                            <label className="ml-2 text-sm font-medium text-gray-700">{key}</label>
+                          </div>
+                        );
+
                       return (
-                        <div key={key} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={value}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                [key]: e.target.checked
-                              })
-                            }
-                            className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                          />
-                          <label className="ml-2 text-sm font-medium text-gray-700">
-                            {key}
-                          </label>
+                        <div key={key} className="flex flex-col">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
+                          <div className="flex">
+                            <input type={dateMode[key] ? "date" : "text"} value={value || ""} onChange={e => setFormData({ ...formData, [key]: e.target.value })} placeholder="Enter value" className="w-full px-2 py-1 border border-gray-300 rounded-l-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent" />
+                            <button type="button" onClick={() => toggleDateMode(key)} className="px-2 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300">📅</button>
+                          </div>
                         </div>
                       );
-                    }
+                    })}
+                  </div>
+                )}
 
-                    // --- Handle string/number/date fields ---
-                    return (
-                      <div key={key} className="flex flex-col">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          {key}
-                        </label>
-                        <div className="flex">
-                          <input
-                            type={dateMode[key] ? "date" : "text"}
-                            value={value || ""}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                [key]: e.target.value
-                              })
-                            }
-                            placeholder="Enter value"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => toggleDateMode(key)}
-                            className="px-3 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300"
-                          >
-                            📅
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                {/* --- Footer buttons --- */}
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>{editingRecord ? "Update" : "Save"}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
-                  >
-                    Cancel
-                  </button>
+                <div className="flex space-x-2 pt-2">
+                  <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded font-medium flex items-center justify-center space-x-1"><Save className="w-4 h-4" /><span>{editingRecord ? "Update" : "Save"}</span></button>
+                  <button type="button" onClick={resetForm} className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-2 py-1 rounded font-medium">Cancel</button>
                 </div>
               </form>
             </div>
           </div>
         )}
+
+
         {/* Detail View Modal */}{" "}
         {isDetailOpen && viewingRecord && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1552,7 +1591,7 @@ function Operations() {
           </div>
         )}
         {/* temp*/}
-        {/* 
+{/* 
         <div className="border p-4 rounded-xl bg-white shadow-lg">
           <h2 className="font-bold mb-2 text-lg">
             Showing Data for: {location} - {category}
@@ -1560,7 +1599,8 @@ function Operations() {
           <pre className="text-sm overflow-x-auto bg-gray-50 p-3 rounded">
             {JSON.stringify(data, null, 2)}
           </pre>
-        </div>*/}
+        </div>
+        */}
       </div>
     </div>
   );

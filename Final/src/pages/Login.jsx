@@ -9,6 +9,38 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const [isChangePwdOpen, setIsChangePwdOpen] = useState(false);
+const [oldPwd, setOldPwd] = useState("");
+const [newPwd, setNewPwd] = useState("");
+
+const changepwd = () => setIsChangePwdOpen(true);
+
+const handleChangePassword = async () => {
+  if (!oldPwd || !newPwd) {
+    alert("Please fill both fields");
+    return;
+  }
+
+  try {
+    const res = await axios.post(
+      "http://192.168.0.112:5050/api/change-password",
+      { oldPassword: oldPwd, newPassword: newPwd },
+      { withCredentials: true }
+    );
+
+    if (res.data.success) {
+      alert(res.data.message);
+      setOldPwd("");
+      setNewPwd("");
+      setIsChangePwdOpen(false);
+    }
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    alert(err.response?.data?.message || "Failed to change password");
+  }
+};
+
+
   const handleLogin = async () => {
     if (role === "admin") {
       try {
@@ -86,12 +118,58 @@ const Login = () => {
             </button>
             {localStorage.getItem("userRole") === "admin" && (
               <button
+                onClick={changepwd}
+                className="w-full bg-yellow-600 text-white py-2 rounded-lg font-semibold hover:bg-yellow-700 transition duration-200"
+              >
+                Change Password
+              </button>
+            )}
+            {localStorage.getItem("userRole") === "admin" && (
+              <button
                 onClick={closesystem}
                 className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition duration-200"
               >
                 Logout!
               </button>
             )}
+{isChangePwdOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
+      <h2 className="text-xl font-semibold text-gray-800">Change Password</h2>
+
+      <input
+        type="text"
+        placeholder="Old Password"
+        value={oldPwd}
+        onChange={(e) => setOldPwd(e.target.value)}
+        className="w-full px-3 py-2 border rounded-lg"
+      />
+      <input
+        type="text"
+        placeholder="New Password"
+        value={newPwd}
+        onChange={(e) => setNewPwd(e.target.value)}
+        className="w-full px-3 py-2 border rounded-lg"
+      />
+
+      <div className="flex space-x-3 justify-end">
+        <button
+          onClick={() => setIsChangePwdOpen(false)}
+          className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleChangePassword}
+          className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition"
+        >
+          Change
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
           </div>
         </div>
       </main>
