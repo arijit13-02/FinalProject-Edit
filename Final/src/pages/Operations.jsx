@@ -303,20 +303,20 @@ function Operations() {
 
   const getApiUrl = () => {
     if (location === "inhouse" && category === "WBSEDCL")
-      return "http://192.168.0.111:5050/api/operations/inhousewb";
+      return "http://192.168.0.102:5050/api/operations/inhousewb";
 
     if (location === "inhouse" && category === "private")
-      return "http://192.168.0.111:5050/api/operations/inhousepvt";
+      return "http://192.168.0.102:5050/api/operations/inhousepvt";
 
     if (location === "inhouse" && category === "public")
-      return "http://192.168.0.111:5050/api/operations/inhousepub";
+      return "http://192.168.0.102:5050/api/operations/inhousepub";
 
     if (location === "site" && category === "WBSEDCL")
-      return "http://192.168.0.111:5050/api/operations/sitewb";
+      return "http://192.168.0.102:5050/api/operations/sitewb";
     if (location === "site" && category === "private")
-      return "http://192.168.0.111:5050/api/operations/sitepvt";
+      return "http://192.168.0.102:5050/api/operations/sitepvt";
     if (location === "site" && category === "public")
-      return "http://192.168.0.111:5050/api/operations/sitepub";
+      return "http://192.168.0.102:5050/api/operations/sitepub";
 
     return null;
   };
@@ -634,55 +634,25 @@ function Operations() {
         { key: "LOINo", label: "LOI NO", sortable: true },
         { key: "LOIDate", label: "LOI Date", sortable: true },
         { key: "PrelimarySurvey", label: "Prelimary Survey", sortable: true },
-        {
-          key: "SIRNofTransformer",
-          label: "SIRN of Transformer",
-          sortable: true
-        },
+        { key: "SIRNofTransformer", label: "SIRN of Transformer", sortable: true },
         { key: "FinalSurvey", label: "Final Survey", sortable: true },
-        {
-          key: "SRNofDrainoutOil",
-          label: "SRN of Drainout Oil",
-          sortable: true
-        },
+        { key: "SRNofDrainoutOil", label: "SRN of Drainout Oil", sortable: true },
         { key: "StageInspection", label: "Stage Inspection", sortable: true },
         { key: "OilStatement", label: "Oil Statement", sortable: true },
         { key: "SIRNofOil", label: "SIRN of Oil", sortable: true },
-        {
-          key: "TransfomerTesting",
-          label: "Transfomer Testing",
-          sortable: true
-        },
-        {
-          key: "Materialdeliveredon",
-          label: "Material delivered on",
-          sortable: true
-        },
+        { key: "TransfomerTesting", label: "Transfomer Testing", sortable: true },
+        { key: "Materialdeliveredon", label: "Material delivered on", sortable: true },
+        { key: "SRNofTransformer", label: "SRN of Transformer", sortable: true },
+
         { key: "Estimate", label: "Estimate", sortable: true },
-        {
-          key: "FormalOrderPlaced",
-          label: "Formal Order Placed",
-          sortable: true
-        },
-        {
-          key: "OrderReferanceno",
-          label: "Order Referance no",
-          sortable: true
-        },
+        { key: "FormalOrderPlaced", label: "Formal Order Placed", sortable: true },
+        { key: "OrderReferanceno", label: "Order Referance no", sortable: true },
         { key: "OrderDate", label: "Order Date", sortable: true },
         { key: "Billsubmission", label: "Bill submission", sortable: true },
         { key: "Payment", label: "Payement", sortable: true },
         { key: "NetAmount", label: "Net Amount", sortable: true },
-        {
-          key: "SecurityDepositesubmitted",
-          label: "Security Deposite submitted",
-          sortable: true
-        },
-        {
-          key: "SecurityDepositeReceived",
-          label: "Security Deposite Received",
-          sortable: true
-        }
+        { key: "SecurityDepositesubmitted", label: "Security Deposite Submitted", sortable: true },
+        { key: "SecurityDepositeReceived", label: "Security Deposite Received", sortable: true }
       ];
     if (location === "site" && category === "WBSEDCL")
       headers = [
@@ -1281,38 +1251,38 @@ function Operations() {
 
           {/* Buttons */}
           <div className="flex space-x-3 max-w-md">
-  <button
-    onClick={() => document.getElementById("importFileInput").click()}
-    className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
-  >
-    <Upload className="w-4 h-4" />
-    <span>Import</span>
-  </button>
+            <button
+              onClick={() => document.getElementById("importFileInput").click()}
+              className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+            >
+              <Upload className="w-4 h-4" />
+              <span>Import</span>
+            </button>
 
-  <input
-    type="file"
-    id="importFileInput"
-    accept=".xlsx,.xls"
-    onChange={importFromXls}
-    style={{ display: "none" }}
-  />
+            <input
+              type="file"
+              id="importFileInput"
+              accept=".xlsx,.xls"
+              onChange={importFromXls}
+              style={{ display: "none" }}
+            />
 
-  <button
-    onClick={exportToXls}
-    className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
-  >
-    <Download className="w-4 h-4" />
-    <span>Export</span>
-  </button>
+            <button
+              onClick={exportToXls}
+              className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+            >
+              <Download className="w-4 h-4" />
+              <span>Export</span>
+            </button>
 
-  <button
-    onClick={() => setIsFormOpen(true)}
-    className="bg-white/90 hover:bg-white text-blue-600 px-4 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
-  >
-    <Plus className="w-4 h-4" />
-    <span>Add Record</span>
-  </button>
-</div>
+            <button
+              onClick={() => setIsFormOpen(true)}
+              className="bg-white/90 hover:bg-white text-blue-600 px-4 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Record</span>
+            </button>
+          </div>
 
         </div>
       </main>
@@ -1423,7 +1393,7 @@ function Operations() {
 
               <form onSubmit={handleSubmit} className="p-4 space-y-2">
                 {formData && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-1">
                     {Object.entries(formData).map(([key, value]) => {
                       if (["ID", "Location", "Category"].includes(key))
                         return (
@@ -1440,17 +1410,24 @@ function Operations() {
                           <div key={key} className="col-span-1 md:col-span-2">
                             <h3 className="text-sm font-medium text-gray-800 mb-1">{key}</h3>
                             {value.map((item, index) => (
-                              <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 items-center">
+                              <div key={index} className="flex flex-wrap gap-2 mb-2 items-center">
+
                                 {Object.entries(item).map(([subKey, subValue]) => {
                                   const fieldKey = `${subKey}_${index}`;
                                   return (
-                                    <div key={subKey} className="flex flex-col">
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">{subKey}</label>
-                                      <div className="flex">
-                                        <input type={dateMode[fieldKey] ? "date" : "text"} value={subValue || ""} onChange={e => handleFieldJobDetailChange(index, subKey, e.target.value)} placeholder="Enter value" className="w-full px-2 py-1 border border-gray-300 rounded-l-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent" />
-                                        <button type="button" onClick={() => toggleDateMode(fieldKey)} className="px-2 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300">📅</button>
-                                      </div>
+                                    <div key={subKey} className="flex items-center space-x-3 w-full md:w-1/2">
+                                      <label className="w-32 text-sm font-medium text-gray-700">{subKey}</label>
+                                      <input
+                                        type={dateMode[fieldKey] ? "date" : "text"}
+                                        value={subValue || ""}
+                                        onChange={e => handleFieldJobDetailChange(index, subKey, e.target.value)}
+                                        placeholder="Enter value"
+                                        className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                                      />
                                     </div>
+
+
+
                                   );
                                 })}
                                 <div className="flex justify-end space-x-2 mt-2 col-span-4">
@@ -1471,12 +1448,15 @@ function Operations() {
                         );
 
                       return (
-                        <div key={key} className="flex flex-col">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
-                          <div className="flex">
-                            <input type={dateMode[key] ? "date" : "text"} value={value || ""} onChange={e => setFormData({ ...formData, [key]: e.target.value })} placeholder="Enter value" className="w-full px-2 py-1 border border-gray-300 rounded-l-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent" />
-                            <button type="button" onClick={() => toggleDateMode(key)} className="px-2 bg-gray-200 border border-l-0 rounded-r-lg hover:bg-gray-300">📅</button>
-                          </div>
+                        <div key={key} className="flex items-center space-x-3"> {/* Use flex and items-center for vertical alignment */}
+                          <label className="w-40 block text-sm font-medium text-gray-700">{key}</label> {/* Set a fixed width for the label */}
+                          <input
+                            type={dateMode[key] ? "date" : "text"}
+                            value={value || ""}
+                            onChange={e => setFormData({ ...formData, [key]: e.target.value })}
+                            placeholder="Enter value"
+                            className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                          /> {/* Use flex-1 to make input take up remaining space */}
                         </div>
                       );
                     })}
@@ -1591,7 +1571,7 @@ function Operations() {
           </div>
         )}
         {/* temp*/}
-{/* 
+        {/* 
         <div className="border p-4 rounded-xl bg-white shadow-lg">
           <h2 className="font-bold mb-2 text-lg">
             Showing Data for: {location} - {category}

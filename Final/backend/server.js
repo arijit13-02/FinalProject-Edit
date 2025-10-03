@@ -10,6 +10,7 @@ import operationsRoutes from "./routes/operations.js";
 import upcomingjobsRoutes from "./routes/upcomingjobs.js";
 import staffRoutes from "./routes/staff.js";
 import certRoutes from "./routes/cert.js";
+import vendorRoutes from "./routes/vendors.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,7 +31,7 @@ const requireAdmin = (req, res, next) => {
 // --- CORS configuration ---
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://192.168.0.111:5173" // LAN access
+  "http://192.168.0.102:5173" // LAN access
 ];
 
 app.use(
@@ -104,6 +105,7 @@ app.use("/api/operations", requireAdmin, operationsRoutes);
 app.use("/api/upcomingjobs", requireAdmin, upcomingjobsRoutes);
 app.use("/api/staff", requireAdmin, staffRoutes);
 app.use("/api/cert", requireAdmin, certRoutes);
+app.use("/api/vendors", requireAdmin, vendorRoutes);
 
 // --- Health Check ---
 app.get("/api/health", (req, res) => {
