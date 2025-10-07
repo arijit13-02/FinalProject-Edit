@@ -14,6 +14,8 @@ import UpcomingJobs from "./pages/UpcomingJobs";
 import Login from "./pages/Login";
 import RealTimeJobs from "./pages/RealTimeJobs";
 import PendingChangesRealTimeJobs from "./pages/PendingChangesRealTimeJobs";
+import PendingChangesInventory from "./pages/PendingChangesInventory";
+
 
 function App() {
   return (
@@ -30,6 +32,7 @@ function App() {
         <Route path="/certifications" element={<Certifications />} />
         <Route path="/upcoming-jobs" element={<UpcomingJobs />} />
         <Route path="/pendingchangesrealtimejobs" element={<PendingChangesRealTimeJobs />} />
+        <Route path="/pendingchangesinventory" element={<PendingChangesInventory />} />
         <Route path="/login" element={<Login />} />
         
 
