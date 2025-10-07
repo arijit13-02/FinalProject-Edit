@@ -1,0 +1,30 @@
+[
+  {
+    "SrNo": "srno1",
+    "Date": "date1",
+    "BillNo": "billno1",
+    "Status": "statsu1",
+    "WorkDescrp": "workscoks",
+    "HSNSAC": "hsnsac",
+    "PartyDetails": "partyparty",
+    "PartyGSTNo": "partygst",
+    "JobCost": "2510",
+    "TaxRate": "10",
+    "CGST": "125",
+    "SGST": "125.02",
+    "Total": "20.258",
+    "Scrap": "12054",
+    "NetAmount": "120258",
+    "SD": "21548",
+    "TDS": "12.5",
+    "TCS": "20.5",
+    "ScrapTax": "2548",
+    "Others": "20.5",
+    "NetPayble": "120.5",
+    "AmountReceived": "12540",
+    "ChequeNEFTDetails": "Details",
+    "PaymentReceivedDate": "125.252.366",
+    "BillTotal": "12846545451",
+    "id": "1759874385991"
+  }
+]

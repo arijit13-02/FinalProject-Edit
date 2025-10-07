@@ -35,12 +35,12 @@
     "Location": "In House",
     "Category": "WBSEDCL",
     "LOINo": "orderofwbs",
-    "LOIDate": "2025-10-16",
+    "LOIDate": "14.02.2025",
     "Division": "asjfka",
     "Tender": "tendua",
     "FileNo": "",
     "WorkOrder": "",
-    "PrelimarySurvey": "2025-10-14",
+    "PrelimarySurvey": "14.02.2025",
     "SIRNofTransformer": "",
     "FinalSurvey": "2025-10-22",
     "SRNofDrainoutOil": "",
@@ -58,7 +58,8 @@
     "Payment": "",
     "NetAmount": "",
     "SecurityDepositesubmitted": "",
-    "SecurityDepositeReceived": ""
+    "SecurityDepositeReceived": "",
+    "updatedAt": "2025-10-07T20:45:21.288Z"
   },
   {
     "ID": "1759366527886",

@@ -11,6 +11,7 @@ import upcomingjobsRoutes from "./routes/upcomingjobs.js";
 import staffRoutes from "./routes/staff.js";
 import certRoutes from "./routes/cert.js";
 import vendorRoutes from "./routes/vendors.js";
+import billingRoutes from "./routes/billing.js";
 import inventoryRoutes from "./routes/inventory.js";
 
 
@@ -110,6 +111,7 @@ app.use("/api/upcomingjobs", requireAdmin, upcomingjobsRoutes);
 app.use("/api/staff", requireAdmin, staffRoutes);
 app.use("/api/cert", requireAdmin, certRoutes);
 app.use("/api/vendors", requireAdmin, vendorRoutes);
+app.use("/api/billing", requireAdmin, billingRoutes);
 
 // --- Health Check ---
 app.get("/api/health", (req, res) => {

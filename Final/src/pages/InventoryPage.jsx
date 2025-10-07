@@ -41,6 +41,7 @@ function Inventory() {
   localStorage.setItem("userRole", role);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+const [lowStockItems, setLowStockItems] = useState([]);
 
   //Ribbon at top
   const navigate = useNavigate();
@@ -215,7 +216,7 @@ function Inventory() {
 
     // 3. Create workbook and append worksheet
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "StockRecords");
+    XLSX.utils.book_append_sheet(wb, ws, "InventoryData");
 
     // 4. Generate Excel file buffer
     const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
@@ -325,6 +326,12 @@ function Inventory() {
     setViewingRecord(record);
     setIsDetailOpen(true);
   };
+
+  
+  const [isAlertOpen, setisAlertOpen] = useState(true);
+  const closeAlert = () => {
+    setisAlertOpen(false);
+  };
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
 
   const handleDelete = async (id) => {
@@ -367,6 +374,7 @@ function Inventory() {
       (record.Limit || "").toString().toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+
     if (sortConfig.key) {
       filtered.sort((a, b) => {
         let aValue = a[sortConfig.key];
@@ -386,6 +394,15 @@ function Inventory() {
     return filtered;
   }, [records, searchTerm, sortConfig]);
 
+  useEffect(() => {
+  const belowLimit = records.filter((record) => {
+    const stock = parseInt(record.StockAvailable);
+    const limit = parseInt(record.Limit);
+    return !isNaN(stock) && !isNaN(limit) && stock < limit;
+  });
+  setLowStockItems(belowLimit);
+}, [records]);
+
 const getLimitColor = (a,b) => {
   var aa= parseInt(a);
   var bb= parseInt(b);
@@ -394,7 +411,7 @@ const getLimitColor = (a,b) => {
       return "bg-green-100 text-green-800";
     else
     {
-      
+
       return "bg-red-100 text-red-800";
     }
   };
@@ -558,6 +575,51 @@ const getLimitColor = (a,b) => {
             />
           </div>
         </div>
+{/* Low Stock Alert */}
+{lowStockItems.length > 0 && isAlertOpen && (
+  <div
+    className={`fixed top-20 right-40 w-96 bg-red-50 border border-red-200 rounded-xl p-4 shadow-lg z-50
+      transform transition-all duration-300
+      ${isAlertOpen ? "translate-x-0 opacity-100" : "translate-x-20 opacity-0"}`}
+  >
+    {/* Close button */}
+    <button
+      onClick={() => closeAlert()}
+      className="absolute top-2 right-2 text-red-600 hover:text-red-800 hover:bg-red-100 p-1 rounded-full transition-colors duration-200"
+      title="Close"
+    >
+      ✕
+    </button>
+
+    {/* Header */}
+    <h3 className="text-lg font-bold text-red-700 mb-3 flex items-center space-x-2">
+      <span>⚠️</span>
+      <span>Items Below Limit</span>
+    </h3>
+
+    {/* List of items */}
+    <ul className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-red-300 scrollbar-track-red-50">
+      {lowStockItems.map((item, index) => (
+        <li
+          key={index}
+          className={`flex justify-between items-center px-3 py-2 rounded-md shadow-sm bg-white hover:bg-red-50 transition-colors duration-200 ${getLimitColor(
+            item.StockAvailable,
+            item.Limit
+          )}`}
+        >
+          <span className="font-medium">{item.ItemDetails}</span>
+          <span className="font-medium">
+            Stock: {item.StockAvailable} / Limit: {item.Limit}
+          </span>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
+
+
+
         {/* Inventory Records Table */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden">
           <div className="bg-blue-600 text-white p-4 font-semibold text-lg">
@@ -723,7 +785,7 @@ const getLimitColor = (a,b) => {
             <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
-                  {editingRecord ? "Edit Job Record" : "Add New Job Record"}
+                  {editingRecord ? "Edit Vendor Record" : "Add New Vendor Record"}
                 </h2>
                 <button
                   onClick={resetForm}
@@ -809,7 +871,7 @@ const getLimitColor = (a,b) => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Job Record Details</h2>
+                <h2 className="text-xl font-semibold">Vendor Record Details</h2>
                 <button
                   onClick={() => setIsDetailOpen(false)}
                   className="text-white hover:bg-blue-700 p-1 rounded"
@@ -899,6 +961,10 @@ const getLimitColor = (a,b) => {
             </div>
           </div>
         )}
+
+  
+
+
       </main>
     </div>
   );

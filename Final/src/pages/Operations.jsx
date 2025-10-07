@@ -1385,7 +1385,7 @@ function Operations() {
         {/* Form Modal */}{" "}
         {isFormOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
-            <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="bg-blue-600 text-white p-2 rounded-t-xl flex items-center justify-between">
                 <h2 className="text-lg font-semibold">{editingRecord ? "Edit Operation Record" : "Add New Operation Record"}</h2>
                 <button onClick={resetForm} className="text-white hover:bg-blue-700 p-1 rounded"><X className="w-5 h-5" /></button>
@@ -1393,75 +1393,99 @@ function Operations() {
 
               <form onSubmit={handleSubmit} className="p-4 space-y-2">
                 {formData && (
-                  <div className="grid grid-cols-1 md:grid-cols-1 gap-1">
-                    {Object.entries(formData).map(([key, value]) => {
-                      if (["ID", "Location", "Category"].includes(key))
-                        return (
-                          <div key={key} className="flex flex-col">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">{key}</label>
-                            <input type="text" value={value || ""} readOnly disabled className="w-full px-2 py-1 border border-gray-300 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed" />
-                          </div>
-                        );
+  <div className="space-y-3">
+    {Object.entries(formData).map(([key, value]) => {
+      if (["ID", "Location", "Category"].includes(key))
+        return (
+          <div key={key} className="flex justify-between items-center border-b border-gray-100 pb-2">
+            <label className="w-40 text-sm font-medium text-gray-700">{key}</label>
+            <input
+              type="text"
+              value={value || ""}
+              readOnly
+              disabled
+              className="flex-1 px-2 py-1 border border-gray-300 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed"
+            />
+          </div>
+        );
 
-                      if (key === "updatedAt") return null;
+      if (key === "updatedAt") return null;
 
-                      if (Array.isArray(value))
-                        return (
-                          <div key={key} className="col-span-1 md:col-span-2">
-                            <h3 className="text-sm font-medium text-gray-800 mb-1">{key}</h3>
-                            {value.map((item, index) => (
-                              <div key={index} className="flex flex-wrap gap-2 mb-2 items-center">
+      if (Array.isArray(value))
+        return (
+          <div key={key} className="border-t pt-3">
+            <h3 className="text-sm font-semibold text-gray-800 mb-2">{key}</h3>
+            {value.map((item, index) => (
+              <div key={index} className="border border-gray-200 rounded-lg p-3 mb-3 space-y-2">
+                {Object.entries(item).map(([subKey, subValue]) => {
+                  const fieldKey = `${subKey}_${index}`;
+                  return (
+                    <div key={subKey} className="flex justify-between items-center">
+                      <label className="w-40 text-sm font-medium text-gray-700">{subKey}</label>
+                      <input
+                        type={dateMode[fieldKey] ? "date" : "text"}
+                        value={subValue || ""}
+                        onChange={(e) =>
+                          handleFieldJobDetailChange(index, subKey, e.target.value)
+                        }
+                        placeholder="Enter value"
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                  );
+                })}
+                <div className="flex justify-end space-x-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={addFieldJobDetail}
+                    className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
+                  >
+                    + Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeFieldJobDetail(index)}
+                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
 
-                                {Object.entries(item).map(([subKey, subValue]) => {
-                                  const fieldKey = `${subKey}_${index}`;
-                                  return (
-                                    <div key={subKey} className="flex items-center space-x-3 w-full md:w-1/2">
-                                      <label className="w-32 text-sm font-medium text-gray-700">{subKey}</label>
-                                      <input
-                                        type={dateMode[fieldKey] ? "date" : "text"}
-                                        value={subValue || ""}
-                                        onChange={e => handleFieldJobDetailChange(index, subKey, e.target.value)}
-                                        placeholder="Enter value"
-                                        className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent"
-                                      />
-                                    </div>
+      if (typeof value === "boolean")
+        return (
+          <div key={key} className="flex justify-between items-center border-b border-gray-100 pb-2">
+            <label className="w-40 text-sm font-medium text-gray-700">{key}</label>
+            <input
+              type="checkbox"
+              checked={value}
+              onChange={(e) =>
+                setFormData({ ...formData, [key]: e.target.checked })
+              }
+              className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+          </div>
+        );
 
+      return (
+        <div key={key} className="flex justify-between items-center border-b border-gray-100 pb-2">
+          <label className="w-40 text-sm font-medium text-gray-700">{key}</label>
+          <input
+            type={dateMode[key] ? "date" : "text"}
+            value={value || ""}
+            onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+            placeholder="Enter value"
+            className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+      );
+    })}
+  </div>
+)}
 
-
-                                  );
-                                })}
-                                <div className="flex justify-end space-x-2 mt-2 col-span-4">
-                                  <button type="button" onClick={addFieldJobDetail} className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs">+ Add</button>
-                                  <button type="button" onClick={() => removeFieldJobDetail(index)} className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">Remove</button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        );
-
-                      if (typeof value === "boolean")
-                        return (
-                          <div key={key} className="flex items-center">
-                            <input type="checkbox" checked={value} onChange={e => setFormData({ ...formData, [key]: e.target.checked })} className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                            <label className="ml-2 text-sm font-medium text-gray-700">{key}</label>
-                          </div>
-                        );
-
-                      return (
-                        <div key={key} className="flex items-center space-x-3"> {/* Use flex and items-center for vertical alignment */}
-                          <label className="w-40 block text-sm font-medium text-gray-700">{key}</label> {/* Set a fixed width for the label */}
-                          <input
-                            type={dateMode[key] ? "date" : "text"}
-                            value={value || ""}
-                            onChange={e => setFormData({ ...formData, [key]: e.target.value })}
-                            placeholder="Enter value"
-                            className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent"
-                          /> {/* Use flex-1 to make input take up remaining space */}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
 
                 <div className="flex space-x-2 pt-2">
                   <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded font-medium flex items-center justify-center space-x-1"><Save className="w-4 h-4" /><span>{editingRecord ? "Update" : "Save"}</span></button>
@@ -1476,7 +1500,7 @@ function Operations() {
         {/* Detail View Modal */}{" "}
         {isDetailOpen && viewingRecord && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               {/* Header */}
               <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
@@ -1495,57 +1519,58 @@ function Operations() {
                 {/* Record Title */}
 
                 {/* All Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {Object.entries(viewingRecord).map(([key, value]) => {
-                    // Handle array of objects (like fieldJobDetails, TransformerDetails)
-                    if (Array.isArray(value)) {
-                      return (
-                        <div key={key} className="col-span-3">
-                          <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                            {key}
-                          </h4>
-                          {value.length > 0 ? (
-                            value.map((item, idx) => (
-                              <div
-                                key={idx}
-                                className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 p-3 border border-gray-200 rounded-lg"
-                              >
-                                {Object.entries(item).map(
-                                  ([subKey, subValue]) => (
-                                    <div key={subKey}>
-                                      <label className="block text-sm font-medium text-gray-500">
-                                        {subKey}
-                                      </label>
-                                      <p className="text-lg font-semibold text-gray-800">
-                                        {subValue || "N/A"}
-                                      </p>
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-gray-600 italic">
-                              No {key} data
-                            </p>
-                          )}
-                        </div>
-                      );
-                    }
+                <div className="space-y-4">
+  {Object.entries(viewingRecord).map(([key, value]) => {
+    // Handle array of objects (like fieldJobDetails, TransformerDetails)
+    if (Array.isArray(value)) {
+      return (
+        <div key={key} className="border-t pt-4">
+          <h4 className="text-lg font-semibold text-gray-800 mb-2">
+            {key}
+          </h4>
+          {value.length > 0 ? (
+            value.map((item, idx) => (
+              <div
+                key={idx}
+                className="space-y-2 border border-gray-200 rounded-lg p-3 mb-3"
+              >
+                {Object.entries(item).map(([subKey, subValue]) => (
+                  <div
+                    key={subKey}
+                    className="flex justify-between border-b border-gray-100 pb-1"
+                  >
+                    <span className="text-sm font-medium text-gray-500">
+                      {subKey}
+                    </span>
+                    <span className="text-sm font-semibold text-gray-800">
+                      {subValue || "N/A"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-600 italic">No {key} data</p>
+          )}
+        </div>
+      );
+    }
 
-                    // Handle normal fields
-                    return (
-                      <div key={key}>
-                        <label className="block text-sm font-medium text-gray-500">
-                          {key}
-                        </label>
-                        <p className="text-lg font-semibold text-gray-800">
-                          {value ? value.toString() : "N/A"}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
+    // Handle normal fields (key-value pairs)
+    return (
+      <div
+        key={key}
+        className="flex justify-between border-b border-gray-100 pb-2"
+      >
+        <span className="text-sm font-medium text-gray-500">{key}</span>
+        <span className="text-sm font-semibold text-gray-800">
+          {value ? value.toString() : "N/A"}
+        </span>
+      </div>
+    );
+  })}
+</div>
+
 
                 {/* Action Buttons */}
                 <div className="flex space-x-3 pt-6">
