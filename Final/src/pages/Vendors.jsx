@@ -347,7 +347,7 @@ function Vendors() {
 
     // 3. Create workbook and append worksheet
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Operations");
+    XLSX.utils.book_append_sheet(wb, ws, "Vendors");
 
     // 4. Generate Excel file buffer
     const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
@@ -827,7 +827,7 @@ function Vendors() {
             <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
-                  {editingRecord ? "Edit Job Record" : "Add New Job Record"}
+                  {editingRecord ? "Edit Job Record" : "Add New Vendor Record"}
                 </h2>
                 <button
                   onClick={resetForm}
@@ -844,121 +844,245 @@ function Vendors() {
                     Vendor Information
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                    {/* SrNo */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">SrNo</label>
-                      <input type="text" name="SrNo" value={formData.SrNo} onChange={handleInputChange} required
+                      <input
+                        type="text"
+                        name="SrNo"
+                        value={formData.SrNo}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter SrNo"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Item Spec */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Item Spec</label>
-                      <input type="text" name="ItemSpec" value={formData.ItemSpec} onChange={handleInputChange} required
+                      <input
+                        type="text"
+                        name="ItemSpec"
+                        value={formData.ItemSpec}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter Item Spec"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* HSN */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">HSN</label>
-                      <input type="text" name="HSN" value={formData.HSN} onChange={handleInputChange} required
+                      <input
+                        type="text"
+                        name="HSN"
+                        value={formData.HSN}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter HSN"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Vendor Info Heading */}
+                    <div className="col-span-3 mt-4 mb-2">
+                      <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Vendor Info</h2>
+                    </div>
+
+                    {/* Vendor Name */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Name</label>
-                      <input type="text" name="VendorName" value={formData.VendorName} onChange={handleInputChange} required
+                      <input
+                        type="text"
+                        name="VendorName"
+                        value={formData.VendorName}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter Vendor Name"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* GSTIN */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">GSTIN</label>
-                      <input type="text" name="GSTIN" value={formData.GSTIN} onChange={handleInputChange} required
+                      <input
+                        type="text"
+                        name="GSTIN"
+                        value={formData.GSTIN}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter GSTIN"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Address */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                      <input type="text" name="Address" value={formData.Address} onChange={handleInputChange} required
+                      <input
+                        type="text"
+                        name="Address"
+                        value={formData.Address}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter Address"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Contact Info Heading */}
+                    <div className="col-span-3 mt-4 mb-2">
+                      <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Contact Info</h2>
+                    </div>
+
+                    {/* Contact No */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Contact No</label>
-                      <input type="text" name="ContactNo" value={formData.ContactNo} onChange={handleInputChange} required
+                      <input
+                        type="text"
+                        name="ContactNo"
+                        value={formData.ContactNo}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter Contact No"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Mailing ID */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Mailing ID</label>
-                      <input type="text" name="MailingID" value={formData.MailingID} onChange={handleInputChange} required
+                      <input
+                        type="text"
+                        name="MailingID"
+                        value={formData.MailingID}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter Mailing ID"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Contact Name */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
-                      <input type="text" name="ContactName" value={formData.ContactName} onChange={handleInputChange} required
+                      <input
+                        type="text"
+                        name="ContactName"
+                        value={formData.ContactName}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter Contact Name"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Purchase Date */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
-                      <input type="text" name="PurchaseDate" value={formData.PurchaseDate} onChange={handleInputChange} required
-                        placeholder="Enter Contact Name"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                      <input
+                        type="text"
+                        name="PurchaseDate"
+                        value={formData.PurchaseDate}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Enter Purchase Date"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
-
-
+                    {/* Qty */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Qty</label>
-                      <input type="number" name="Qty" value={formData.Qty} onChange={handleInputChange} required
+                      <input
+                        type="number"
+                        name="Qty"
+                        value={formData.Qty}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter Qty"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Rate */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Rate</label>
-                      <input type="number" name="Rate" value={formData.Rate} onChange={handleInputChange} required
+                      <input
+                        type="number"
+                        name="Rate"
+                        value={formData.Rate}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter Rate"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Unit */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
-                      <input type="text" name="Unit" value={formData.Unit} onChange={handleInputChange} required
+                      <input
+                        type="text"
+                        name="Unit"
+                        value={formData.Unit}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter Unit"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Tax & Payment Heading */}
+                    <div className="col-span-3 mt-4 mb-2">
+                      <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Tax & Payment</h2>
+                    </div>
+
+                    {/* Tax Percent */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Tax Percent</label>
-                      <input type="number" name="TaxPercent" value={formData.TaxPercent} onChange={handleInputChange} required
+                      <input
+                        type="number"
+                        name="TaxPercent"
+                        value={formData.TaxPercent}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter Tax Percent"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Total Amount */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
-                      <input type="number" name="TotalAmount" value={formData.TotalAmount} onChange={handleInputChange} required
+                      <input
+                        type="number"
+                        name="TotalAmount"
+                        value={formData.TotalAmount}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Enter Total Amount"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
 
+                    {/* Paid On */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Paid On</label>
-                      <input type="text" name="PaidOn" value={formData.PaidOn} onChange={handleInputChange} required
-                        placeholder="Enter Unit"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                      <input
+                        type="text"
+                        name="PaidOn"
+                        value={formData.PaidOn}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Enter Paid On"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
-
-
 
                   </div>
                 </div>
@@ -985,122 +1109,205 @@ function Vendors() {
           </div>
         )}
         {/* Detail View Modal */}{" "}
-        {isDetailOpen && viewingRecord && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Job Record Details</h2>
-                <button
-                  onClick={() => setIsDetailOpen(false)}
-                  className="text-white hover:bg-blue-700 p-1 rounded"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+  {isDetailOpen && viewingRecord && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      
+      {/* Header */}
+      <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Vendor Record Details</h2>
+        <button
+          onClick={() => setIsDetailOpen(false)}
+          className="text-white hover:bg-blue-700 p-1 rounded"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
 
-              <div className="p-6 space-y-6">
+      {/* Body */}
+      <div className="p-6 space-y-6">
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">SrNo</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.SrNo}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Item Spec</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.ItemSpec}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">HSN</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.HSN}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Vendor Name</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.VendorName}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">GSTIN</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.GSTIN}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Address</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Address}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Contact No</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.ContactNo}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Mailing ID</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.MailingID}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Contact Name</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.ContactName}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Purchase Date</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.PurchaseDate}</span>
-                  </div>
-
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Qty</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Qty}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Rate</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Rate}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Unit</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Unit}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Tax Percent</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.TaxPercent}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Total Amount</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.TotalAmount}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Paid On</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.PaidOn}</span>
-                  </div>
-
-
-
-
-
-
-                </div>
-
-                <div className="flex space-x-3 pt-4">
-                  <button onClick={() => { setIsDetailOpen(false); handleEdit(viewingRecord); }} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2" >
-                    <Edit3 className="w-4 h-4" />
-                    <span>Edit Record</span>
-                  </button>
-                  <button onClick={() => setIsDetailOpen(false)} className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors duration-200" > {" "} Close </button>
-                </div>
-              </div>
+        {/* Vendor Information Section */}
+        <div>
+          <h3 className="text-lg font-medium text-gray-800 mb-4">Vendor Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            {/* SrNo */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">SrNo</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.SrNo}
+              </p>
             </div>
+
+            {/* Item Spec */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Item Spec</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.ItemSpec}
+              </p>
+            </div>
+
+            {/* HSN */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">HSN</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.HSN}
+              </p>
+            </div>
+
+            {/* Section Header: Vendor Info */}
+            <div className="col-span-3 mt-4 mb-2">
+              <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Vendor Info</h2>
+            </div>
+
+            {/* Vendor Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Name</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.VendorName}
+              </p>
+            </div>
+
+            {/* GSTIN */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">GSTIN</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.GSTIN}
+              </p>
+            </div>
+
+            {/* Address */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.Address}
+              </p>
+            </div>
+
+            {/* Section Header: Contact Info */}
+            <div className="col-span-3 mt-4 mb-2">
+              <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Contact Info</h2>
+            </div>
+
+            {/* Contact No */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contact No</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.ContactNo}
+              </p>
+            </div>
+
+            {/* Mailing ID */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mailing ID</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.MailingID}
+              </p>
+            </div>
+
+            {/* Contact Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.ContactName}
+              </p>
+            </div>
+
+            {/* Section Header: Purchase Details */}
+            <div className="col-span-3 mt-4 mb-2">
+              <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Purchase Details</h2>
+            </div>
+
+            {/* Purchase Date */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.PurchaseDate}
+              </p>
+            </div>
+
+            {/* Qty */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Qty</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.Qty}
+              </p>
+            </div>
+
+            {/* Rate */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Rate</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.Rate}
+              </p>
+            </div>
+
+            {/* Unit */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.Unit}
+              </p>
+            </div>
+
+            {/* Section Header: Tax & Payment */}
+            <div className="col-span-3 mt-4 mb-2">
+              <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Tax & Payment</h2>
+            </div>
+
+            {/* Tax Percent */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tax Percent</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.TaxPercent}
+              </p>
+            </div>
+
+            {/* Total Amount */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.TotalAmount}
+              </p>
+            </div>
+
+            {/* Paid On */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Paid On</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.PaidOn}
+              </p>
+            </div>
+
           </div>
-        )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex space-x-3 pt-4">
+          <button
+            onClick={() => { setIsDetailOpen(false); handleEdit(viewingRecord); }}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+          >
+            <Edit3 className="w-4 h-4" />
+            <span>Edit Record</span>
+          </button>
+
+          <button
+            onClick={() => setIsDetailOpen(false)}
+            className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+          >
+            Close
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
+
+
+
 
       </main>
 

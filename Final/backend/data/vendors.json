@@ -1,5 +1,25 @@
 [
   {
+    "SrNo": "123321",
+    "ItemSpec": "Paper",
+    "HSN": "HSN001",
+    "VendorName": "Aarti",
+    "GSTIN": "00D005",
+    "Address": "2/43 Dalhouse, Shah ghouse, Kol 700052",
+    "ContactNo": "949798920415",
+    "MailingID": "abcd.dare@gmail.com",
+    "ContactName": "ConName",
+    "PurchaseDate": "12.02.2025",
+    "Qty": "25",
+    "Rate": "12",
+    "Unit": "10",
+    "TaxPercent": "12.05",
+    "TotalAmount": "12548",
+    "PaidOn": "12.02.2025",
+    "id": "1759876971064",
+    "updatedAt": "2025-10-07T22:44:59.736Z"
+  },
+  {
     "SrNo": "afasfm",
     "ItemSpec": "m[pamd[gpm[gm",
     "HSN": "p[mgp[wmg",

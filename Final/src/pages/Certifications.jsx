@@ -232,7 +232,7 @@ function Certifications() {
 
     // 3. Create workbook and append worksheet
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Operations");
+    XLSX.utils.book_append_sheet(wb, ws, "CertificatesData");
 
     // 4. Generate Excel file buffer
     const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
