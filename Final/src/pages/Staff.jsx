@@ -330,8 +330,10 @@ function Staff() {
       if (!records || records.length === 0) return;
   
       // 1. Prepare data (no nested TransformerDetails processing needed)
-      const processedData = records.map(record => ({ ...record }));
-  
+   const processedData = records.map(record => {
+    const { id, ID, updatedAt, ...flatRecord } = record;
+    return flatRecord;
+  });
       // 2. Convert processed data to worksheet
       const ws = XLSX.utils.json_to_sheet(processedData);
   
