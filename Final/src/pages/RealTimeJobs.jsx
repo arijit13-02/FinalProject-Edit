@@ -30,7 +30,7 @@ import {
 import logo from "../assets/logo.png";
 import axios from "axios";
 
-  import * as XLSX from "xlsx";
+import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 function RealTimeJobs() {
   //checks authentication
@@ -133,7 +133,7 @@ function RealTimeJobs() {
   const fetchPendingChanges = async () => {
     try {
       const res = await axios.get(
-        "http://192.168.0.102:5050/api/realtimejobs/pending"
+        "http://192.168.0.111:5050/api/realtimejobs/pending"
       );
       setHasPendingChanges(res.data.length > 0);
     } catch (err) {
@@ -143,7 +143,7 @@ function RealTimeJobs() {
 
   const loadRecords = async () => {
     try {
-      const res = await axios.get("http://192.168.0.102:5050/api/realtimejobs", {
+      const res = await axios.get("http://192.168.0.111:5050/api/realtimejobs", {
         params: { role }
       });
       setRecords(res.data);
@@ -152,33 +152,99 @@ function RealTimeJobs() {
     }
   };
 
- 
+const importFromXls = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
 
-const exportToXls = () => {
-  // 1. Process records to flatten fieldJobDetails
-  const processedRecords = records.map((rec) => {
-    const newRec = { ...rec };
+  const reader = new FileReader();
 
-    if (Array.isArray(rec.fieldJobDetails)) {
-      // Check if all fieldJobDetails objects are empty
-      const allEmpty = rec.fieldJobDetails.every(
-        (fj) => !fj.kva && !fj.srNo && !fj.rating && !fj.note
-      );
+  reader.onload = async (e) => {
+    const dataArray = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(dataArray, { type: "array" });
 
-      if (allEmpty) {
-        newRec.fieldJobDetails = ""; // Export as blank
-      } else {
-        newRec.fieldJobDetails = rec.fieldJobDetails
-          .map(
-            (fj, index) =>
-              `#${index + 1} KVA:${fj.kva}, SR#: ${fj.srNo}, Rating:${fj.rating}, Note:${fj.note}`
-          )
-          .join(" | ");
+    const firstSheet = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheet];
+
+    // Convert sheet to JSON
+    const importedData = XLSX.utils.sheet_to_json(worksheet);
+
+    // Process and send each record
+    for (const row of importedData) {
+      // Rebuild fieldJobDetails
+      const newRec = { ...row, fieldJobDetails: [] };
+
+      let index = 1;
+      while (
+        row.hasOwnProperty(`kva_${index}`) ||
+        row.hasOwnProperty(`srNo_${index}`) ||
+        row.hasOwnProperty(`rating_${index}`) ||
+        row.hasOwnProperty(`note_${index}`)
+      ) {
+        const kva = row[`kva_${index}`] || "";
+        const srNo = row[`srNo_${index}`] || "";
+        const rating = row[`rating_${index}`] || "";
+        const note = row[`note_${index}`] || "";
+
+        if (kva || srNo || rating || note) {
+          newRec.fieldJobDetails.push({ kva, srNo, rating, note });
+        }
+
+        // Clean up flat keys
+        delete newRec[`kva_${index}`];
+        delete newRec[`srNo_${index}`];
+        delete newRec[`rating_${index}`];
+        delete newRec[`note_${index}`];
+
+        index++;
+      }
+
+      try {
+        const response = await axios.post(
+          `http://192.168.0.111:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
+          newRec,
+          {
+            headers: { "x-user-role": localStorage.getItem("userRole") },
+          }
+        );
+
+        if (response.data.success) {
+          setRecords((prevData) => [
+            ...prevData,
+            response.data.item || newRec,
+          ]);
+        } else {
+          console.error("Failed to insert record:", response.data.message, newRec);
+        }
+      } catch (err) {
+        console.error("Error inserting record:", err, newRec);
       }
     }
+  };
 
-    return newRec;
-  });
+  reader.readAsArrayBuffer(file);
+};
+
+
+  const exportToXls = () => {
+  // 1. Process records to flatten fieldJobDetails
+  
+  const processedRecords = records.map((rec) => {
+  // Destructure to remove unwanted keys (id, updatedAt, fieldJobDetails)
+  const { id, ID, updatedAt, fieldJobDetails, ...newRec } = rec;
+
+  if (Array.isArray(fieldJobDetails)) {
+    fieldJobDetails.forEach((fj, index) => {
+      const idx = index + 1;
+      newRec[`kva_${idx}`] = fj.kva || "";
+      newRec[`srNo_${idx}`] = fj.srNo || "";
+      newRec[`rating_${idx}`] = fj.rating || "";
+      newRec[`note_${idx}`] = fj.note || "";
+    });
+  }
+
+  return newRec;
+});
+
 
   // 2. Convert processed records JSON to a worksheet
   const ws = XLSX.utils.json_to_sheet(processedRecords);
@@ -195,6 +261,7 @@ const exportToXls = () => {
   const blob = new Blob([wbout], { type: "application/octet-stream" });
   saveAs(blob, exportFileName);
 };
+
 
 
 
@@ -290,7 +357,7 @@ const exportToXls = () => {
     resetForm();*/
       try {
         const response = await axios.put(
-          `http://192.168.0.102:5050/api/realtimejobs/${editingRecord.id}?role=${role}`, // update by ID
+          `http://192.168.0.111:5050/api/realtimejobs/${editingRecord.id}?role=${role}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -316,7 +383,7 @@ const exportToXls = () => {
       // Adding new record
       try {
         const response = await axios.post(
-          `http://192.168.0.102:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
+          `http://192.168.0.111:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
           formData
         );
 
@@ -389,7 +456,7 @@ const exportToXls = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.102:5050/api/realtimejobs/${id}?role=${role}`
+        `http://192.168.0.111:5050/api/realtimejobs/${id}?role=${role}`
       );
       loadRecords();
     } catch (err) {
@@ -575,26 +642,48 @@ const exportToXls = () => {
                     (window.location.href = "/pendingchangesrealtimejobs")
                   }
                   className={`${hasPendingChanges
-                      ? "bg-red-600 hover:bg-red-700"
-                      : "bg-green-600 hover:bg-green-700"
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-green-600 hover:bg-green-700"
                     } text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg`}
                 >
                   <Hourglass className="w-4 h-4" />
                   <span>
                     {hasPendingChanges
-                      ? "RealTimeJobs Pending Changes"
-                      : "No RealTimeJobs Pending Changes"}
+                      ? "Pending Changes"
+                      : "No Pending Changes"}
                   </span>
                 </button>
               )}
+              
+              {role === "admin" && (
+  <div className="flex items-center space-x-3">
+    <button
+      onClick={() => document.getElementById("importFileInput").click()}
+      className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+    >
+      <Upload className="w-4 h-4" />
+      <span>Import</span>
+    </button>
 
-              <button
-                onClick={exportToXls}
-                className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
-              >
-                <Download className="w-4 h-4" />
-                <span>Export</span>
-              </button>
+    <input
+      type="file"
+      id="importFileInput"
+      accept=".xlsx,.xls"
+      onChange={importFromXls}
+      style={{ display: "none" }}
+    />
+
+    <button
+      onClick={exportToXls}
+      className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+    >
+      <Download className="w-4 h-4" />
+      <span>Export</span>
+    </button>
+  </div>
+)}
+
+
               <button
                 onClick={() => setIsFormOpen(true)}
                 className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"

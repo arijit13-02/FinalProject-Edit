@@ -97,7 +97,7 @@ const PendingJobs = () => {
   const fetchPendingJobs = async () => {
     try {
       const res = await axios.get(
-        "http://192.168.0.111:5050/api/realtimejobs/pending"
+        "http://192.168.0.111:5050/api/inventory/pending"
       );
       setPendingJobs(res.data);
     } catch (err) {
@@ -129,7 +129,7 @@ const PendingJobs = () => {
 
     try {
       await axios.post(
-        "http://192.168.0.111:5050/api/realtimejobs/pending/apply",
+        "http://192.168.0.111:5050/api/inventory/pending/apply",
         { actions }
       );
       alert("Changes applied successfully.");
@@ -398,10 +398,10 @@ const PendingJobs = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white mb-2">
-                  Pending Changes Approval for Real Time Jobs
+                  Pending Changes Approval
                 </h1>
                 <p className="text-blue-100">
-                  Admin Approval for changes in RealTimeJobs
+                  Admin Approval for changes in Inventory
                 </p>
               </div>
             </div>
@@ -460,7 +460,7 @@ const PendingJobs = () => {
               >
                 <div>
                   <strong className="capitalize">{change.type}</strong> –{" "}
-                  {change.item.orderNo || "Unnamed Job"}
+                  {change.item.ItemDetails || "Unnamed Inventory"}
                 </div>
                 {change.type === "edit" &&
                   renderDifferences(change.item, change.original)}
@@ -497,7 +497,7 @@ const PendingJobs = () => {
                 Apply All Decisions
               </button>
             </div>
-          </div>
+          </div>  
         )}
       </main>
     </div>

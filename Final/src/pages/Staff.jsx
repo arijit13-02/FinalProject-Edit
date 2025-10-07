@@ -121,7 +121,7 @@ function Staff() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.102:5050/api/staff";
+      const url = "http://192.168.0.111:5050/api/staff";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -149,7 +149,7 @@ function Staff() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.102:5050/api/staff/${editingRecord.id}`, // update by ID
+          `http://192.168.0.111:5050/api/staff/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -179,7 +179,7 @@ function Staff() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.102:5050/api/staff",
+          "http://192.168.0.111:5050/api/staff",
           formData,
           {
             headers: {
@@ -255,7 +255,7 @@ function Staff() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.102:5050/api/staff/${id}`,
+        `http://192.168.0.111:5050/api/staff/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }

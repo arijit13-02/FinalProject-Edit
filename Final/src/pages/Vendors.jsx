@@ -97,21 +97,21 @@ function Vendors() {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [formData, setFormData] = useState({
     SrNo: "",
-ItemSpec: "",
-HSN: "",
-VendorName : "",
-GSTIN: "",
-Address: "",
-ContactNo : "",
-MailingID: "",
-ContactName: "",
-PurchaseDate: "",
-Qty: "",
-Rate : "",
-Unit: "",
-TaxPercent: "",
-TotalAmount: "",
-PaidOn: ""
+    ItemSpec: "",
+    HSN: "",
+    VendorName: "",
+    GSTIN: "",
+    Address: "",
+    ContactNo: "",
+    MailingID: "",
+    ContactName: "",
+    PurchaseDate: "",
+    Qty: "",
+    Rate: "",
+    Unit: "",
+    TaxPercent: "",
+    TotalAmount: "",
+    PaidOn: ""
   });
   // Load records from localStorage (simulating JSON file)
 
@@ -123,7 +123,7 @@ PaidOn: ""
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.102:5050/api/vendors";
+      const url = "http://192.168.0.111:5050/api/vendors";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -151,7 +151,7 @@ PaidOn: ""
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.102:5050/api/vendors/${editingRecord.id}`, // update by ID
+          `http://192.168.0.111:5050/api/vendors/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -181,7 +181,7 @@ PaidOn: ""
       try {
 
         const response = await axios.post(
-          "http://192.168.0.102:5050/api/vendors",
+          "http://192.168.0.111:5050/api/vendors",
           formData,
           {
             headers: {
@@ -208,21 +208,21 @@ PaidOn: ""
   const resetForm = () => {
     setFormData({
       SrNo: "",
-ItemSpec: "",
-HSN: "",
-VendorName : "",
-GSTIN: "",
-Address: "",
-ContactNo : "",
-MailingID: "",
-ContactName: "",
-PurchaseDate: "",
-Qty: "",
-Rate : "",
-Unit: "",
-TaxPercent: "",
-TotalAmount: "",
-PaidOn: ""
+      ItemSpec: "",
+      HSN: "",
+      VendorName: "",
+      GSTIN: "",
+      Address: "",
+      ContactNo: "",
+      MailingID: "",
+      ContactName: "",
+      PurchaseDate: "",
+      Qty: "",
+      Rate: "",
+      Unit: "",
+      TaxPercent: "",
+      TotalAmount: "",
+      PaidOn: ""
     });
     setIsFormOpen(false);
     setEditingRecord(null);
@@ -231,21 +231,21 @@ PaidOn: ""
   const handleEdit = (record) => {
     setFormData({
       SrNo: record.SrNo,
-ItemSpec: record.ItemSpec,
-HSN: record.HSN,
-VendorName: record.VendorName,
-GSTIN: record.GSTIN,
-Address: record.Address,
-ContactNo: record.ContactNo,
-MailingID: record.MailingID,
-ContactName: record.ContactName,
-PurchaseDate: record.PurchaseDate,
-Qty: record.Qty,
-Rate: record.Rate,
-Unit: record.Unit,
-TaxPercent: record.TaxPercent,
-TotalAmount: record.TotalAmount,
-PaidOn: record.PaidOn
+      ItemSpec: record.ItemSpec,
+      HSN: record.HSN,
+      VendorName: record.VendorName,
+      GSTIN: record.GSTIN,
+      Address: record.Address,
+      ContactNo: record.ContactNo,
+      MailingID: record.MailingID,
+      ContactName: record.ContactName,
+      PurchaseDate: record.PurchaseDate,
+      Qty: record.Qty,
+      Rate: record.Rate,
+      Unit: record.Unit,
+      TaxPercent: record.TaxPercent,
+      TotalAmount: record.TotalAmount,
+      PaidOn: record.PaidOn
 
     });
     setEditingRecord(record);
@@ -261,7 +261,7 @@ PaidOn: record.PaidOn
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.102:5050/api/vendors/${id}`,
+        `http://192.168.0.111:5050/api/vendors/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -297,23 +297,23 @@ PaidOn: record.PaidOn
     let filtered = records.filter(
       (record) =>
         record.SrNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.ItemSpec.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.HSN.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.VendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.GSTIN.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.Address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.ContactNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.MailingID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.ContactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.PurchaseDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.Qty.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.Rate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.Unit.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.TaxPercent.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.TotalAmount.toLowerCase().includes(searchTerm.toLowerCase()) ||
-record.PaidOn.toLowerCase().includes(searchTerm.toLowerCase())
+        record.ItemSpec.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.HSN.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.VendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.GSTIN.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.Address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.ContactNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.MailingID.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.ContactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.PurchaseDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.Qty.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.Rate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.Unit.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.TaxPercent.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.TotalAmount.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.PaidOn.toLowerCase().includes(searchTerm.toLowerCase())
 
-      );
+    );
 
     if (sortConfig.key) {
       filtered.sort((a, b) => {
@@ -336,71 +336,71 @@ record.PaidOn.toLowerCase().includes(searchTerm.toLowerCase())
   }, [records, searchTerm, sortConfig]);
 
   // Export to XLSX
-const exportToXls = () => {
-  if (!records || records.length === 0) return;
+  const exportToXls = () => {
+    if (!records || records.length === 0) return;
 
-  // 1. Prepare data (no nested TransformerDetails processing needed)
-  const processedData = records.map(record => ({ ...record }));
+    // 1. Prepare data (no nested TransformerDetails processing needed)
+    const processedData = records.map(record => ({ ...record }));
 
-  // 2. Convert processed data to worksheet
-  const ws = XLSX.utils.json_to_sheet(processedData);
+    // 2. Convert processed data to worksheet
+    const ws = XLSX.utils.json_to_sheet(processedData);
 
-  // 3. Create workbook and append worksheet
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Operations");
+    // 3. Create workbook and append worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Operations");
 
-  // 4. Generate Excel file buffer
-  const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    // 4. Generate Excel file buffer
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
 
-  // 5. Save as file
-  const exportFileName = `Vendors.xlsx`;
-  const blob = new Blob([wbout], { type: "application/octet-stream" });
-  saveAs(blob, exportFileName);
-};
-
-// Import from XLSX
-const importFromXls = async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = async (e) => {
-    const dataArray = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(dataArray, { type: "array" });
-
-    const firstSheet = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheet];
-
-    // Convert sheet to JSON
-    const importedData = XLSX.utils.sheet_to_json(worksheet);
-
-    // Insert each record individually
-    for (const record of importedData) {
-      const url =  "http://192.168.0.102:5050/api/vendors";
-      if (!url) {
-        console.error("Invalid location/category combination for record:", record);
-        continue;
-      }
-
-      try {
-        const response = await axios.post(url, record, {
-          headers: { "x-user-role": localStorage.getItem("userRole") },
-        });
-
-        if (response.data.success) {
-          setRecords((prevData) => [...prevData, response.data.item || record]);
-        } else {
-          console.error("Failed to insert record:", response.data.message, record);
-        }
-      } catch (err) {
-        console.error("Error inserting record:", err, record);
-      }
-    }
+    // 5. Save as file
+    const exportFileName = `Vendors.xlsx`;
+    const blob = new Blob([wbout], { type: "application/octet-stream" });
+    saveAs(blob, exportFileName);
   };
 
-  reader.readAsArrayBuffer(file);
-};
+  // Import from XLSX
+  const importFromXls = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const dataArray = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(dataArray, { type: "array" });
+
+      const firstSheet = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheet];
+
+      // Convert sheet to JSON
+      const importedData = XLSX.utils.sheet_to_json(worksheet);
+
+      // Insert each record individually
+      for (const record of importedData) {
+        const url = "http://192.168.0.111:5050/api/vendors";
+        if (!url) {
+          console.error("Invalid location/category combination for record:", record);
+          continue;
+        }
+
+        try {
+          const response = await axios.post(url, record, {
+            headers: { "x-user-role": localStorage.getItem("userRole") },
+          });
+
+          if (response.data.success) {
+            setRecords((prevData) => [...prevData, response.data.item || record]);
+          } else {
+            console.error("Failed to insert record:", response.data.message, record);
+          }
+        } catch (err) {
+          console.error("Error inserting record:", err, record);
+        }
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
 
 
   return (
@@ -492,28 +492,28 @@ const importFromXls = async (event) => {
             </div>
             <div className="flex space-x-3">
               <button
-                            onClick={() => document.getElementById("importFileInput").click()}
-                            className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
-                          >
-                            <Upload className="w-4 h-4" />
-                            <span>Import</span>
-                          </button>
-              
-                          <input
-                            type="file"
-                            id="importFileInput"
-                            accept=".xlsx,.xls"
-                            onChange={importFromXls}
-                            style={{ display: "none" }}
-                          />
-              
-                          <button
-                            onClick={exportToXls}
-                            className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
-                          >
-                            <Download className="w-4 h-4" />
-                            <span>Export</span>
-                          </button>
+                onClick={() => document.getElementById("importFileInput").click()}
+                className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+              >
+                <Upload className="w-4 h-4" />
+                <span>Import</span>
+              </button>
+
+              <input
+                type="file"
+                id="importFileInput"
+                accept=".xlsx,.xls"
+                onChange={importFromXls}
+                style={{ display: "none" }}
+              />
+
+              <button
+                onClick={exportToXls}
+                className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+              >
+                <Download className="w-4 h-4" />
+                <span>Export</span>
+              </button>
               <button
                 onClick={() => setIsFormOpen(true)}
                 className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
@@ -558,164 +558,164 @@ const importFromXls = async (event) => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("SrNo")}
->
-  <div className="flex items-center space-x-1">
-    <span>Sr No</span>
-    {getSortIcon("SrNo")}
-  </div>
-</th>
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("SrNo")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Sr No</span>
+                        {getSortIcon("SrNo")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("ItemSpec")}
->
-  <div className="flex items-center space-x-1">
-    <span>Item Spec</span>
-    {getSortIcon("ItemSpec")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("ItemSpec")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Item Spec</span>
+                        {getSortIcon("ItemSpec")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("HSN")}
->
-  <div className="flex items-center space-x-1">
-    <span>HSN</span>
-    {getSortIcon("HSN")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("HSN")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>HSN</span>
+                        {getSortIcon("HSN")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("VendorName")}
->
-  <div className="flex items-center space-x-1">
-    <span>Vendor Name</span>
-    {getSortIcon("VendorName")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("VendorName")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Vendor Name</span>
+                        {getSortIcon("VendorName")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("GSTIN")}
->
-  <div className="flex items-center space-x-1">
-    <span>GSTIN</span>
-    {getSortIcon("GSTIN")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("GSTIN")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>GSTIN</span>
+                        {getSortIcon("GSTIN")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("Address")}
->
-  <div className="flex items-center space-x-1">
-    <span>Address</span>
-    {getSortIcon("Address")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("Address")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Address</span>
+                        {getSortIcon("Address")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("ContactNo")}
->
-  <div className="flex items-center space-x-1">
-    <span>Contact No</span>
-    {getSortIcon("ContactNo")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("ContactNo")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Contact No</span>
+                        {getSortIcon("ContactNo")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("MailingID")}
->
-  <div className="flex items-center space-x-1">
-    <span>Mailing ID</span>
-    {getSortIcon("MailingID")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("MailingID")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Mailing ID</span>
+                        {getSortIcon("MailingID")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("ContactName")}
->
-  <div className="flex items-center space-x-1">
-    <span>Contact Name</span>
-    {getSortIcon("ContactName")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("ContactName")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Contact Name</span>
+                        {getSortIcon("ContactName")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("PurchaseDate")}
->
-  <div className="flex items-center space-x-1">
-    <span>Purchase Date</span>
-    {getSortIcon("PurchaseDate")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("PurchaseDate")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Purchase Date</span>
+                        {getSortIcon("PurchaseDate")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("Qty")}
->
-  <div className="flex items-center space-x-1">
-    <span>Qty</span>
-    {getSortIcon("Qty")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("Qty")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Qty</span>
+                        {getSortIcon("Qty")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("Rate")}
->
-  <div className="flex items-center space-x-1">
-    <span>Rate (Rs)</span>
-    {getSortIcon("Rate")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("Rate")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Rate (Rs)</span>
+                        {getSortIcon("Rate")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("Unit")}
->
-  <div className="flex items-center space-x-1">
-    <span>Unit</span>
-    {getSortIcon("Unit")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("Unit")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Unit</span>
+                        {getSortIcon("Unit")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("TaxPercent")}
->
-  <div className="flex items-center space-x-1">
-    <span>Tax %</span>
-    {getSortIcon("TaxPercent")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("TaxPercent")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Tax %</span>
+                        {getSortIcon("TaxPercent")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("TotalAmount")}
->
-  <div className="flex items-center space-x-1">
-    <span>Total Amount</span>
-    {getSortIcon("TotalAmount")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("TotalAmount")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Total Amount</span>
+                        {getSortIcon("TotalAmount")}
+                      </div>
+                    </th>
 
-<th
-  className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-  onClick={() => handleSort("PaidOn")}
->
-  <div className="flex items-center space-x-1">
-    <span>Paid On</span>
-    {getSortIcon("PaidOn")}
-  </div>
-</th>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("PaidOn")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Paid On</span>
+                        {getSortIcon("PaidOn")}
+                      </div>
+                    </th>
 
 
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
@@ -727,68 +727,68 @@ const importFromXls = async (event) => {
                   {filteredAndSortedRecords.map((record) => (
                     <tr key={record.id} className="hover:bg-gray-50 transition-colors duration-200">
                       <td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.SrNo}</div>
-</td>
+                        <div className="text-sm font-semibold text-gray-800">{record.SrNo}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.ItemSpec}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.ItemSpec}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.HSN}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.HSN}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.VendorName}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.VendorName}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.GSTIN}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.GSTIN}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.Address}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.Address}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.ContactNo}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.ContactNo}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.MailingID}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.MailingID}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.ContactName}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.ContactName}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.PurchaseDate}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.PurchaseDate}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.Qty}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.Qty}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.Rate}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.Rate}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.Unit}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.Unit}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.TaxPercent}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.TaxPercent}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.TotalAmount}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.TotalAmount}</div>
+                      </td>
 
-<td className="px-6 py-4">
-  <div className="text-sm font-semibold text-gray-800">{record.PaidOn}</div>
-</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.PaidOn}</div>
+                      </td>
 
 
 
@@ -845,118 +845,118 @@ const importFromXls = async (event) => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">SrNo</label>
-  <input type="text" name="SrNo" value={formData.SrNo} onChange={handleInputChange} required
-    placeholder="Enter SrNo"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">SrNo</label>
+                      <input type="text" name="SrNo" value={formData.SrNo} onChange={handleInputChange} required
+                        placeholder="Enter SrNo"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Item Spec</label>
-  <input type="text" name="ItemSpec" value={formData.ItemSpec} onChange={handleInputChange} required
-    placeholder="Enter Item Spec"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Item Spec</label>
+                      <input type="text" name="ItemSpec" value={formData.ItemSpec} onChange={handleInputChange} required
+                        placeholder="Enter Item Spec"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">HSN</label>
-  <input type="text" name="HSN" value={formData.HSN} onChange={handleInputChange} required
-    placeholder="Enter HSN"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">HSN</label>
+                      <input type="text" name="HSN" value={formData.HSN} onChange={handleInputChange} required
+                        placeholder="Enter HSN"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Name</label>
-  <input type="text" name="VendorName" value={formData.VendorName} onChange={handleInputChange} required
-    placeholder="Enter Vendor Name"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Name</label>
+                      <input type="text" name="VendorName" value={formData.VendorName} onChange={handleInputChange} required
+                        placeholder="Enter Vendor Name"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">GSTIN</label>
-  <input type="text" name="GSTIN" value={formData.GSTIN} onChange={handleInputChange} required
-    placeholder="Enter GSTIN"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">GSTIN</label>
+                      <input type="text" name="GSTIN" value={formData.GSTIN} onChange={handleInputChange} required
+                        placeholder="Enter GSTIN"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-  <input type="text" name="Address" value={formData.Address} onChange={handleInputChange} required
-    placeholder="Enter Address"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                      <input type="text" name="Address" value={formData.Address} onChange={handleInputChange} required
+                        placeholder="Enter Address"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Contact No</label>
-  <input type="text" name="ContactNo" value={formData.ContactNo} onChange={handleInputChange} required
-    placeholder="Enter Contact No"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Contact No</label>
+                      <input type="text" name="ContactNo" value={formData.ContactNo} onChange={handleInputChange} required
+                        placeholder="Enter Contact No"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Mailing ID</label>
-  <input type="text" name="MailingID" value={formData.MailingID} onChange={handleInputChange} required
-    placeholder="Enter Mailing ID"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Mailing ID</label>
+                      <input type="text" name="MailingID" value={formData.MailingID} onChange={handleInputChange} required
+                        placeholder="Enter Mailing ID"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
-  <input type="text" name="ContactName" value={formData.ContactName} onChange={handleInputChange} required
-    placeholder="Enter Contact Name"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
+                      <input type="text" name="ContactName" value={formData.ContactName} onChange={handleInputChange} required
+                        placeholder="Enter Contact Name"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
-  <input type="text" name="PurchaseDate" value={formData.PurchaseDate} onChange={handleInputChange} required
-    placeholder="Enter Contact Name"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+                      <input type="text" name="PurchaseDate" value={formData.PurchaseDate} onChange={handleInputChange} required
+                        placeholder="Enter Contact Name"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
 
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Qty</label>
-  <input type="number" name="Qty" value={formData.Qty} onChange={handleInputChange} required
-    placeholder="Enter Qty"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Qty</label>
+                      <input type="number" name="Qty" value={formData.Qty} onChange={handleInputChange} required
+                        placeholder="Enter Qty"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Rate</label>
-  <input type="number" name="Rate" value={formData.Rate} onChange={handleInputChange} required
-    placeholder="Enter Rate"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Rate</label>
+                      <input type="number" name="Rate" value={formData.Rate} onChange={handleInputChange} required
+                        placeholder="Enter Rate"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
-  <input type="text" name="Unit" value={formData.Unit} onChange={handleInputChange} required
-    placeholder="Enter Unit"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                      <input type="text" name="Unit" value={formData.Unit} onChange={handleInputChange} required
+                        placeholder="Enter Unit"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Tax Percent</label>
-  <input type="number" name="TaxPercent" value={formData.TaxPercent} onChange={handleInputChange} required
-    placeholder="Enter Tax Percent"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Tax Percent</label>
+                      <input type="number" name="TaxPercent" value={formData.TaxPercent} onChange={handleInputChange} required
+                        placeholder="Enter Tax Percent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
-  <input type="number" name="TotalAmount" value={formData.TotalAmount} onChange={handleInputChange} required
-    placeholder="Enter Total Amount"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
+                      <input type="number" name="TotalAmount" value={formData.TotalAmount} onChange={handleInputChange} required
+                        placeholder="Enter Total Amount"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Paid On</label>
-  <input type="text" name="PaidOn" value={formData.PaidOn} onChange={handleInputChange} required
-    placeholder="Enter Unit"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-</div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Paid On</label>
+                      <input type="text" name="PaidOn" value={formData.PaidOn} onChange={handleInputChange} required
+                        placeholder="Enter Unit"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
 
 
 
@@ -999,89 +999,89 @@ const importFromXls = async (event) => {
               </div>
 
               <div className="p-6 space-y-6">
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                   <div>
-  <label className="block text-sm font-medium text-gray-500">SrNo</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.SrNo}</span>
-</div>
+                    <label className="block text-sm font-medium text-gray-500">SrNo</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.SrNo}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Item Spec</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.ItemSpec}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Item Spec</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.ItemSpec}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">HSN</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.HSN}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">HSN</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.HSN}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Vendor Name</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.VendorName}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Vendor Name</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.VendorName}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">GSTIN</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.GSTIN}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">GSTIN</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.GSTIN}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Address</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Address}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Address</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Address}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Contact No</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.ContactNo}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Contact No</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.ContactNo}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Mailing ID</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.MailingID}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Mailing ID</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.MailingID}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Contact Name</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.ContactName}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Contact Name</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.ContactName}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Purchase Date</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.PurchaseDate}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Purchase Date</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.PurchaseDate}</span>
+                  </div>
 
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Qty</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Qty}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Qty</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Qty}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Rate</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Rate}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Rate</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Rate}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Unit</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Unit}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Unit</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Unit}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Tax Percent</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.TaxPercent}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Tax Percent</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.TaxPercent}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Total Amount</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.TotalAmount}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Total Amount</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.TotalAmount}</span>
+                  </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-500">Paid On</label>
-  <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.PaidOn}</span>
-</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Paid On</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.PaidOn}</span>
+                  </div>
 
 
 

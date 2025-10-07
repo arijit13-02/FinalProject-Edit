@@ -110,7 +110,7 @@ function Certifications() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.102:5050/api/cert";
+      const url = "http://192.168.0.111:5050/api/cert";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -138,7 +138,7 @@ function Certifications() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.102:5050/api/cert/${editingRecord.id}`, // update by ID
+          `http://192.168.0.111:5050/api/cert/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -168,7 +168,7 @@ function Certifications() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.102:5050/api/cert",
+          "http://192.168.0.111:5050/api/cert",
           formData,
           {
             headers: {
@@ -217,11 +217,80 @@ function Certifications() {
     setIsDetailOpen(true);
   };
 
+  const exportToXls = () => {
+    if (!records || records.length === 0) return;
+
+      const processedData = records.map(record => {
+    const { id, updatedAt, ...rest } = record; // exclude ID and updatedAt
+    return rest;
+  });
+
+    // 1. Prepare data (no nested TransformerDetails processing needed)
+    
+    // 2. Convert processed data to worksheet
+    const ws = XLSX.utils.json_to_sheet(processedData);
+
+    // 3. Create workbook and append worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Operations");
+
+    // 4. Generate Excel file buffer
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+
+    // 5. Save as file
+    const exportFileName = `Certificates.xlsx`;
+    const blob = new Blob([wbout], { type: "application/octet-stream" });
+    saveAs(blob, exportFileName);
+  };
+
+  // Import from XLSX
+  const importFromXls = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const dataArray = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(dataArray, { type: "array" });
+
+      const firstSheet = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheet];
+
+      // Convert sheet to JSON
+      const importedData = XLSX.utils.sheet_to_json(worksheet);
+
+      // Insert each record individually
+      for (const record of importedData) {
+        const url = "http://192.168.0.111:5050/api/cert";
+        if (!url) {
+          console.error("Invalid location/category combination for record:", record);
+          continue;
+        }
+
+        try {
+          const response = await axios.post(url, record, {
+            headers: { "x-user-role": localStorage.getItem("userRole") },
+          });
+
+          if (response.data.success) {
+            setRecords((prevData) => [...prevData, response.data.item || record]);
+          } else {
+            console.error("Failed to insert record:", response.data.message, record);
+          }
+        } catch (err) {
+          console.error("Error inserting record:", err, record);
+        }
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.102:5050/api/cert/${id}`,
+        `http://192.168.0.111:5050/api/cert/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -371,6 +440,30 @@ function Certifications() {
               </div>
             </div>
             <div className="flex space-x-3">
+                <button
+                onClick={() => document.getElementById("importFileInput").click()}
+                className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+              >
+                <Upload className="w-4 h-4" />
+                <span>Import</span>
+              </button>
+
+              <input
+                type="file"
+                id="importFileInput"
+                accept=".xlsx,.xls"
+                onChange={importFromXls}
+                style={{ display: "none" }}
+              />
+
+              <button
+                onClick={exportToXls}
+                className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+              >
+                <Download className="w-4 h-4" />
+                <span>Export</span>
+              </button>
+
               <button
                 onClick={() => setIsFormOpen(true)}
                 className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"

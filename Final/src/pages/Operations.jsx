@@ -303,20 +303,20 @@ function Operations() {
 
   const getApiUrl = () => {
     if (location === "inhouse" && category === "WBSEDCL")
-      return "http://192.168.0.102:5050/api/operations/inhousewb";
+      return "http://192.168.0.111:5050/api/operations/inhousewb";
 
     if (location === "inhouse" && category === "private")
-      return "http://192.168.0.102:5050/api/operations/inhousepvt";
+      return "http://192.168.0.111:5050/api/operations/inhousepvt";
 
     if (location === "inhouse" && category === "public")
-      return "http://192.168.0.102:5050/api/operations/inhousepub";
+      return "http://192.168.0.111:5050/api/operations/inhousepub";
 
     if (location === "site" && category === "WBSEDCL")
-      return "http://192.168.0.102:5050/api/operations/sitewb";
+      return "http://192.168.0.111:5050/api/operations/sitewb";
     if (location === "site" && category === "private")
-      return "http://192.168.0.102:5050/api/operations/sitepvt";
+      return "http://192.168.0.111:5050/api/operations/sitepvt";
     if (location === "site" && category === "public")
-      return "http://192.168.0.102:5050/api/operations/sitepub";
+      return "http://192.168.0.111:5050/api/operations/sitepub";
 
     return null;
   };
@@ -349,27 +349,27 @@ function Operations() {
   const exportToXls = () => {
     // 1. Process data
     const processedData = data.map((record) => {
-      const flatRecord = JSON.parse(JSON.stringify(record)); // deep copy
+  // Deep copy and exclude unwanted fields
+  const { id, ID, updatedAt, TransformerDetails, ...flatRecord } = record;
 
-      if (
-        flatRecord.Location === "Site" &&
-        (flatRecord.Category === "Public" || flatRecord.Category === "Private")
-      ) {
-        const transformers = flatRecord.TransformerDetails || [];
-        delete flatRecord.TransformerDetails;
+  if (
+    flatRecord.Location === "Site" &&
+    (flatRecord.Category === "Public" || flatRecord.Category === "Private")
+  ) {
+    const transformers = TransformerDetails || [];
 
-        transformers.forEach((t, index) => {
-          const idx = index + 1;
-          flatRecord[`KVA_${idx}`] = t.KVA || "";
-          flatRecord[`SrNo_${idx}`] = t.SrNo || "";
-          flatRecord[`Rating_${idx}`] = t.Rating || "";
-          flatRecord[`Note_${idx}`] = t.Note || "";
-        });
-      }
-
-
-      return flatRecord;
+    transformers.forEach((t, index) => {
+      const idx = index + 1;
+      flatRecord[`KVA_${idx}`] = t.KVA || "";
+      flatRecord[`SrNo_${idx}`] = t.SrNo || "";
+      flatRecord[`Rating_${idx}`] = t.Rating || "";
+      flatRecord[`Note_${idx}`] = t.Note || "";
     });
+  }
+
+  return flatRecord;
+});
+
 
 
     // 2. Convert processed data to worksheet

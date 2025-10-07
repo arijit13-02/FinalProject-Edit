@@ -1,0 +1,21 @@
+[
+  {
+    "ItemDetails": "add wow",
+    "StockInDate": "25.24.1012",
+    "StockOutDate": "25.12.5448",
+    "StockAvailable": "12",
+    "HSNCode": "52",
+    "Limit": "20",
+    "id": "1759868059611"
+  },
+  {
+    "ItemDetails": "itemdet",
+    "StockInDate": "12.08.2025",
+    "StockOutDate": "13.09.2025",
+    "StockAvailable": "26000",
+    "HSNCode": "258USHM",
+    "Limit": "2000",
+    "id": "1759793987740",
+    "updatedAt": "2025-10-07T20:06:20.218Z"
+  }
+]

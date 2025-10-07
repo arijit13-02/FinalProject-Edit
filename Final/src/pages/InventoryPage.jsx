@@ -1,37 +1,49 @@
-
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  TrendingUp,Plus,Save,Edit3,Trash2,Search,ChevronUp,ChevronDown,Building2,Eye,X,Hourglass,Download,Upload,Menu,User,Settings,CalendarClock,Users,Boxes,FileText,BarChart3,BadgeCheck,PieChart,Activity
+  TrendingUp,
+  Plus,
+  Save,
+  Edit3,
+  Trash2,
+  Search,
+  ChevronUp,
+  ChevronDown,
+  Building2,
+  Eye,
+  X,
+  Hourglass,
+  Download,
+  Upload,
+  Menu,
+  User,
+  Settings,
+  CalendarClock,
+  Users,
+  Boxes,
+  FileText,
+  BarChart3,
+  BadgeCheck,
+  PieChart,
+  Activity
 } from "lucide-react";
 import logo from "../assets/logo.png";
 import axios from "axios";
-import { data } from "autoprefixer";
 
-function InventoryPage() {
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
+function Inventory() {
   //checks authentication
-  const navigate = useNavigate();
   const [role, setRole] = useState(() => {
     return localStorage.getItem("userRole") || "staff";
   });
-    // keep role in localStorage in sync
-  useEffect(() => {
-    localStorage.setItem("userRole", role);
-  }, [role]);
-  // check role once on mount
-  useEffect(() => {
-    if (role !== "admin") {
-      alert("Admin Privileges Required!\nLogin to proceed");
-      navigate("/login");
-    }
-  }, [role, navigate]);
-
+  localStorage.setItem("userRole", role);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   //Ribbon at top
-  
+  const navigate = useNavigate();
   const handleProtectedNav = (path) => {
     const role = localStorage.getItem("userRole");
     if (role === "admin") {
@@ -46,39 +58,36 @@ function InventoryPage() {
     {
       name: "RealTime Jobs",
       icon: Activity,
-      onClick: () => navigate("/realtimejobs"),
+      onClick: () => navigate("/realtimejobs")
     },
     {
       name: "Operations",
       icon: Settings,
-      onClick: () => handleProtectedNav("/operations"),
+      onClick: () => handleProtectedNav("/operations")
     },
     {
       name: "Upcoming Jobs",
       icon: CalendarClock,
-      onClick: () => handleProtectedNav("/upcoming-jobs"),
+      onClick: () => handleProtectedNav("/upcoming-jobs")
     },
     {
       name: "Vendors",
       icon: Building2,
-      onClick: () => handleProtectedNav("/vendors"),
+      onClick: () => handleProtectedNav("/vendors")
     },
     { name: "Staff", icon: Users, onClick: () => handleProtectedNav("/staff") },
     { name: "Inventory", icon: Boxes, onClick: () => navigate("/inventory") },
     {
       name: "Billing",
       icon: FileText,
-      onClick: () => handleProtectedNav("/billing"),
+      onClick: () => handleProtectedNav("/billing")
     },
     {
       name: "Certifications",
       icon: BadgeCheck,
-      onClick: () => handleProtectedNav("/certifications"),
-    },
+      onClick: () => handleProtectedNav("/certifications")
+    }
   ];
-
-  
-  //checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
   const [records, setRecords] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -87,66 +96,309 @@ function InventoryPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [formData, setFormData] = useState({
-    location: "",
-    category: "",
-    orderNo: "",
-    date: "",
-    type: "",
-    // In House specific fields
-    dismental: "",
-    Winding: "",
-    Assembley: "",
-    testing: "",
-    // Site specific fields
-    siteLocation: "",
-    typeOfJob: "",
-    otherJobType: "",
-    fieldJobDetails: [{ kva: "", srNo: "", rating: "", note: "" }],
-    execution: "",
-    // Common field
-    delivery: false,
+    ItemDetails: "",
+    StockInDate: "",
+    StockOutDate: "",
+    StockAvailable: "",
+    HSNCode: "",
+    Limit: ""
   });
+  // Load records from localStorage (simulating JSON file)
 
-const filteredAndSortedRecords = React.useMemo(() => {
-    let filtered = records.filter(
-      (record) =>
-        record.orderNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (record.typeOfJob &&
-          record.typeOfJob.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (record.execution &&
-          record.execution.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        
-        (record.siteLocation &&
-          record.siteLocation.toLowerCase().includes(searchTerm.toLowerCase()))
+  useEffect(() => {
+    loadRecords();
+    const interval = setInterval(loadRecords, 2000);
+    return () => clearInterval(interval); // cleanup
+  }, []); // empty dependency array
+
+  useEffect(() => {
+    if (role === "admin") {
+      fetchPendingChanges();
+      const interval = setInterval(fetchPendingChanges, 2000);
+      return () => clearInterval(interval); // cleanup
+    }
+  }, [role]);
+
+  const fetchPendingChanges = async () => {
+    try {
+      const res = await axios.get(
+        "http://192.168.0.111:5050/api/inventory/pending"
+      );
+      setHasPendingChanges(res.data.length > 0);
+    } catch (err) {
+      console.error("Failed to load pending changes:", err);
+    }
+  };
+
+  const loadRecords = async () => {
+    try {
+      const res = await axios.get("http://192.168.0.111:5050/api/inventory", {
+        params: { role }
+      });
+      setRecords(res.data);
+    } catch (error) {
+      console.error("Failed to fetch records:", error);
+    }
+  };
+
+  const importFromXls = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const dataArray = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(dataArray, { type: "array" });
+
+      const firstSheet = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheet];
+
+      // Convert sheet to JSON
+      const importedData = XLSX.utils.sheet_to_json(worksheet);
+
+      // Process and send each record
+      for (const row of importedData) {
+        // Only pick the relevant stock fields
+        const newRec = {
+          ItemDetails: row.ItemDetails || "",
+          StockInDate: row.StockInDate || "",
+          StockOutDate: row.StockOutDate || "",
+          StockAvailable: row.StockAvailable || "",
+          HSNCode: row.HSNCode || "",
+          Limit: row.Limit || "",
+        };
+
+        try {
+          const response = await axios.post(
+            `http://192.168.0.111:5050/api/inventory?role=${role}`, // role: 'admin' or 'staff'
+            newRec,
+            {
+              headers: { "x-user-role": localStorage.getItem("userRole") },
+            }
+          );
+
+          if (response.data.success) {
+            setRecords((prevData) => [
+              ...prevData,
+              response.data.item || newRec,
+            ]);
+          } else {
+            console.error("Failed to insert record:", response.data.message, newRec);
+          }
+        } catch (err) {
+          console.error("Error inserting record:", err, newRec);
+        }
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+
+
+  const exportToXls = () => {
+    if (!records || records.length === 0) return;
+
+    // 1. Prepare data: only pick relevant stock fields
+    const processedData = records.map((record) => ({
+      ItemDetails: record.ItemDetails || "",
+      StockInDate: record.StockInDate || "",
+      StockOutDate: record.StockOutDate || "",
+      StockAvailable: record.StockAvailable || "",
+      HSNCode: record.HSNCode || "",
+      Limit: record.Limit || "",
+    }));
+
+    // 2. Convert processed data to worksheet
+    const ws = XLSX.utils.json_to_sheet(processedData);
+
+    // 3. Create workbook and append worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "StockRecords");
+
+    // 4. Generate Excel file buffer
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+
+    // 5. Save as file
+    const exportFileName = "Inventory.xlsx";
+    const blob = new Blob([wbout], { type: "application/octet-stream" });
+    saveAs(blob, exportFileName);
+  };
+
+
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => {
+      const newData = { ...prev };
+
+      if (type === "checkbox") {
+        newData[name] = checked;
+      } else {
+        newData[name] = value;
+      }
+
+      // Example: if you want to reset dependent fields in future,
+      // you can add conditions here based on `name`
+
+      return newData;
+    });
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (editingRecord) {
+      try {
+        const response = await axios.put(
+          `http://192.168.0.111:5050/api/inventory/${editingRecord.id}?role=${role}`, // update by ID
+          {
+            ...formData,
+            id: editingRecord.id,
+            createdAt: editingRecord.createdAt,
+            updatedAt: new Date().toISOString()
+          }
+        );
+
+        if (response.data.success) {
+          // Update UI with the edited record
+          const updatedRecords = records.map((record) =>
+            record.id === editingRecord.id ? response.data.item : record
+          );
+          setRecords(updatedRecords);
+          resetForm();
+        } else {
+          console.error("Failed to update:", response.data.message);
+        }
+      } catch (error) {
+        console.error("API error:", error);
+      }
+    } else {
+      // Adding new record
+      try {
+        const response = await axios.post(
+          `http://192.168.0.111:5050/api/inventory?role=${role}`, // role: 'admin' or 'staff'
+          formData
+        );
+
+        if (response.data.success) {
+          setRecords([...records, response.data.item]); // update UI with the added record
+          resetForm();
+        } else {
+          console.error("Failed to add:", response.data.message);
+        }
+      } catch (error) {
+        console.error("API error:", error);
+      }
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      ItemDetails: "",
+      StockInDate: "",
+      StockOutDate: "",
+      StockAvailable: "",
+      HSNCode: "",
+      Limit: ""
+    });
+    setIsFormOpen(false);
+    setEditingRecord(null);
+  };
+
+  const handleEdit = (record) => {
+    setFormData({
+      ItemDetails: record.ItemDetails,
+      StockInDate: record.StockInDate,
+      StockOutDate: record.StockOutDate,
+      StockAvailable: record.StockAvailable,
+      HSNCode: record.HSNCode,
+      Limit: record.Limit,
+    });
+    setEditingRecord(record);
+    setIsFormOpen(true);
+  };
+
+  const handleView = (record) => {
+    setViewingRecord(record);
+    setIsDetailOpen(true);
+  };
+  const [hasPendingChanges, setHasPendingChanges] = useState(false);
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(
+        `http://192.168.0.111:5050/api/inventory/${id}?role=${role}`
+      );
+      loadRecords();
+    } catch (err) {
+      console.error("Failed to delete item:", err);
+    }
+  };
+
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (columnKey) => {
+    if (sortConfig.key !== columnKey) {
+      return <ChevronUp className="w-4 h-4 text-gray-400" />;
+    }
+    return sortConfig.direction === "asc" ? (
+      <ChevronUp className="w-4 h-4 text-blue-600" />
+    ) : (
+      <ChevronDown className="w-4 h-4 text-blue-600" />
     );
+  };
+  // Filter and sort records
+  const filteredAndSortedRecords = React.useMemo(() => {
+    let filtered = records.filter((record) =>
+      (record.ItemDetails || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (record.StockInDate || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (record.StockOutDate || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (record.StockAvailable || "").toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (record.HSNCode || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (record.Limit || "").toString().toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     if (sortConfig.key) {
       filtered.sort((a, b) => {
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
-        if (sortConfig.key === "date" || sortConfig.key === "createdAt") {
+
+        if (sortConfig.key === "StockInDate" || sortConfig.key === "StockOutDate") {
           aValue = new Date(aValue);
           bValue = new Date(bValue);
         }
-        if (sortConfig.key === "delivery") {
-          aValue = aValue ? "Delivered" : "Pending";
-          bValue = bValue ? "Delivered" : "Pending";
-        }
-        if (aValue < bValue) {
-          return sortConfig.direction === "asc" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === "asc" ? 1 : -1;
-        }
+
+        if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
         return 0;
       });
     }
+
     return filtered;
   }, [records, searchTerm, sortConfig]);
 
+const getLimitColor = (a,b) => {
+  var aa= parseInt(a);
+  var bb= parseInt(b);
   
+    if (aa>bb)
+      return "bg-green-100 text-green-800";
+    else
+    {
+      
+      return "bg-red-100 text-red-800";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600">
       {/* Header */}
@@ -227,35 +479,72 @@ const filteredAndSortedRecords = React.useMemo(() => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white mb-2">
-                  Inventory
+                  Inventory Management
                 </h1>
                 <p className="text-blue-100">
-                  Manage and track your job records
+                  Manage your inventory. Pop Up occurs when quantity is less than the minimum limit.
                 </p>
               </div>
             </div>
             <div className="flex space-x-3">
-              
+              {role === "admin" && (
+                <button
+                  onClick={() =>
+                    (window.location.href = "/pendingchangesinventory ")
+                  }
+                  className={`${hasPendingChanges
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-green-600 hover:bg-green-700"
+                    } text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg`}
+                >
+                  <Hourglass className="w-4 h-4" />
+                  <span>
+                    {hasPendingChanges
+                      ? "Pending Changes"
+                      : "No Pending Changes"}
+                  </span>
+                </button>
+              )}
+
+              {role === "admin" && (
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => document.getElementById("importFileInput").click()}
+                    className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Import</span>
+                  </button>
+
+                  <input
+                    type="file"
+                    id="importFileInput"
+                    accept=".xlsx,.xls"
+                    onChange={importFromXls}
+                    style={{ display: "none" }}
+                  />
+
+                  <button
+                    onClick={exportToXls}
+                    className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Export</span>
+                  </button>
+                </div>
+              )}
 
 
-              <button
-                //onClick={exportToJSON}
-                className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
-              >
-                <Download className="w-4 h-4" />
-                <span>Export</span>
-              </button>
               <button
                 onClick={() => setIsFormOpen(true)}
                 className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
               >
                 <Plus className="w-5 h-5" />
-                <span>Add Job Record</span>
+                <span>Add Inventory Record</span>
               </button>
             </div>
           </div>
         </div>
-        
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative max-w-md">
@@ -269,11 +558,10 @@ const filteredAndSortedRecords = React.useMemo(() => {
             />
           </div>
         </div>
-
-        {/* Job Records Table */}
+        {/* Inventory Records Table */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden">
           <div className="bg-blue-600 text-white p-4 font-semibold text-lg">
-            Job Records ({records.length})
+            Inventory ({records.length})
           </div>
 
           {filteredAndSortedRecords.length === 0 ? (
@@ -282,7 +570,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
               <p className="text-gray-600">
                 {searchTerm
                   ? "No records match your search."
-                  : "No records found. Add your first job record!"}
+                  : "No records found. Add your inventory record!"}
               </p>
             </div>
           ) : (
@@ -292,67 +580,64 @@ const filteredAndSortedRecords = React.useMemo(() => {
                   <tr>
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-                      onClick={() => handleSort("orderNo")}
+                      onClick={() => handleSort("ItemDetails")}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Order No</span>
-                        {getSortIcon("orderNo")}
+                        <span>Item Details</span>
+                        {getSortIcon("ItemDetails")}
                       </div>
                     </th>
+
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-                      onClick={() => handleSort("location")}
+                      onClick={() => handleSort("StockInDate")}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Location</span>
-                        {getSortIcon("location")}
+                        <span>Stock In Date</span>
+                        {getSortIcon("StockInDate")}
                       </div>
                     </th>
+
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-                      onClick={() => handleSort("category")}
+                      onClick={() => handleSort("StockOutDate")}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Category</span>
-                        {getSortIcon("category")}
+                        <span>Stock Out Date</span>
+                        {getSortIcon("StockOutDate")}
                       </div>
                     </th>
+
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-                      onClick={() => handleSort("typeOfJob")}
+                      onClick={() => handleSort("StockAvailable")}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Job Type</span>
-                        {getSortIcon("typeOfJob")}
+                        <span>Stock Available</span>
+                        {getSortIcon("StockAvailable")}
                       </div>
                     </th>
+
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-                      onClick={() => handleSort("execution")}
+                      onClick={() => handleSort("HSNCode")}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Execution</span>
-                        {getSortIcon("execution")}
+                        <span>HSN Code</span>
+                        {getSortIcon("HSNCode")}
                       </div>
                     </th>
+
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-                      onClick={() => handleSort("delivery")}
+                      onClick={() => handleSort("Limit")}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Delivery</span>
-                        {getSortIcon("delivery")}
+                        <span>Limit</span>
+                        {getSortIcon("Limit")}
                       </div>
                     </th>
-                    <th
-                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-                      onClick={() => handleSort("date")}
-                    >
-                      <div className="flex items-center space-x-1">
-                        <span>Date</span>
-                        {getSortIcon("date")}
-                      </div>
-                    </th>
+
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
                       Actions
                     </th>
@@ -366,62 +651,40 @@ const filteredAndSortedRecords = React.useMemo(() => {
                     >
                       <td className="px-6 py-4">
                         <div className="text-sm font-semibold text-gray-800">
-                          {record.orderNo}
+                          {record.ItemDetails}
                         </div>
-                        <div className="text-xs text-gray-500">
-                          {record.type}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-600">
+                          {record.StockInDate}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-600">
+                          {record.StockOutDate}
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${getLocationColor(
-                            record.location
+                          className={`px-3 py-2 rounded-full  font-semibold ${getLimitColor(
+                            record.StockAvailable, record.Limit
                           )}`}
                         >
-                          {record.location}
+                          {record.StockAvailable}
                         </span>
                       </td>
+
                       <td className="px-6 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(
-                            record.category
-                          )}`}
-                        >
-                          {record.category}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-800">
-                          {record.typeOfJob || "N/A"}
+                        <div className="text-sm font-semibold text-gray-800">
+                          {record.HSNCode}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {record.execution ? (
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${getExecutionColor(
-                              record.execution
-                            )}`}
-                          >
-                            {record.execution}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400 text-sm">N/A</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${getDeliveryColor(
-                            record.delivery
-                          )}`}
-                        >
-                          {record.delivery ? "Delivered" : "Pending"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-600">
-                          {new Date(record.date).toLocaleDateString()}
+                        <div className="text-sm font-semibold text-gray-800">
+                          {record.Limit}
                         </div>
                       </td>
+
                       <td className="px-6 py-4">
                         <div className="flex space-x-2">
                           <button
@@ -454,383 +717,72 @@ const filteredAndSortedRecords = React.useMemo(() => {
             </div>
           )}
         </div>
-
         {/* Form Modal */}{" "}
         {isFormOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="bg-blue-600 text-white p-4 rounded-t-xl">
+              <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
                   {editingRecord ? "Edit Job Record" : "Add New Job Record"}
                 </h2>
+                <button
+                  onClick={resetForm}
+                  className="text-white hover:bg-blue-700 p-1 rounded"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
                 {/* Common Fields */}
                 <div>
                   <h3 className="text-lg font-medium text-gray-800 mb-4">
-                    Basic Information
+                    Inventory Information
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Location
-                      </label>
-                      <select
-                        name="location"
-                        value={formData.location}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="">Select Location</option>
-                        <option value="In House">In House</option>
-                        <option value="Site">Site</option>
-                      </select>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Item Details</label>
+                      <input type="text" name="ItemDetails" value={formData.ItemDetails} onChange={handleInputChange} required
+                        placeholder="Enter Item Details"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
+
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Stock In Date</label>
+                      <input type="text" name="StockInDate" value={formData.StockInDate} onChange={handleInputChange} required
+                        placeholder="Enter Stock In Date"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Stock Out Date</label>
+                      <input type="text" name="StockOutDate" value={formData.StockOutDate} onChange={handleInputChange} required
+                        placeholder="Enter Stock Out Date"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Stock Available</label>
+                      <input type="text" name="StockAvailable" value={formData.StockAvailable} onChange={handleInputChange} required
+                        placeholder="Enter Stock Available"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Category
-                      </label>
-                      <select
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="">Select Category</option>
-                        <option value="WBSEDCL">WBSEDCL</option>
-                        <option value="Private">Private</option>
-                        <option value="Public">Public</option>
-                      </select>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">HSN Code</label>
+                      <input type="text" name="HSNCode" value={formData.HSNCode} onChange={handleInputChange} required
+                        placeholder="Enter HSN Code"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Order No / LOI No
-                      </label>
-                      <input
-                        type="text"
-                        name="orderNo"
-                        value={formData.orderNo}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="Order No/ LOI No"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Date
-                      </label>
-                      <input
-                        type="date"
-                        name="date"
-                        value={formData.date}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Limit</label>
+                      <input type="text" name="Limit" value={formData.Limit} onChange={handleInputChange} required
+                        placeholder="Enter Limit"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Client/Division
-                      </label>
-                      <input
-                        type="text"
-                        name="type"
-                        value={formData.type}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="Client/Division"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
                   </div>
-                </div>
-                {/* Location Specific Fields */}{" "}
-                {formData.location === "In House" && (
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-800 mb-4">
-                      In House Operations
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Dismental
-                        </label>
-                        <select
-                          name="dismental"
-                          value={formData.dismental}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="Started">Started</option>
-                          <option value="Completed">Completed</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Winding
-                        </label>
-                        <select
-                          name="Winding"
-                          value={formData.Winding}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="Started">Started</option>
-                          <option value="Completed">Completed</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Assembley
-                        </label>
-                        <select
-                          name="Assembley"
-                          value={formData.Assembley}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="Started">Started</option>
-                          <option value="Completed">Completed</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Testing
-                        </label>
-                        <select
-                          name="testing"
-                          value={formData.testing}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="Started">Started</option>
-                          <option value="Completed">Completed</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                )}{" "}
-                {formData.location === "Site" && (
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-800 mb-4">
-                      Site Information
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Site Location
-                        </label>
-                        <input
-                          type="text"
-                          name="siteLocation"
-                          value={formData.siteLocation}
-                          onChange={handleInputChange}
-                          placeholder="Enter site location"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                      </div>
-
-                      
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Type of Job
-                        </label>
-                        <select
-                          name="typeOfJob"
-                          value={formData.typeOfJob}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Job Type</option>
-                          <option value="Testing">Testing</option>
-                          <option value="Maintain">Maintain</option>
-                          <option value="Filter">Filter</option>
-                          <option value="Others">Others</option>
-                        </select>
-                      </div>
-                      {formData.typeOfJob === "Others" && (
-                        <div className="mt-3">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Specify Job Type
-                          </label>
-                          <input
-                            type="text"
-                            name="otherJobType"
-                            value={formData.otherJobType || ""}
-                            onChange={handleInputChange}
-                            placeholder="Enter job type"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                      )}
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Execution
-                        </label>
-                        <select
-                          name="execution"
-                          value={formData.execution}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Select Execution Status</option>
-                          <option value="Started">Started</option>
-                          <option value="Completed">Completed</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Field Job Details */}
-                    <div>
-                      <h4 className="text-md font-medium text-gray-800 mb-3">
-                        Field Job Details
-                      </h4>
-
-                      {formData.fieldJobDetails.map((detail, index) => (
-                        <div
-                          key={index}
-                          className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4 items-center"
-                        >
-                          {/* KVA */}
-                          <div className="flex flex-col">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              KVA
-                            </label>
-                            <input
-                              type="text"
-                              value={detail.kva}
-                              onChange={(e) =>
-                                handleFieldJobDetailChange(
-                                  index,
-                                  "kva",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Enter KVA"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-
-                          {/* Sr No */}
-                          <div className="flex flex-col">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Sr No
-                            </label>
-                            <input
-                              type="text"
-                              value={detail.srNo}
-                              onChange={(e) =>
-                                handleFieldJobDetailChange(
-                                  index,
-                                  "srNo",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Enter Serial Number"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-
-                          {/* Rating */}
-                          <div className="flex flex-col">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Rating
-                            </label>
-                            <input
-                              type="text"
-                              value={detail.rating}
-                              onChange={(e) =>
-                                handleFieldJobDetailChange(
-                                  index,
-                                  "rating",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Enter Rating"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-
-                          {/* Note */}
-                          <div className="flex flex-col">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Note
-                            </label>
-                            <input
-                              type="text"
-                              value={detail.note}
-                              onChange={(e) =>
-                                handleFieldJobDetailChange(
-                                  index,
-                                  "note",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Enter Note"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-
-                          {/* Remove Button */}
-                          {/* Remove Button */}
-                          <div className="flex items-center justify-center mt-5 -ml-20">
-                            <button
-                              type="button"
-                              onClick={() => removeFieldJobDetail(index)}
-                              className="bg-red-500 hover:bg-red-300 text-white px-3 py-3 rounded-lg text-sm"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-
-                      <button
-                        type="button"
-                        onClick={addFieldJobDetail}
-                        className="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
-                      >
-                        + Add Another Row
-                      </button>
-                    </div>
-
-                    <div className="mt-4 mb-4"></div>
-                    
-                  </div>
-                )}{" "}
-                {/* Common Delivery Checkbox */}
-                <div>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="delivery"
-                      checked={formData.delivery}
-                      onChange={handleInputChange}
-                      className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    />
-                    <span className="ml-2 text-sm font-medium text-gray-700">
-                      Delivery
-                    </span>
-                  </label>
                 </div>
                 <div className="flex space-x-3 pt-4">
                   <button
@@ -852,7 +804,6 @@ const filteredAndSortedRecords = React.useMemo(() => {
             </div>
           </div>
         )}
-
         {/* Detail View Modal */}{" "}
         {isDetailOpen && viewingRecord && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -870,212 +821,61 @@ const filteredAndSortedRecords = React.useMemo(() => {
               <div className="p-6 space-y-6">
                 <div>
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                    {viewingRecord.orderNo}
+                    {viewingRecord.ItemDetails}
                   </h3>
-                  <p className="text-gray-600">{viewingRecord.type}</p>
                 </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-500">
-                      Location
-                    </label>
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getLocationColor(
-                        viewingRecord.location
-                      )}`}
-                    >
-                      {viewingRecord.location}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">
-                      Category
-                    </label>
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
-                        viewingRecord.category
-                      )}`}
-                    >
-                      {viewingRecord.category}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">
-                      Date
+                      Stock In Date
                     </label>
                     <p className="text-lg font-semibold text-gray-800">
-                      {new Date(viewingRecord.date).toLocaleDateString()}
+                      {viewingRecord.StockInDate}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Stock Out Date
+                    </label>
+                    <p className="text-lg font-semibold text-gray-800">
+                      {viewingRecord.StockOutDate}
+                    </p>
+                  </div>
+                  <div>
+  <label className="block text-sm font-medium text-gray-500">
+    Stock Available
+  </label>
+  <span className={`inline-block px-3 py-1 rounded-full font-medium ${getLimitColor( viewingRecord.StockAvailable, viewingRecord.Limit
+    )}`}>
+    {viewingRecord.StockAvailable}
+  </span>
+</div>
+                </div>
+
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  
+                  
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">
+                      HSN Code
+                    </label>
+                    <p className="text-lg font-semibold text-gray-800">
+                      {viewingRecord.HSNCode}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Limit
+                    </label>
+                    <p className="text-lg font-semibold text-gray-800">
+                      {viewingRecord.Limit}
                     </p>
                   </div>
                 </div>
-                {/* Location Specific Details */}{" "}
-                {viewingRecord.location === "In House" && (
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-800 mb-3">
-                      In House Operations
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      {viewingRecord.dismental && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Dismental
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.dismental}
-                          </p>
-                        </div>
-                      )}{" "}
-                      {viewingRecord.Winding && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Winding
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.Winding}
-                          </p>
-                        </div>
-                      )}{" "}
-                      {viewingRecord.Assembley && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Assembley
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.Assembley}
-                          </p>
-                        </div>
-                      )}{" "}
-                      {viewingRecord.testing && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Testing
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.testing}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}{" "}
-                {viewingRecord.location === "Site" && (
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-800 mb-3">
-                      Site Information
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      {viewingRecord.siteLocation && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Site Location
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.siteLocation}
-                          </p>
-                        </div>
-                      )}{" "}
-                      
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      {viewingRecord.typeOfJob && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Type of Job
-                          </label>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {viewingRecord.typeOfJob}
-                          </p>
-                        </div>
-                      )}{" "}
-                      {viewingRecord.execution && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-500">
-                            Execution
-                          </label>
-                          <span
-                            className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getExecutionColor(
-                              viewingRecord.execution
-                            )}`}
-                          >
-                            {viewingRecord.execution}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    {/* Field Job Details */}{" "}
-                    {viewingRecord.fieldJobDetails &&
-                      viewingRecord.fieldJobDetails.length > 0 && (
-                        <div>
-                          <h5 className="text-md font-semibold text-gray-800 mb-3">
-                            Field Job Details
-                          </h5>
-                          {viewingRecord.fieldJobDetails.map(
-                            (detail, index) => (
-                              <div
-                                key={index}
-                                className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 p-3 border border-gray-200 rounded-lg"
-                              >
-                                {detail.kva && (
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-500">
-                                      KVA
-                                    </label>
-                                    <p className="text-lg font-semibold text-gray-800">
-                                      {detail.kva}
-                                    </p>
-                                  </div>
-                                )}
-                                {detail.srNo && (
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-500">
-                                      Sr No
-                                    </label>
-                                    <p className="text-lg font-semibold text-gray-800">
-                                      {detail.srNo}
-                                    </p>
-                                  </div>
-                                )}
-                                {detail.rating && (
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-500">
-                                      Rating
-                                    </label>
-                                    <p className="text-lg font-semibold text-gray-800">
-                                      {detail.rating}
-                                    </p>
-                                  </div>
-                                )}
-                                {detail.note && (
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-500">
-                                      Note
-                                    </label>
-                                    <p className="text-lg font-semibold text-gray-800">
-                                      {detail.note}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          )}
-                        </div>
-                      )}{" "}
-                    
-                  </div>
-                )}{" "}
-                {/* Delivery Status */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-500">
-                    Delivery Status
-                  </label>
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getDeliveryColor(
-                      viewingRecord.delivery
-                    )}`}
-                  >
-                    {viewingRecord.delivery ? "Delivered" : "Pending"}
-                  </span>
-                </div>
+
                 <div className="flex space-x-3 pt-4">
                   <button
                     onClick={() => {
@@ -1091,18 +891,17 @@ const filteredAndSortedRecords = React.useMemo(() => {
                     onClick={() => setIsDetailOpen(false)}
                     className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors duration-200"
                   >
-                    {" "}
                     Close
                   </button>
                 </div>
               </div>
+
             </div>
           </div>
         )}
-
       </main>
     </div>
   );
 }
 
-export default InventoryPage;
+export default Inventory;

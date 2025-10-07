@@ -3,7 +3,7 @@ Only change the ip config thing and will work fine closing the windows defender 
 On his system:
 local: http://localhost:5173/
 network: http://192.168.1.200:5173/
-network: http://192.168.0.164:5173/
+****network: http://192.168.0.164:5173/
 
 
 Changes to be made:
@@ -22,10 +22,30 @@ Done 10. Change the operations edit window alignment and make the Location and c
 
 New Changes to Do:
 =======================
-1. After import check for date format mismatch
-2. Dashboard data autoscroll thing 
-3. Vendors with IMPORT and EXPORT
-4. Billing with IMPORT and EXPORT
+Done 1. Remove date input
+Done 3. Vendors with IMPORT and EXPORT
 Done 5. Certification
 Done 6. Staff
-7. Inventory with admin and staff and pending changes
+Done 8. "SRN of transformer" to be added not SIRN 
+Done 11. Editing operations data
+
+
+Inventory
+Import and export,
+Pending Changes, Entire thing
+Also popup below qty level
+
+Full remove to ISO string from everywhere!!
+
+Staff 
+Import and Export buttons
+Export at individual Level
+Staff attachment on view modal page
+
+
+
+Billing
+Import and Export Button
+Space for two graph data
+
+Dashboard Data scroll and graph
