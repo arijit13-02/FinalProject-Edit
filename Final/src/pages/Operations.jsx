@@ -1157,6 +1157,7 @@ function Operations() {
                 <p className="text-blue-100">
                   Automated Record entry in accordance with Real Time Jobs
                 </p>
+                
               </div>
             </div>
 

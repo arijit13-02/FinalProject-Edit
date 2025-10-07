@@ -191,26 +191,30 @@ function UpcomingJobs() {
   };
 
   const exportToXls = () => {
-    if (!records || records.length === 0) return;
+  if (!records || records.length === 0) return;
 
-    // 1. Prepare data (no nested TransformerDetails processing needed)
-    const processedData = records.map(record => ({ ...record }));
+  // 1. Prepare data excluding 'id', 'ID', 'updatedAt'
+  const processedData = records.map(record => {
+    const { id, ID, updatedAt, ...flatRecord } = record;
+    return flatRecord;
+  });
 
-    // 2. Convert processed data to worksheet
-    const ws = XLSX.utils.json_to_sheet(processedData);
+  // 2. Convert processed data to worksheet
+  const ws = XLSX.utils.json_to_sheet(processedData);
 
-    // 3. Create workbook and append worksheet
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "UpcomingJobsData");
+  // 3. Create workbook and append worksheet
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "UpcomingJobsData");
 
-    // 4. Generate Excel file buffer
-    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  // 4. Generate Excel file buffer
+  const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
 
-    // 5. Save as file
-    const exportFileName = `UpcomingJobs.xlsx`;
-    const blob = new Blob([wbout], { type: "application/octet-stream" });
-    saveAs(blob, exportFileName);
-  };
+  // 5. Save as file
+  const exportFileName = `UpcomingJobs.xlsx`;
+  const blob = new Blob([wbout], { type: "application/octet-stream" });
+  saveAs(blob, exportFileName);
+};
+
 
   // Import from XLSX
   const importFromXls = async (event) => {
