@@ -195,7 +195,7 @@ function UpcomingJobs() {
 
   // 1. Prepare data excluding 'id', 'ID', 'updatedAt'
   const processedData = records.map(record => {
-    const { id, ID, updatedAt, ...flatRecord } = record;
+    const { id, ID, updatedAt,createdAt, ...flatRecord } = record;
     return flatRecord;
   });
 

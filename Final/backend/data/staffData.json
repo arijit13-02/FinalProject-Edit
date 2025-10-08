@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "StaffID": "13000120015",
+    "StaffName": "Arijit Datta",
+    "AADHAR": "912547854325",
+    "Address": "4/52P, ALX colony, Shaikpet, Hyderabad, Telengana 514785",
+    "PhoneNumber": "9877765489",
+    "DOB": "2004-12-05",
+    "Age": "29",
+    "Blood": "A+",
+    "BankName": "Jadavpur Bank of India",
+    "Branch": "Hyderanad",
+    "AccountNo": "9002514887451254025",
+    "IFSCCode": "IISB00120",
+    "ESICNo": "1245821195852147",
+    "PFNO": "900012555408887584159",
+    "id": "1759956396978",
+    "attachment": "1759956406933-3.jpg",
+    "createdAt": "undefined",
+    "updatedAt": "2025-10-08T20:46:46.925Z"
+  }
+]
