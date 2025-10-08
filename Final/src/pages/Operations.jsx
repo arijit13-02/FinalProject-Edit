@@ -350,7 +350,7 @@ function Operations() {
     // 1. Process data
     const processedData = data.map((record) => {
   // Deep copy and exclude unwanted fields
-  const { id, ID, updatedAt, TransformerDetails, ...flatRecord } = record;
+  const { id, ID, updatedAt, createdAt,TransformerDetails, ...flatRecord } = record;
 
   if (
     flatRecord.Location === "Site" &&

@@ -30,6 +30,7 @@ import {
 import logo from "../assets/logo.png";
 import axios from "axios";
 
+
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
@@ -128,91 +129,91 @@ function Staff() {
         headers: { "x-user-role": localStorage.getItem("userRole") }
       });
       setRecords(res.data);
-      console.log(res.data);
+      
     } catch (err) {
       console.error("Error fetching data:", err);
     }
   };
 
 
-  const handleInputChange = (e) => {  
-  const { name, value, files } = e.target;
+  const handleInputChange = (e) => {
+    const { name, value, files } = e.target;
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]: files ? files[0] : value, // if it's a file input, take the first file
-  }));
-};
+    setFormData((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value, // if it's a file input, take the first file
+    }));
+  };
 
 
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    // Create FormData object
-    const form = new FormData();
+    try {
+      // Create FormData object
+      const form = new FormData();
 
-    // Append all form fields
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value) {
-        form.append(key, value);
+      // Append all form fields
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value) {
+          form.append(key, value);
+        }
+      });
+
+      // If editing, append extra fields
+      if (editingRecord) {
+        form.append("id", editingRecord.id);
+        form.append("createdAt", editingRecord.createdAt);
+        form.append("updatedAt", new Date().toISOString());
       }
-    });
 
-    // If editing, append extra fields
-    if (editingRecord) {
-      form.append("id", editingRecord.id);
-      form.append("createdAt", editingRecord.createdAt);
-      form.append("updatedAt", new Date().toISOString());
-    }
+      // Headers for multipart/form-data
+      const headers = {
+        "x-user-role": localStorage.getItem("userRole"),
+        "Content-Type": "multipart/form-data",
+      };
 
-    // Headers for multipart/form-data
-    const headers = {
-      "x-user-role": localStorage.getItem("userRole"),
-      "Content-Type": "multipart/form-data",
-    };
+      let response;
 
-    let response;
 
-    console.log(form);
-    if (editingRecord) {
-      // Update existing record
-      response = await axios.put(
-        `http://192.168.0.106:5050/api/staff/${editingRecord.id}`,
-        form,
-        { headers }
-      );
-
-      if (response.data.success) {
-        // Update the UI with edited record
-        const updatedRecords = records.map((record) =>
-          record.id === editingRecord.id ? response.data.item : record
+      if (editingRecord) {
+        // Update existing record
+        response = await axios.put(
+          `http://192.168.0.106:5050/api/staff/${editingRecord.id}`,
+          form,
+          { headers }
         );
-        setRecords(updatedRecords);
-        resetForm();
-      } else {
-        console.error("Failed to update:", response.data.message);
-      }
-    } else {
-      // Add new record
-      response = await axios.post(
-        "http://192.168.0.106:5050/api/staff",
-        form,
-        { headers }
-      );
 
-      if (response.data.success) {
-        setRecords([...records, response.data.item]);
-        resetForm();
+        if (response.data.success) {
+          // Update the UI with edited record
+          const updatedRecords = records.map((record) =>
+            record.id === editingRecord.id ? response.data.item : record
+          );
+          setRecords(updatedRecords);
+          resetForm();
+        } else {
+          console.error("Failed to update:", response.data.message);
+        }
       } else {
-        console.error("Failed to add:", response.data.message);
+        // Add new record
+        response = await axios.post(
+          "http://192.168.0.106:5050/api/staff",
+          form,
+          { headers }
+        );
+
+        if (response.data.success) {
+          setRecords([...records, response.data.item]);
+          resetForm();
+        } else {
+          console.error("Failed to add:", response.data.message);
+        }
       }
+    } catch (error) {
+      console.error("API error:", error.response?.data || error.message);
     }
-  } catch (error) {
-    console.error("API error:", error.response?.data || error.message);
-  }
-};
+  };
 
 
 
@@ -235,17 +236,14 @@ function Staff() {
       IFSCCode: "",
       ESICNo: "",
       PFNO: "",
-          file: null
+      file: null
     });
     setIsFormOpen(false);
     setEditingRecord(null);
   };
 
   const handleEdit = (record) => {
-        console.log("editing");
-        console.log(record.StaffName);
-                console.log(record.file);
-                        console.log("dukkho");
+    
     setFormData({
       StaffID: record.StaffID,
       StaffName: record.StaffName,
@@ -261,7 +259,7 @@ function Staff() {
       IFSCCode: record.IFSCCode,
       ESICNo: record.ESICNo,
       PFNO: record.PFNO,
-    file: record.file
+      file: record.file
     });
 
     setEditingRecord(record);
@@ -349,28 +347,68 @@ function Staff() {
   }, [records, searchTerm, sortConfig]);
 
   const exportToXls = () => {
-      if (!records || records.length === 0) return;
-  
-      // 1. Prepare data (no nested TransformerDetails processing needed)
-   const processedData = records.map(record => {
-    const { id, ID, updatedAt, ...flatRecord } = record;
-    return flatRecord;
-  });
-      // 2. Convert processed data to worksheet
-      const ws = XLSX.utils.json_to_sheet(processedData);
-  
-      // 3. Create workbook and append worksheet
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Staff Data");
-  
-      // 4. Generate Excel file buffer
-      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-  
-      // 5. Save as file
-      const exportFileName = `Staff.xlsx`;
-      const blob = new Blob([wbout], { type: "application/octet-stream" });
-      saveAs(blob, exportFileName);
-    };
+    if (!records || records.length === 0) return;
+
+    // 1. Prepare data (no nested TransformerDetails processing needed)
+    const processedData = records.map(record => {
+      const { id, ID, updatedAt,createdAt, ...flatRecord } = record;
+      return flatRecord;
+    });
+    // 2. Convert processed data to worksheet
+    const ws = XLSX.utils.json_to_sheet(processedData);
+
+    // 3. Create workbook and append worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Staff Data");
+
+    // 4. Generate Excel file buffer
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+
+    // 5. Save as file
+    const exportFileName = `Staff.xlsx`;
+    const blob = new Blob([wbout], { type: "application/octet-stream" });
+    saveAs(blob, exportFileName);
+  };
+
+  const handleExportXLS = async (record) => {
+  try {
+    // --- Export XLSX ---
+    const wb = XLSX.utils.book_new();
+    const sheetData = [
+      ["Staff ID", record.StaffID || ""],
+      ["Staff Name", record.StaffName || ""],
+      ["AADHAR", record.AADHAR || ""],
+      ["Address", record.Address || ""],
+      ["Phone Number", record.PhoneNumber || ""],
+      ["Date of Birth", record.DOB ? new Date(record.DOB).toLocaleDateString() : ""],
+      ["Age", record.Age || ""],
+      ["Blood Group", record.Blood || ""],
+      ["Bank Name", record.BankName || ""],
+      ["Branch", record.Branch || ""],
+      ["Account Number", record.AccountNo || ""],
+      ["IFSC Code", record.IFSCCode || ""],
+      ["ESIC Number", record.ESICNo || ""],
+      ["PF Number", record.PFNO || ""]
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(sheetData);
+    XLSX.utils.book_append_sheet(wb, ws, "Staff Record");
+
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    saveAs(new Blob([wbout], { type: "application/octet-stream" }), `${record.StaffID || "record"}.xlsx`);
+
+    // --- Download attachment if exists ---
+    if (record.attachment) {
+      const fileUrl = `http://192.168.0.106:5050/Staffuploads/${record.attachment}`;
+      const fileExt = record.attachment.split(".").pop(); // jpg, png, pdf etc
+      const fileBlob = await fetch(fileUrl).then(res => res.blob());
+      saveAs(fileBlob, `${record.StaffID || "record"}.${fileExt}`);
+    }
+  } catch (error) {
+    console.error("Export failed:", error);
+  }
+};
+
 
   // Import from XLSX
   const importFromXls = async (event) => {
@@ -505,29 +543,29 @@ function Staff() {
             </div>
             <div className="flex space-x-3">
               <button
-                              onClick={() => document.getElementById("importFileInput").click()}
-                              className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
-                            >
-                              <Upload className="w-4 h-4" />
-                              <span>Import</span>
-                            </button>
-              
-                            <input
-                              type="file"
-                              id="importFileInput"
-                              accept=".xlsx,.xls"
-                              onChange={importFromXls}
-                              style={{ display: "none" }}
-                            />
-              
-                            <button
-                              onClick={exportToXls}
-                              className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
-                            >
-                              <Download className="w-4 h-4" />
-                              <span>Export</span>
-                            </button>
-                            
+                onClick={() => document.getElementById("importFileInput").click()}
+                className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+              >
+                <Upload className="w-4 h-4" />
+                <span>Import</span>
+              </button>
+
+              <input
+                type="file"
+                id="importFileInput"
+                accept=".xlsx,.xls"
+                onChange={importFromXls}
+                style={{ display: "none" }}
+              />
+
+              <button
+                onClick={exportToXls}
+                className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+              >
+                <Download className="w-4 h-4" />
+                <span>Export</span>
+              </button>
+
               <button
                 onClick={() => setIsFormOpen(true)}
                 className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
@@ -709,7 +747,7 @@ function Staff() {
                         <span>PF No</span>
                         {getSortIcon("PFNO")}
                       </div>
-                      
+
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
                       Actions
@@ -1054,16 +1092,16 @@ function Staff() {
                       />
                     </div>
 
-<div>
+                    <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Attached File
                       </label>
                       <input
-  type="file"
-  name="attachment"
-  accept=".pdf,.png,.jpg,.jpeg"
-  onChange={handleInputChange}
-/>
+                        type="file"
+                        name="attachment"
+                        accept=".pdf,.png,.jpg,.jpeg"
+                        onChange={handleInputChange}
+                      />
                     </div>
 
                   </div>
@@ -1104,109 +1142,94 @@ function Staff() {
                 </button>
               </div>
 
-              <div className="p-6 space-y-6">
+      <div className="p-4 md:p-6">
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  {/* Top Section: Photo on the right, Name/ID on the left */}
+  <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4">
+    
+    {/* Left: Key personal info */}
+    <div className="flex-1 space-y-1">
+      <div className="flex space-x-2">
+        <span className="font-semibold text-gray-700">Staff ID:</span>
+        <span className="text-gray-800">{viewingRecord.StaffID}</span>
+      </div>
+      <div className="flex space-x-2">
+        <span className="font-semibold text-gray-700">Name:</span>
+        <span className="text-gray-800">{viewingRecord.StaffName}</span>
+      </div>
+      <div className="flex space-x-2">
+        <span className="font-semibold text-gray-700">AADHAR:</span>
+        <span className="text-gray-800">{viewingRecord.AADHAR}</span>
+      </div>
+    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Staff ID</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.StaffID}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Staff Name</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.StaffName}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">AADHAR</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.AADHAR}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Address</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Address}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Phone Number</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.PhoneNumber}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Date of Birth</label>
-                    <p className="text-lg font-semibold text-gray-800">{new Date(viewingRecord.DOB).toLocaleDateString()}</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Age</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Age}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Blood Group</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Blood}</span>
-                  </div>
-
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Bank Name</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.BankName}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Branch</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.Branch}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">Account Number</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.AccountNo}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">IFSC Code</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.IFSCCode}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">ESIC Number</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.ESICNo}</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500">PF Number</label>
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.PFNO}</span>
-                  </div>
-{viewingRecord.attachment.endsWith(".pdf") ? (
-      <iframe
-        src={`http://192.168.0.106:5050/Staffuploads/${viewingRecord.attachment}`}
-        className="w-full h-64 border rounded"
-        title="PDF Preview"
-      />
-    ) : (
-      <img
-        src={`http://192.168.0.106:5050/Staffuploads/${viewingRecord.attachment}`}
-        alt="preview"
-        className="w-full h-64 object-contain rounded"
-      />
+    {/* Right: Small attachment preview */}
+    {viewingRecord.attachment && (
+      <div className="mt-2 md:mt-0 md:ml-4 w-32 h-32 flex-shrink-0">
+        {viewingRecord.attachment.toLowerCase().endsWith(".pdf") ? (
+          <iframe
+            src={`http://192.168.0.106:5050/Staffuploads/${viewingRecord.attachment}`}
+            className="w-full h-full border rounded"
+            title="PDF Preview"
+          />
+        ) : (
+          <img
+            src={`http://192.168.0.106:5050/Staffuploads/${viewingRecord.attachment}`}
+            alt="preview"
+            className="w-full h-full object-cover rounded"
+          />
+        )}
+      </div>
     )}
+  </div>
+
+  {/* Grid for other fields */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
+
+    <div className="flex space-x-2"><span className="font-semibold">Address:</span> <span>{viewingRecord.Address}</span></div>
+    <div className="flex space-x-2"><span className="font-semibold">Phone:</span> <span>{viewingRecord.PhoneNumber}</span></div>
+    <div className="flex space-x-2"><span className="font-semibold">DOB:</span> <span>{new Date(viewingRecord.DOB).toLocaleDateString()}</span></div>
+    <div className="flex space-x-2"><span className="font-semibold">Age:</span> <span>{viewingRecord.Age}</span></div>
+    <div className="flex space-x-2"><span className="font-semibold">Blood Group:</span> <span>{viewingRecord.Blood}</span></div>
+    <div className="flex space-x-2"><span className="font-semibold">Bank Name:</span> <span>{viewingRecord.BankName}</span></div>
+    <div className="flex space-x-2"><span className="font-semibold">Branch:</span> <span>{viewingRecord.Branch}</span></div>
+    <div className="flex space-x-2"><span className="font-semibold">Account No:</span> <span>{viewingRecord.AccountNo}</span></div>
+    <div className="flex space-x-2"><span className="font-semibold">IFSC Code:</span> <span>{viewingRecord.IFSCCode}</span></div>
+    <div className="flex space-x-2"><span className="font-semibold">ESIC No:</span> <span>{viewingRecord.ESICNo}</span></div>
+    <div className="flex space-x-2"><span className="font-semibold">PF No:</span> <span>{viewingRecord.PFNO}</span></div>
+
+  </div>
+
+  {/* Action Buttons */}
+<div className="flex flex-wrap gap-3 mt-4 justify-end">
+  <button
+    onClick={() => { setIsDetailOpen(false); handleEdit(viewingRecord); }}
+    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded font-medium flex items-center space-x-2"
+  >
+    <Edit3 className="w-4 h-4" />
+    <span>Edit</span>
+  </button>
+
+  <button
+    onClick={() => setIsDetailOpen(false)}
+    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-1 rounded font-medium"
+  >
+    Close
+  </button>
+
+  <button
+    onClick={() => handleExportXLS(viewingRecord)}
+    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2"
+  >
+    <Download className="w-4 h-4" />
+    <span>Download</span>
+  </button>
+</div>
 
 
+</div>
 
 
-
-
-                </div>
-
-                <div className="flex space-x-3 pt-4">
-                  <button onClick={() => { setIsDetailOpen(false); handleEdit(viewingRecord); }} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2" >
-                    <Edit3 className="w-4 h-4" />
-                    <span>Edit Record</span>
-                  </button>
-                  <button onClick={() => setIsDetailOpen(false)} className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors duration-200" > {" "} Close </button>
-                </div>
-              </div>
             </div>
           </div>
         )}

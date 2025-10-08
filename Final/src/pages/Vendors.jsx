@@ -341,7 +341,7 @@ function Vendors() {
 
     // 1. Prepare data (no nested TransformerDetails processing needed)
       const processedData = records.map(record => {
-    const { id, ID, updatedAt, ...flatRecord } = record;
+    const { id, ID, updatedAt,createdAt, ...flatRecord } = record;
     return flatRecord;
   });
 

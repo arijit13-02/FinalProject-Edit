@@ -221,7 +221,7 @@ function Certifications() {
     if (!records || records.length === 0) return;
 
       const processedData = records.map(record => {
-    const { id, updatedAt, ...rest } = record; // exclude ID and updatedAt
+    const { id, updatedAt, createdAt, ...rest } = record; // exclude ID and updatedAt
     return rest;
   });
 

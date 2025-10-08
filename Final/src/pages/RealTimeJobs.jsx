@@ -230,7 +230,7 @@ const importFromXls = async (event) => {
   
   const processedRecords = records.map((rec) => {
   // Destructure to remove unwanted keys (id, updatedAt, fieldJobDetails)
-  const { id, ID, updatedAt, fieldJobDetails, ...newRec } = rec;
+  const { id, ID, updatedAt,createdAt, fieldJobDetails, ...newRec } = rec;
 
   if (Array.isArray(fieldJobDetails)) {
     fieldJobDetails.forEach((fj, index) => {
