@@ -3,6 +3,7 @@ import fs from "fs";
 import bcrypt from "bcrypt";
 import cors from "cors";
 import bodyParser from "body-parser";
+import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import realtimejobsRoutes from "./routes/realtimejobs.js";
@@ -34,7 +35,7 @@ const requireAdmin = (req, res, next) => {
 // --- CORS configuration ---
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://192.168.0.111:5173" // LAN access
+  "http://192.168.0.106:5173" // LAN access
 ];
 
 app.use(
@@ -50,6 +51,9 @@ app.use(
 );
 
 app.use(bodyParser.json());
+app.use("/Staffuploads", express.static(path.join(__dirname, "Staffuploads")));
+
+const uploadDir = path.join(__dirname, "Staffuploads");
 
 // --- Auth file setup ---
 const AUTH_FILE = path.join(__dirname, "auth.json");
@@ -64,6 +68,7 @@ if (!fs.existsSync(AUTH_FILE)) {
   const defaultHash = bcrypt.hashSync("admin123", 10);
   writeJson(AUTH_FILE, { adminPasswordHash: defaultHash });
 }
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
 // === AUTH ROUTES ===
 
@@ -102,13 +107,18 @@ app.post("/api/change-password", async (req, res) => {
   res.json({ success: true, message: "Password changed successfully" });
 });
 
+
+
 // --- API Routes ---
 app.use("/api/realtimejobs", realtimejobsRoutes);
 app.use("/api/inventory", inventoryRoutes);
 
 app.use("/api/operations", requireAdmin, operationsRoutes);
 app.use("/api/upcomingjobs", requireAdmin, upcomingjobsRoutes);
+
 app.use("/api/staff", requireAdmin, staffRoutes);
+
+
 app.use("/api/cert", requireAdmin, certRoutes);
 app.use("/api/vendors", requireAdmin, vendorRoutes);
 app.use("/api/billing", requireAdmin, billingRoutes);

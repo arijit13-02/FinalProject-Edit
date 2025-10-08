@@ -110,7 +110,7 @@ function Certifications() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.111:5050/api/cert";
+      const url = "http://192.168.0.106:5050/api/cert";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -138,7 +138,7 @@ function Certifications() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.111:5050/api/cert/${editingRecord.id}`, // update by ID
+          `http://192.168.0.106:5050/api/cert/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -168,7 +168,7 @@ function Certifications() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.111:5050/api/cert",
+          "http://192.168.0.106:5050/api/cert",
           formData,
           {
             headers: {
@@ -262,7 +262,7 @@ function Certifications() {
 
       // Insert each record individually
       for (const record of importedData) {
-        const url = "http://192.168.0.111:5050/api/cert";
+        const url = "http://192.168.0.106:5050/api/cert";
         if (!url) {
           console.error("Invalid location/category combination for record:", record);
           continue;
@@ -290,7 +290,7 @@ function Certifications() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.111:5050/api/cert/${id}`,
+        `http://192.168.0.106:5050/api/cert/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
