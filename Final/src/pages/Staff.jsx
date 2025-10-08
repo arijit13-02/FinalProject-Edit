@@ -24,6 +24,8 @@ import {
   FileText,
   BarChart3,
   BadgeCheck,
+  MapPin,
+  DollarSign ,
   PieChart,
   Activity
 } from "lucide-react";
@@ -409,7 +411,14 @@ function Staff() {
   }
 };
 
-
+const DetailItem = ({ label, value }) => (
+    <div>
+        <label className="block text-xs font-medium text-gray-400 uppercase tracking-wider">{label}</label>
+        <p className="text-sm font-semibold text-gray-800 mt-0.5 break-words">
+            {value || 'N/A'}
+        </p>
+    </div>
+);
   // Import from XLSX
   const importFromXls = async (event) => {
     const file = event.target.files[0];
@@ -1129,79 +1138,131 @@ function Staff() {
           </div>
         )}
         {/* Detail View Modal */}{" "}
-        {isDetailOpen && viewingRecord && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Staff Record Details</h2>
-                <button
-                  onClick={() => setIsDetailOpen(false)}
-                  className="text-white hover:bg-blue-700 p-1 rounded"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+  {isDetailOpen && viewingRecord && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      {/* Header */}
+      <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Staff Record Details</h2>
+        <button
+          onClick={() => setIsDetailOpen(false)}
+          className="text-white hover:bg-blue-700 p-1 rounded"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <div className="p-6 space-y-6">
+        {/* Top Section: Left info + Right photo */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+          {/* Left Info */}
+          <div className="flex-1 space-y-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-500">Staff ID</label>
+              <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                {viewingRecord.StaffID}
+              </span>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-500">Staff Name</label>
+              <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                {viewingRecord.StaffName}
+              </span>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-500">Address</label>
+              <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                {viewingRecord.Address}
+              </span>
+            </div>
+          </div>
+
+          {/* Right Photo */}
+          <div className="w-40 h-40 flex-shrink-0 rounded overflow-hidden border border-gray-200">
+            {viewingRecord.attachment && !viewingRecord.attachment.endsWith(".pdf") ? (
+              <img
+                src={`http://192.168.0.106:5050/Staffuploads/${viewingRecord.attachment}`}
+                alt="Staff"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+                No Photo
               </div>
+            )}
+          </div>
+        </div>
 
-      <div className="p-4 md:p-6">
+        {/* Divider */}
+        <hr className="border-gray-200 my-4" />
 
-  {/* Top Section: Photo on the right, Name/ID on the left */}
-  <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4">
-    
-    {/* Left: Key personal info */}
-    <div className="flex-1 space-y-1">
-      <div className="flex space-x-2">
-        <span className="font-semibold text-gray-700">Staff ID:</span>
-        <span className="text-gray-800">{viewingRecord.StaffID}</span>
-      </div>
-      <div className="flex space-x-2">
-        <span className="font-semibold text-gray-700">Name:</span>
-        <span className="text-gray-800">{viewingRecord.StaffName}</span>
-      </div>
-      <div className="flex space-x-2">
-        <span className="font-semibold text-gray-700">AADHAR:</span>
-        <span className="text-gray-800">{viewingRecord.AADHAR}</span>
-      </div>
-    </div>
+        {/* Rest of Details */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-500">Phone Number</label>
+            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+              {viewingRecord.PhoneNumber}
+            </span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-500">Date of Birth</label>
+            <p className="text-lg font-semibold text-gray-800">{new Date(viewingRecord.DOB).toLocaleDateString()}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-500">Age</label>
+            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+              {viewingRecord.Age}
+            </span>
+          </div>
 
-    {/* Right: Small attachment preview */}
-    {viewingRecord.attachment && (
-      <div className="mt-2 md:mt-0 md:ml-4 w-32 h-32 flex-shrink-0">
-        {viewingRecord.attachment.toLowerCase().endsWith(".pdf") ? (
-          <iframe
-            src={`http://192.168.0.106:5050/Staffuploads/${viewingRecord.attachment}`}
-            className="w-full h-full border rounded"
-            title="PDF Preview"
-          />
-        ) : (
-          <img
-            src={`http://192.168.0.106:5050/Staffuploads/${viewingRecord.attachment}`}
-            alt="preview"
-            className="w-full h-full object-cover rounded"
-          />
-        )}
-      </div>
-    )}
-  </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-500">Blood Group</label>
+            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+              {viewingRecord.Blood}
+            </span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-500">Bank Name</label>
+            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+              {viewingRecord.BankName}
+            </span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-500">Branch</label>
+            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+              {viewingRecord.Branch}
+            </span>
+          </div>
 
-  {/* Grid for other fields */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
+          <div>
+            <label className="block text-sm font-medium text-gray-500">Account Number</label>
+            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+              {viewingRecord.AccountNo}
+            </span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-500">IFSC Code</label>
+            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+              {viewingRecord.IFSCCode}
+            </span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-500">ESIC Number</label>
+            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+              {viewingRecord.ESICNo}
+            </span>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-500">PF Number</label>
+            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+              {viewingRecord.PFNO}
+            </span>
+          </div>
+        </div>
 
-    <div className="flex space-x-2"><span className="font-semibold">Address:</span> <span>{viewingRecord.Address}</span></div>
-    <div className="flex space-x-2"><span className="font-semibold">Phone:</span> <span>{viewingRecord.PhoneNumber}</span></div>
-    <div className="flex space-x-2"><span className="font-semibold">DOB:</span> <span>{new Date(viewingRecord.DOB).toLocaleDateString()}</span></div>
-    <div className="flex space-x-2"><span className="font-semibold">Age:</span> <span>{viewingRecord.Age}</span></div>
-    <div className="flex space-x-2"><span className="font-semibold">Blood Group:</span> <span>{viewingRecord.Blood}</span></div>
-    <div className="flex space-x-2"><span className="font-semibold">Bank Name:</span> <span>{viewingRecord.BankName}</span></div>
-    <div className="flex space-x-2"><span className="font-semibold">Branch:</span> <span>{viewingRecord.Branch}</span></div>
-    <div className="flex space-x-2"><span className="font-semibold">Account No:</span> <span>{viewingRecord.AccountNo}</span></div>
-    <div className="flex space-x-2"><span className="font-semibold">IFSC Code:</span> <span>{viewingRecord.IFSCCode}</span></div>
-    <div className="flex space-x-2"><span className="font-semibold">ESIC No:</span> <span>{viewingRecord.ESICNo}</span></div>
-    <div className="flex space-x-2"><span className="font-semibold">PF No:</span> <span>{viewingRecord.PFNO}</span></div>
-
-  </div>
-
-  {/* Action Buttons */}
-<div className="flex flex-wrap gap-3 mt-4 justify-end">
+        {/* Buttons */}
+      <div className="flex flex-wrap gap-3 mt-4 justify-end">
   <button
     onClick={() => { setIsDetailOpen(false); handleEdit(viewingRecord); }}
     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded font-medium flex items-center space-x-2"
@@ -1227,12 +1288,12 @@ function Staff() {
 </div>
 
 
-</div>
 
+      </div>
+    </div>
+  </div>
+)}
 
-            </div>
-          </div>
-        )}
 
       </main>
 
