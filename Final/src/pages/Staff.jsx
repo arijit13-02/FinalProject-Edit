@@ -109,7 +109,8 @@ function Staff() {
     AccountNo: "",
     IFSCCode: "",
     ESICNo: "",
-    PFNO: ""
+    PFNO: "",
+    file: null
   });
   // Load records from localStorage (simulating JSON file)
 
@@ -121,84 +122,99 @@ function Staff() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.111:5050/api/staff";
+      const url = "http://192.168.0.106:5050/api/staff";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
       });
       setRecords(res.data);
+      console.log(res.data);
     } catch (err) {
       console.error("Error fetching data:", err);
     }
   };
 
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleInputChange = (e) => {  
+  const { name, value, files } = e.target;
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  setFormData((prev) => ({
+    ...prev,
+    [name]: files ? files[0] : value, // if it's a file input, take the first file
+  }));
+};
+
 
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
+  try {
+    // Create FormData object
+    const form = new FormData();
+
+    // Append all form fields
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) {
+        form.append(key, value);
+      }
+    });
+
+    // If editing, append extra fields
     if (editingRecord) {
-      try {
-        const response = await axios.put(
-          `http://192.168.0.111:5050/api/staff/${editingRecord.id}`, // update by ID
-          {
-            ...formData,
-            id: editingRecord.id,
-            createdAt: editingRecord.createdAt,
-            updatedAt: new Date().toISOString()
-          },
-          {
-            headers: { "x-user-role": localStorage.getItem("userRole") }
-          }
-        );
+      form.append("id", editingRecord.id);
+      form.append("createdAt", editingRecord.createdAt);
+      form.append("updatedAt", new Date().toISOString());
+    }
 
-        if (response.data.success) {
-          // Update UI with the edited record
-          const updatedRecords = records.map((record) =>
-            record.id === editingRecord.id ? response.data.item : record
-          );
-          setRecords(updatedRecords);
-          resetForm();
-        } else {
-          console.error("Failed to update:", response.data.message);
-        }
-      } catch (error) {
-        console.error("API error:", error);
+    // Headers for multipart/form-data
+    const headers = {
+      "x-user-role": localStorage.getItem("userRole"),
+      "Content-Type": "multipart/form-data",
+    };
+
+    let response;
+
+    console.log(form);
+    if (editingRecord) {
+      // Update existing record
+      response = await axios.put(
+        `http://192.168.0.106:5050/api/staff/${editingRecord.id}`,
+        form,
+        { headers }
+      );
+
+      if (response.data.success) {
+        // Update the UI with edited record
+        const updatedRecords = records.map((record) =>
+          record.id === editingRecord.id ? response.data.item : record
+        );
+        setRecords(updatedRecords);
+        resetForm();
+      } else {
+        console.error("Failed to update:", response.data.message);
       }
     } else {
-      // Adding new record
-      try {
+      // Add new record
+      response = await axios.post(
+        "http://192.168.0.106:5050/api/staff",
+        form,
+        { headers }
+      );
 
-        const response = await axios.post(
-          "http://192.168.0.111:5050/api/staff",
-          formData,
-          {
-            headers: {
-              "x-user-role": role  // role should be "admin"
-            }
-          }
-        );
-
-        if (response.data.success) {
-          setRecords([...records, response.data.item]);
-          resetForm();
-        } else {
-          console.error("Failed to add:", response.data.message);
-        }
-      } catch (error) {
-        console.error("API error:", error.response?.data || error.message);
+      if (response.data.success) {
+        setRecords([...records, response.data.item]);
+        resetForm();
+      } else {
+        console.error("Failed to add:", response.data.message);
       }
     }
-  };
+  } catch (error) {
+    console.error("API error:", error.response?.data || error.message);
+  }
+};
+
+
 
 
 
@@ -218,13 +234,18 @@ function Staff() {
       AccountNo: "",
       IFSCCode: "",
       ESICNo: "",
-      PFNO: ""
+      PFNO: "",
+          file: null
     });
     setIsFormOpen(false);
     setEditingRecord(null);
   };
 
   const handleEdit = (record) => {
+        console.log("editing");
+        console.log(record.StaffName);
+                console.log(record.file);
+                        console.log("dukkho");
     setFormData({
       StaffID: record.StaffID,
       StaffName: record.StaffName,
@@ -239,9 +260,10 @@ function Staff() {
       AccountNo: record.AccountNo,
       IFSCCode: record.IFSCCode,
       ESICNo: record.ESICNo,
-      PFNO: record.PFNO
-
+      PFNO: record.PFNO,
+    file: record.file
     });
+
     setEditingRecord(record);
     setIsFormOpen(true);
   };
@@ -255,7 +277,7 @@ function Staff() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.111:5050/api/staff/${id}`,
+        `http://192.168.0.106:5050/api/staff/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -369,7 +391,7 @@ function Staff() {
 
       // Insert each record individually
       for (const record of importedData) {
-        const url = "http://192.168.0.111:5050/api/staff";
+        const url = "http://192.168.0.106:5050/api/staff";
         if (!url) {
           console.error("Invalid location/category combination for record:", record);
           continue;
@@ -1032,7 +1054,17 @@ function Staff() {
                       />
                     </div>
 
-
+<div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Attached File
+                      </label>
+                      <input
+  type="file"
+  name="attachment"
+  accept=".pdf,.png,.jpg,.jpeg"
+  onChange={handleInputChange}
+/>
+                    </div>
 
                   </div>
                 </div>
@@ -1146,7 +1178,19 @@ function Staff() {
                     <label className="block text-sm font-medium text-gray-500">PF Number</label>
                     <span className="inline-block px-3 py-1 rounded-full text-sm font-medium">{viewingRecord.PFNO}</span>
                   </div>
-
+{viewingRecord.attachment.endsWith(".pdf") ? (
+      <iframe
+        src={`http://192.168.0.106:5050/Staffuploads/${viewingRecord.attachment}`}
+        className="w-full h-64 border rounded"
+        title="PDF Preview"
+      />
+    ) : (
+      <img
+        src={`http://192.168.0.106:5050/Staffuploads/${viewingRecord.attachment}`}
+        alt="preview"
+        className="w-full h-64 object-contain rounded"
+      />
+    )}
 
 
 
