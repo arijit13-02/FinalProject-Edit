@@ -64,18 +64,27 @@ router.post("/", upload.single("attachment"), (req, res) => {
   }
 });
 
-// UPDATE staff with optional file upload
+
+// UPDATE staff with optional file upload (deletes old file if new one is uploaded)
 router.put("/:id", upload.single("attachment"), (req, res) => {
   try {
     const data = readJson(File);
     const index = data.findIndex(item => item.id === req.params.id);
     if (index === -1) return res.status(404).json({ message: "Item not found" });
 
+    const oldAttachment = data[index].attachment;
+
     const updatedItem = {
       ...data[index],
       ...req.body,
-      attachment: req.file ? req.file.filename : data[index].attachment // Keep old file if not updated
+      attachment: req.file ? req.file.filename : oldAttachment
     };
+
+    // Delete old file if a new file is uploaded
+    if (req.file && oldAttachment) {
+      const oldFilePath = path.join(uploadDir, oldAttachment);
+      if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+    }
 
     data[index] = updatedItem;
     writeJson(File, data);
@@ -86,6 +95,7 @@ router.put("/:id", upload.single("attachment"), (req, res) => {
     res.status(500).json({ message: "Failed to update item" });
   }
 });
+
 
 // DELETE staff
 router.delete("/:id", (req, res) => {
