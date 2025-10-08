@@ -1,24 +1,9 @@
 [
   {
-    "SiteLocation": "importing",
-    "ExpectedDate": "0242-02-04",
-    "ItemsAvailability": "importavail",
-    "StaffAllocated": "importstaff",
-    "id": "1759790244815"
-  },
-  {
-    "SiteLocation": "newrecord",
-    "ExpectedDate": "89497-06-07",
-    "ItemsAvailability": "newitem",
-    "StaffAllocated": "newstaff",
-    "id": "1759442412507"
-  },
-  {
-    "SiteLocation": "loc",
-    "ExpectedDate": "0242-02-04",
-    "ItemsAvailability": "item132132321",
-    "StaffAllocated": "staff",
-    "id": "1759442149924",
-    "updatedAt": "2025-10-02T21:59:02.661Z"
+    "SiteLocation": "enter",
+    "ExpectedDate": "275760-03-01",
+    "ItemsAvailability": "oiahfoi",
+    "StaffAllocated": "025",
+    "id": "1759963423399"
   }
 ]

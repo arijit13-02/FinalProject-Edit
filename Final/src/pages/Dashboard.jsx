@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useRef } from "react";
+
 import { useNavigate } from "react-router-dom";
 import {
   Menu,
@@ -17,6 +19,8 @@ import {
   Activity,
 } from "lucide-react";
 import logo from "../assets/logo.png";
+import axios from "axios";
+
 
 const mockData1 = [
   {
@@ -81,20 +85,48 @@ const mockData3 = [
   { id: 6, metric: "Revenue per User", value: "$127", trend: "up" },
 ];
 
-function AutoScrollingPanel({ data, title, className = "" }) {
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const [hovered, setHovered] = useState(false); // track hover
-  const itemHeight = 100;
-  const totalHeight = data.length * itemHeight;
 
+function AutoScrollingPanel({ apiUrl, title, className = "" }) {
+  const [data, setData] = useState([]);
+  const [hovered, setHovered] = useState(false);
+  const scrollRef = useRef(null);
+
+  const itemHeight = 160; // increased height for full card display
+  const scrollSpeed = 0.5; // pixels per tick
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!apiUrl) return;
+        const response = await axios.get(apiUrl, {
+          headers: { "x-user-role": "admin" },
+        });
+
+        const filteredData = response.data.map(
+          ({ id, createdAt, updatedAt, ...rest }) => rest
+        );
+        setData(filteredData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, [apiUrl]);
+
+  // Infinite smooth scrolling
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!hovered) {
-        setScrollPosition((prev) => (prev + 1 >= totalHeight ? 0 : prev + 1));
+      if (!hovered && scrollRef.current) {
+        scrollRef.current.scrollTop += scrollSpeed;
+        if (scrollRef.current.scrollTop >= scrollRef.current.scrollHeight / 2) {
+          scrollRef.current.scrollTop = 0; // reset for infinite loop
+        }
       }
-    }, 30);
+    }, 25);
+
     return () => clearInterval(interval);
-  }, [totalHeight, hovered]);
+  }, [hovered]);
 
   return (
     <div
@@ -102,60 +134,296 @@ function AutoScrollingPanel({ data, title, className = "" }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
+      {/* Panel Header */}
       <div className="bg-blue-600 text-white p-4 font-semibold text-lg flex-shrink-0">
         {title}
       </div>
-      <div className="flex-1 relative overflow-hidden">
+
+      {/* Scrolling Content */}
+      {/* Scrolling Content */}
+<div className="flex-1 relative overflow-hidden p-2" ref={scrollRef}>
+  {data.length === 0 ? (
+    <div className="flex items-center justify-center h-full">
+      <span className="text-green-600 font-semibold text-lg border border-white rounded-lg px-4 py-2 bg-white">
+        NO UPCOMING JOBS
+      </span>
+    </div>
+  ) : (
+    <div>
+      {[...data, ...data,...data].map((item, index) => (
         <div
-          className="absolute w-full transition-transform duration-75 ease-linear"
-          style={{ transform: `translateY(-${scrollPosition}px)` }}
+          key={index}
+          className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+          style={{ height: `${itemHeight}px` }}
         >
-          {[...data, ...data].map((item, index) => (
-            <div
-              key={`${item.id}-${Math.floor(index / data.length)}`}
-              className="p-4 border-b border-gray-100 bg-white"
-              style={{ height: `${itemHeight}px` }}
-            >
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  {item.title || item.metric}
-                </h3>
-                <div className="flex items-center justify-between">
-                  <span className="text-xl font-bold text-blue-600">
-                    {item.value}
-                  </span>
-                  {item.change && (
-                    <span
-                      className={`text-sm px-2 py-1 rounded-full ${
-                        item.change.startsWith("+")
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {item.change}
-                    </span>
-                  )}
-                  {item.trend && (
-                    <TrendingUp
-                      className={`w-4 h-4 ${
-                        item.trend === "up"
-                          ? "text-green-500"
-                          : "text-red-500 rotate-180"
-                      }`}
-                    />
-                  )}
-                </div>
-                {item.time && (
-                  <p className="text-sm text-gray-500">{item.time}</p>
-                )}
-                {item.status && (
-                  <p className="text-sm text-gray-600">{item.status}</p>
-                )}
-              </div>
+          <div className="space-y-2 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-blue-800 text-lg font-semibold">Site Location:</span>
+              <span className="text-blue-600 font-medium">{item.SiteLocation}</span>
             </div>
-          ))}
+
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700 text-sm font-semibold">Expected Date:</span>
+              <span className="text-gray-900 font-medium">{item.ExpectedDate}</span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700 text-sm font-semibold">Items Availability:</span>
+              <span className="text-gray-900 font-medium">{item.ItemsAvailability}</span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700 text-sm font-semibold">Staff Allocated:</span>
+              <span className="text-gray-900 font-medium">{item.StaffAllocated}</span>
+            </div>
+          </div>
         </div>
+      ))}
+    </div>
+  )}
+</div>
+
+    </div>
+  );
+}
+
+function AutoScrollingPanelcert({ apiUrl, title, className = "" }) {
+  const [data, setData] = useState([]);
+  const [hovered, setHovered] = useState(false);
+  const scrollRef = useRef(null);
+
+  const itemHeight = 140; // card height
+  const scrollSpeed = 0.5; // slower, smooth scroll
+
+  // Fetch and filter data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!apiUrl) return;
+
+        const response = await axios.get(apiUrl, {
+          headers: { "x-user-role": "admin" },
+        });
+
+        // Remove id, createdAt, updatedAt
+        const cleanedData = response.data.map(
+          ({ id, createdAt, updatedAt, ...rest }) => rest
+        );
+
+        // Filter certificates expiring in next 7 days
+        const today = new Date();
+        const next7Days = new Date();
+        next7Days.setDate(today.getDate() + 7);
+
+        const filteredData = cleanedData.filter((item) => {
+          const dueDate = new Date(item.CertificateDuedate);
+          return dueDate >= today && dueDate <= next7Days;
+        });
+
+        setData(filteredData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [apiUrl]);
+
+  // Infinite smooth scrolling
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!hovered && scrollRef.current) {
+        scrollRef.current.scrollTop += scrollSpeed;
+        if (scrollRef.current.scrollTop >= scrollRef.current.scrollHeight / 2) {
+          scrollRef.current.scrollTop = 0;
+        }
+      }
+    }, 25);
+
+    return () => clearInterval(interval);
+  }, [hovered]);
+
+  return (
+    <div
+      className={`flex flex-col rounded-xl overflow-hidden ${className}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Panel Header */}
+      <div className="bg-blue-600 text-white p-4 font-semibold text-lg flex-shrink-0">
+        {title}
       </div>
+
+      {/* Scrolling Content */}
+      {/* Scrolling Content */}
+<div className="flex-1 relative overflow-hidden p-2" ref={scrollRef}>
+  {data.length === 0 ? (
+    <div className="flex items-center justify-center h-full">
+      <span className="text-green-600 font-semibold text-lg border border-white rounded-lg px-4 py-2 bg-white">
+        NO CERTIFICATIONS <br></br>CLOSE TO EXPIRY
+      </span>
+    </div>
+  ) : (
+    <div>
+      {[...data, ...data].map((item, index) => (
+        <div
+          key={index}
+          className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+          style={{ height: `${itemHeight}px` }}
+        >
+          <div className="space-y-2 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+              <span className="text-gray-700 text-base font-semibold">
+                Details:
+              </span>
+              <span className="text-blue-600 font-semibold">
+                {item.CertificateDetails}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+              <span className="text-gray-700 text-sm font-xs">
+                Certificate No:
+              </span>
+              <span className="text-gray-900 font-xs">
+                {item.CertificateNo}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700 text-sm font-xs">
+                Due Date:
+              </span>
+              <span className="text-gray-900 font-xs">
+                {item.CertificateDuedate}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
+    </div>
+  );
+}
+
+function AutoScrollingPanelinventory({ apiUrl, title, className = "" }) {
+  const [data, setData] = useState([]);
+  const [hovered, setHovered] = useState(false);
+  const scrollRef = useRef(null);
+
+  const itemHeight = 240; // card height
+  const scrollSpeed = 1; // slower, smooth scroll
+
+  // Fetch and filter data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!apiUrl) return;
+
+        const response = await axios.get(apiUrl, {
+          headers: { "x-user-role": "admin" },
+        });
+
+        // Remove id, createdAt, updatedAt
+        const cleanedData = response.data.map(
+          ({ id, createdAt, updatedAt, ...rest }) => rest
+        );
+
+        // Filter items where StockAvailable < Limit
+        const filteredData = cleanedData.filter((item) => {
+          return Number(item.StockAvailable) < Number(item.Limit);
+        });
+
+        setData(filteredData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [apiUrl]);
+
+  // Infinite smooth scrolling
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!hovered && scrollRef.current) {
+        scrollRef.current.scrollTop += scrollSpeed;
+        if (scrollRef.current.scrollTop >= scrollRef.current.scrollHeight / 2) {
+          scrollRef.current.scrollTop = 0;
+        }
+      }
+    }, 25);
+
+    return () => clearInterval(interval);
+  }, [hovered]);
+
+  return (
+    <div
+      className={`flex flex-col rounded-xl overflow-hidden ${className}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Panel Header */}
+      <div className="bg-blue-600 text-white p-4 font-semibold text-lg flex-shrink-0">
+        {title}
+      </div>
+
+      {/* Scrolling Content */}
+<div className="flex-1 relative overflow-hidden p-2" ref={scrollRef}>
+  {data.length === 0 ? (
+    <div className="flex items-center justify-center h-full">
+      <span className="text-green-600 font-semibold text-lg border border-white rounded-lg px-4 py-2 bg-white">
+        NO ITEMS QTY LESS THAN LIMIT!
+      </span>
+    </div>
+  ) : (
+    <div>
+      {[...data, ...data].map((item, index) => (
+        <div
+          key={index}
+          className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+          style={{ height: `${itemHeight}px` }}
+        >
+          <div className="space-y-2 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+              <span className="text-gray-800 text-base font-semibold">Item Details:</span>
+              <span className="text-blue-600 font-medium">{item.ItemDetails}</span>
+            </div>
+
+            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+              <span className="text-gray-700 text-sm font-semibold">Stock In Date:</span>
+              <span className="text-gray-900 font-medium">{item.StockInDate}</span>
+            </div>
+
+            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+              <span className="text-gray-700 text-sm font-semibold">Stock Out Date:</span>
+              <span className="text-gray-900 font-medium">{item.StockOutDate}</span>
+            </div>
+
+            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+              <span className="text-gray-700 text-sm font-semibold">Stock Available:</span>
+              <span className="text-gray-900 font-medium">{item.StockAvailable}</span>
+            </div>
+
+            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+              <span className="text-gray-700 text-sm font-semibold">HSN Code:</span>
+              <span className="text-gray-900 font-medium">{item.HSNCode}</span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700 text-sm font-semibold">Limit:</span>
+              <span className="text-gray-900 font-medium">{item.Limit}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
     </div>
   );
 }
@@ -341,27 +609,29 @@ function Dashboard() {
               <p className="text-gray-600">Enterprise Solutions</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 h-64">
-              <AutoScrollingPanel
-                data={mockData1}
-                title="Certification Expiry"
-                className="h-full"
-              />
-            </div>
+  <AutoScrollingPanelcert
+    apiUrl="http://192.168.0.106:5050/api/cert"
+    title="Certification Expiry"
+    className="h-full"
+  />
+</div>
+
           </div>
 
           {/* Middle */}
-          <div className="lg:col-span-4 space-y-6">
-            <div
-              className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20"
-              style={{ height: "calc(100vh - 18rem)" }}
-            >
-              <AutoScrollingPanel
-                data={mockData2}
-                title="Upcoming Jobs"
-                className="h-full"
-              />
-            </div>
-          </div>
+          <div className="lg:col-span-4 space-y-8">
+  <div
+    className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20"
+    style={{ height: "calc(100vh - 12rem)" }}
+  >
+    <AutoScrollingPanel
+      apiUrl="http://192.168.0.106:5050/api/upcomingjobs"
+      title="Upcoming Jobs"
+      className="h-full"
+    />
+  </div>
+</div>
+
 
           {/* Right */}
           <div className="lg:col-span-5 space-y-6">
@@ -372,14 +642,15 @@ function Dashboard() {
 
         {/* Bottom */}
         <div className="mt-8">
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 h-64">
-            <AutoScrollingPanel
-              data={mockData3}
-              title="Inventory Stock Limits"
-              className="h-full"
-            />
-          </div>
-        </div>
+  <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 h-64">
+    <AutoScrollingPanelinventory
+      apiUrl="http://localhost:5050/api/inventory"
+      title="Inventory Stock Limits"
+      className="h-full"
+    />
+  </div>
+</div>
+
       </main>
     </div>
   );
