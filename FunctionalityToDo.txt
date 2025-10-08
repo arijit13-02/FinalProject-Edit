@@ -28,24 +28,13 @@ Done 5. Certification
 Done 6. Staff
 Done 8. "SRN of transformer" to be added not SIRN 
 Done 11. Editing operations data
+Done - Inventory - Import and export - Pending Changes, Entire thing - Also popup below qty level
+Done - Full remove to ISO string from everywhere!!
+Done Billing - Import and Export Button
+Done Data edit and view recitify
+Done Staff  - Import and Export buttons - Export at individual Level - Staff attachment on view modal page
+Done Dashboard Data scroll and graph
 
 
-Inventory
-Import and export,
-Pending Changes, Entire thing
-Also popup below qty level
+Data Space for two graph data
 
-Full remove to ISO string from everywhere!!
-
-Staff 
-Import and Export buttons
-Export at individual Level
-Staff attachment on view modal page
-
-
-
-Billing
-Import and Export Button
-Space for two graph data
-
-Dashboard Data scroll and graph

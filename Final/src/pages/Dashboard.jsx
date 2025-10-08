@@ -22,68 +22,6 @@ import logo from "../assets/logo.png";
 import axios from "axios";
 
 
-const mockData1 = [
-  {
-    id: 1,
-    title: "Revenue Update",
-    value: "$2.4M",
-    change: "+12%",
-    time: "2 min ago",
-  },
-  {
-    id: 2,
-    title: "New Customers",
-    value: "1,247",
-    change: "+8%",
-    time: "5 min ago",
-  },
-  {
-    id: 3,
-    title: "System Status",
-    value: "Operational",
-    change: "99.9%",
-    time: "1 min ago",
-  },
-  {
-    id: 4,
-    title: "Active Users",
-    value: "8,432",
-    change: "+15%",
-    time: "3 min ago",
-  },
-  {
-    id: 5,
-    title: "Server Load",
-    value: "64%",
-    change: "-5%",
-    time: "4 min ago",
-  },
-  {
-    id: 6,
-    title: "Sales Target",
-    value: "87%",
-    change: "+3%",
-    time: "6 min ago",
-  },
-];
-
-const mockData2 = [
-  { id: 1, title: "Q4 Performance", value: "94.2%", status: "Excellent" },
-  { id: 2, title: "Customer Satisfaction", value: "4.8/5", status: "High" },
-  { id: 3, title: "Market Share", value: "23.4%", status: "Growing" },
-  { id: 4, title: "Product Launch", value: "On Track", status: "Scheduled" },
-  { id: 5, title: "Team Productivity", value: "112%", status: "Excellent" },
-  { id: 6, title: "Budget Utilization", value: "78%", status: "Optimal" },
-];
-
-const mockData3 = [
-  { id: 1, metric: "Daily Active Users", value: "45,678", trend: "up" },
-  { id: 2, metric: "Conversion Rate", value: "3.24%", trend: "up" },
-  { id: 3, metric: "Bounce Rate", value: "42.1%", trend: "down" },
-  { id: 4, metric: "Page Load Time", value: "1.2s", trend: "down" },
-  { id: 5, metric: "Customer Retention", value: "89.3%", trend: "up" },
-  { id: 6, metric: "Revenue per User", value: "$127", trend: "up" },
-];
 
 
 function AutoScrollingPanel({ apiUrl, title, className = "" }) {
@@ -141,47 +79,47 @@ function AutoScrollingPanel({ apiUrl, title, className = "" }) {
 
       {/* Scrolling Content */}
       {/* Scrolling Content */}
-<div className="flex-1 relative overflow-hidden p-2" ref={scrollRef}>
-  {data.length === 0 ? (
-    <div className="flex items-center justify-center h-full">
-      <span className="text-green-600 font-semibold text-lg border border-white rounded-lg px-4 py-2 bg-white">
-        NO UPCOMING JOBS
-      </span>
-    </div>
-  ) : (
-    <div>
-      {[...data, ...data,...data].map((item, index) => (
-        <div
-          key={index}
-          className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
-          style={{ height: `${itemHeight}px` }}
-        >
-          <div className="space-y-2 h-full flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-blue-800 text-lg font-semibold">Site Location:</span>
-              <span className="text-blue-600 font-medium">{item.SiteLocation}</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-gray-700 text-sm font-semibold">Expected Date:</span>
-              <span className="text-gray-900 font-medium">{item.ExpectedDate}</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-gray-700 text-sm font-semibold">Items Availability:</span>
-              <span className="text-gray-900 font-medium">{item.ItemsAvailability}</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-gray-700 text-sm font-semibold">Staff Allocated:</span>
-              <span className="text-gray-900 font-medium">{item.StaffAllocated}</span>
-            </div>
+      <div className="flex-1 relative overflow-hidden p-2" ref={scrollRef}>
+        {data.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <span className="text-green-600 font-semibold text-lg border border-white rounded-lg px-4 py-2 bg-white">
+              NO UPCOMING JOBS
+            </span>
           </div>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
+        ) : (
+          <div>
+            {[...data, ...data, ...data].map((item, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+                style={{ height: `${itemHeight}px` }}
+              >
+                <div className="space-y-2 h-full flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-blue-800 text-lg font-semibold">Site Location:</span>
+                    <span className="text-blue-600 font-medium">{item.SiteLocation}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 text-sm font-semibold">Expected Date:</span>
+                    <span className="text-gray-900 font-medium">{item.ExpectedDate}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 text-sm font-semibold">Items Availability:</span>
+                    <span className="text-gray-900 font-medium">{item.ItemsAvailability}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 text-sm font-semibold">Staff Allocated:</span>
+                    <span className="text-gray-900 font-medium">{item.StaffAllocated}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
     </div>
   );
@@ -256,54 +194,54 @@ function AutoScrollingPanelcert({ apiUrl, title, className = "" }) {
 
       {/* Scrolling Content */}
       {/* Scrolling Content */}
-<div className="flex-1 relative overflow-hidden p-2" ref={scrollRef}>
-  {data.length === 0 ? (
-    <div className="flex items-center justify-center h-full">
-      <span className="text-green-600 font-semibold text-lg border border-white rounded-lg px-4 py-2 bg-white">
-        NO CERTIFICATIONS <br></br>CLOSE TO EXPIRY
-      </span>
-    </div>
-  ) : (
-    <div>
-      {[...data, ...data].map((item, index) => (
-        <div
-          key={index}
-          className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
-          style={{ height: `${itemHeight}px` }}
-        >
-          <div className="space-y-2 h-full flex flex-col justify-between">
-            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
-              <span className="text-gray-700 text-base font-semibold">
-                Details:
-              </span>
-              <span className="text-blue-600 font-semibold">
-                {item.CertificateDetails}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
-              <span className="text-gray-700 text-sm font-xs">
-                Certificate No:
-              </span>
-              <span className="text-gray-900 font-xs">
-                {item.CertificateNo}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-gray-700 text-sm font-xs">
-                Due Date:
-              </span>
-              <span className="text-gray-900 font-xs">
-                {item.CertificateDuedate}
-              </span>
-            </div>
+      <div className="flex-1 relative overflow-hidden p-2" ref={scrollRef}>
+        {data.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <span className="text-green-600 font-semibold text-lg border border-white rounded-lg px-4 py-2 bg-white">
+              NO CERTIFICATIONS <br></br>CLOSE TO EXPIRY
+            </span>
           </div>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
+        ) : (
+          <div>
+            {[...data, ...data].map((item, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+                style={{ height: `${itemHeight}px` }}
+              >
+                <div className="space-y-2 h-full flex flex-col justify-between">
+                  <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+                    <span className="text-gray-700 text-base font-semibold">
+                      Details:
+                    </span>
+                    <span className="text-blue-600 font-semibold">
+                      {item.CertificateDetails}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+                    <span className="text-gray-700 text-sm font-xs">
+                      Certificate No:
+                    </span>
+                    <span className="text-gray-900 font-xs">
+                      {item.CertificateNo}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 text-sm font-xs">
+                      Due Date:
+                    </span>
+                    <span className="text-gray-900 font-xs">
+                      {item.CertificateDuedate}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
     </div>
   );
@@ -372,57 +310,57 @@ function AutoScrollingPanelinventory({ apiUrl, title, className = "" }) {
       </div>
 
       {/* Scrolling Content */}
-<div className="flex-1 relative overflow-hidden p-2" ref={scrollRef}>
-  {data.length === 0 ? (
-    <div className="flex items-center justify-center h-full">
-      <span className="text-green-600 font-semibold text-lg border border-white rounded-lg px-4 py-2 bg-white">
-        NO ITEMS QTY LESS THAN LIMIT!
-      </span>
-    </div>
-  ) : (
-    <div>
-      {[...data, ...data].map((item, index) => (
-        <div
-          key={index}
-          className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
-          style={{ height: `${itemHeight}px` }}
-        >
-          <div className="space-y-2 h-full flex flex-col justify-between">
-            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
-              <span className="text-gray-800 text-base font-semibold">Item Details:</span>
-              <span className="text-blue-600 font-medium">{item.ItemDetails}</span>
-            </div>
-
-            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
-              <span className="text-gray-700 text-sm font-semibold">Stock In Date:</span>
-              <span className="text-gray-900 font-medium">{item.StockInDate}</span>
-            </div>
-
-            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
-              <span className="text-gray-700 text-sm font-semibold">Stock Out Date:</span>
-              <span className="text-gray-900 font-medium">{item.StockOutDate}</span>
-            </div>
-
-            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
-              <span className="text-gray-700 text-sm font-semibold">Stock Available:</span>
-              <span className="text-gray-900 font-medium">{item.StockAvailable}</span>
-            </div>
-
-            <div className="flex items-center justify-between pb-1 border-b border-gray-200">
-              <span className="text-gray-700 text-sm font-semibold">HSN Code:</span>
-              <span className="text-gray-900 font-medium">{item.HSNCode}</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-gray-700 text-sm font-semibold">Limit:</span>
-              <span className="text-gray-900 font-medium">{item.Limit}</span>
-            </div>
+      <div className="flex-1 relative overflow-hidden p-2" ref={scrollRef}>
+        {data.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <span className="text-green-600 font-semibold text-lg border border-white rounded-lg px-4 py-2 bg-white">
+              NO ITEMS QTY LESS THAN LIMIT!
+            </span>
           </div>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
+        ) : (
+          <div>
+            {[...data, ...data].map((item, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+                style={{ height: `${itemHeight}px` }}
+              >
+                <div className="space-y-2 h-full flex flex-col justify-between">
+                  <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+                    <span className="text-gray-800 text-base font-semibold">Item Details:</span>
+                    <span className="text-blue-600 font-medium">{item.ItemDetails}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+                    <span className="text-gray-700 text-sm font-semibold">Stock In Date:</span>
+                    <span className="text-gray-900 font-medium">{item.StockInDate}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+                    <span className="text-gray-700 text-sm font-semibold">Stock Out Date:</span>
+                    <span className="text-gray-900 font-medium">{item.StockOutDate}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+                    <span className="text-gray-700 text-sm font-semibold">Stock Available:</span>
+                    <span className="text-gray-900 font-medium">{item.StockAvailable}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between pb-1 border-b border-gray-200">
+                    <span className="text-gray-700 text-sm font-semibold">HSN Code:</span>
+                    <span className="text-gray-900 font-medium">{item.HSNCode}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 text-sm font-semibold">Limit:</span>
+                    <span className="text-gray-900 font-medium">{item.Limit}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
     </div>
   );
@@ -430,12 +368,26 @@ function AutoScrollingPanelinventory({ apiUrl, title, className = "" }) {
 
 
 function GraphPlaceholder({ title, icon: Icon }) {
+  const handleIconClick = () => {
+    if (localStorage.getItem("userRole") === "admin") {
+      window.location.href = "/data"; // redirect for admin
+    }
+  };
+
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20">
+      {/* Header with clickable icon */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-        <Icon className="w-5 h-5 text-blue-600" />
+        <div
+          className={`cursor-pointer ${localStorage.getItem("userRole") === "admin" ? "hover:text-blue-800" : ""}`}
+          onClick={handleIconClick}
+        >
+          <Icon className="w-5 h-5 text-blue-600" />
+        </div>
       </div>
+
+      {/* Chart placeholder */}
       <div className="h-40 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
         <div className="text-center">
           <Icon className="w-8 h-8 text-blue-400 mx-auto mb-2" />
@@ -446,17 +398,18 @@ function GraphPlaceholder({ title, icon: Icon }) {
   );
 }
 
+
 function Dashboard() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   //checks authentication
-  const [role, setRole] = useState(() => { 
-    return localStorage.getItem("userRole") || "staff"; 
-  }); 
+  const [role, setRole] = useState(() => {
+    return localStorage.getItem("userRole") || "staff";
+  });
   localStorage.setItem("userRole", role);
 
   const navigate = useNavigate();
-  
+
 
   const handleProtectedNav = (path) => {
     const role = localStorage.getItem("userRole");
@@ -609,47 +562,49 @@ function Dashboard() {
               <p className="text-gray-600">Enterprise Solutions</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 h-64">
-  <AutoScrollingPanelcert
-    apiUrl="http://192.168.0.106:5050/api/cert"
-    title="Certification Expiry"
-    className="h-full"
-  />
-</div>
+              <AutoScrollingPanelcert
+                apiUrl="http://192.168.0.106:5050/api/cert"
+                title="Certification Expiry"
+                className="h-full"
+              />
+            </div>
 
           </div>
 
           {/* Middle */}
           <div className="lg:col-span-4 space-y-8">
-  <div
-    className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20"
-    style={{ height: "calc(100vh - 12rem)" }}
-  >
-    <AutoScrollingPanel
-      apiUrl="http://192.168.0.106:5050/api/upcomingjobs"
-      title="Upcoming Jobs"
-      className="h-full"
-    />
-  </div>
-</div>
+            <div
+              className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20"
+              style={{ height: "calc(100vh - 12rem)" }}
+            >
+              <AutoScrollingPanel
+                apiUrl="http://192.168.0.106:5050/api/upcomingjobs"
+                title="Upcoming Jobs"
+                className="h-full"
+              />
+            </div>
+          </div>
 
 
           {/* Right */}
           <div className="lg:col-span-5 space-y-6">
-            <GraphPlaceholder title="Revenue Analytics" icon={BarChart3} />
-            <GraphPlaceholder title="Market Analysis" icon={PieChart} />
-          </div>
+  <GraphPlaceholder title="Revenue Analytics" icon={BarChart3} />
+  <GraphPlaceholder title="Market Analysis" icon={BarChart3} />
+</div>
+
+
         </div>
 
         {/* Bottom */}
         <div className="mt-8">
-  <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 h-64">
-    <AutoScrollingPanelinventory
-      apiUrl="http://localhost:5050/api/inventory"
-      title="Inventory Stock Limits"
-      className="h-full"
-    />
-  </div>
-</div>
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 h-64">
+            <AutoScrollingPanelinventory
+              apiUrl="http://localhost:5050/api/inventory"
+              title="Inventory Stock Limits"
+              className="h-full"
+            />
+          </div>
+        </div>
 
       </main>
     </div>
