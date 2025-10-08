@@ -1,21 +1,32 @@
 [
   {
+    "ItemDetails": "asda",
+    "StockInDate": "12.08.2025",
+    "StockOutDate": "ff",
+    "StockAvailable": "224",
+    "HSNCode": "235235",
+    "Limit": "22",
+    "id": "1759962912287",
+    "updatedAt": "2025-10-08T22:35:51.881Z"
+  },
+  {
     "ItemDetails": "add wow",
     "StockInDate": "25.24.1012",
     "StockOutDate": "25.12.5448",
-    "StockAvailable": "12",
+    "StockAvailable": "100",
     "HSNCode": "52",
     "Limit": "20",
-    "id": "1759868059611"
+    "id": "1759868059611",
+    "updatedAt": "2025-10-08T22:36:27.201Z"
   },
   {
     "ItemDetails": "itemdet",
     "StockInDate": "12.08.2025",
     "StockOutDate": "13.09.2025",
-    "StockAvailable": "26000",
+    "StockAvailable": "26000000",
     "HSNCode": "258USHM",
     "Limit": "200000",
     "id": "1759793987740",
-    "updatedAt": "2025-10-07T20:24:02.143Z"
+    "updatedAt": "2025-10-08T22:36:45.171Z"
   }
 ]
