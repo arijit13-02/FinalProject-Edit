@@ -35,7 +35,7 @@ const requireAdmin = (req, res, next) => {
 // --- CORS configuration ---
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://192.168.0.106:5173" // LAN access
+  "http://172.20.10.11:5173" // LAN access
 ];
 
 app.use(
