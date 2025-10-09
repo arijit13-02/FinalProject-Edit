@@ -111,7 +111,7 @@ function UpcomingJobs() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.106:5050/api/upcomingjobs";
+      const url = "http://172.20.10.11:5050/api/upcomingjobs";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -139,7 +139,7 @@ function UpcomingJobs() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.106:5050/api/upcomingjobs/${editingRecord.id}`, // update by ID
+          `http://172.20.10.11:5050/api/upcomingjobs/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -169,7 +169,7 @@ function UpcomingJobs() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.106:5050/api/upcomingjobs",
+          "http://172.20.10.11:5050/api/upcomingjobs",
           formData,
           {
             headers: {
@@ -235,7 +235,7 @@ function UpcomingJobs() {
 
       // Insert each record individually
       for (const record of importedData) {
-        const url = "http://192.168.0.106:5050/api/upcomingjobs";
+        const url = "http://172.20.10.11:5050/api/upcomingjobs";
         if (!url) {
           console.error("Invalid location/category combination for record:", record);
           continue;
@@ -293,7 +293,7 @@ function UpcomingJobs() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.106:5050/api/upcomingjobs/${id}`,
+        `http://172.20.10.11:5050/api/upcomingjobs/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }

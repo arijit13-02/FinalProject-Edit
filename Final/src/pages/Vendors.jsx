@@ -123,7 +123,7 @@ function Vendors() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.106:5050/api/vendors";
+      const url = "http://172.20.10.11:5050/api/vendors";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -151,7 +151,7 @@ function Vendors() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.106:5050/api/vendors/${editingRecord.id}`, // update by ID
+          `http://172.20.10.11:5050/api/vendors/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -181,7 +181,7 @@ function Vendors() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.106:5050/api/vendors",
+          "http://172.20.10.11:5050/api/vendors",
           formData,
           {
             headers: {
@@ -261,7 +261,7 @@ function Vendors() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.106:5050/api/vendors/${id}`,
+        `http://172.20.10.11:5050/api/vendors/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -380,7 +380,7 @@ function Vendors() {
 
       // Insert each record individually
       for (const record of importedData) {
-        const url = "http://192.168.0.106:5050/api/vendors";
+        const url = "http://172.20.10.11:5050/api/vendors";
         if (!url) {
           console.error("Invalid location/category combination for record:", record);
           continue;

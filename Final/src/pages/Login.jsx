@@ -23,7 +23,7 @@ const handleChangePassword = async () => {
 
   try {
     const res = await axios.post(
-      "http://192.168.0.106:5050/api/change-password",
+      "http://172.20.10.11:5050/api/change-password",
       { oldPassword: oldPwd, newPassword: newPwd },
       { withCredentials: true }
     );
@@ -45,7 +45,7 @@ const handleChangePassword = async () => {
     if (role === "admin") {
       try {
         const res = await axios.post(
-          "http://192.168.0.106:5050/api/login",
+          "http://172.20.10.11:5050/api/login",
           {
             role,
             password

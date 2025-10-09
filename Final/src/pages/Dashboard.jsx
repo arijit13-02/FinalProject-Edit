@@ -29,7 +29,6 @@ function AutoScrollingPanel({ apiUrl, title, className = "" }) {
   const [hovered, setHovered] = useState(false);
   const scrollRef = useRef(null);
 
-  const itemHeight = 160; // increased height for full card display
   const scrollSpeed = 0.5; // pixels per tick
 
   // Fetch data from API
@@ -78,7 +77,6 @@ function AutoScrollingPanel({ apiUrl, title, className = "" }) {
       </div>
 
       {/* Scrolling Content */}
-      {/* Scrolling Content */}
       <div className="flex-1 relative overflow-hidden p-2" ref={scrollRef}>
         {data.length === 0 ? (
           <div className="flex items-center justify-center h-full">
@@ -92,27 +90,42 @@ function AutoScrollingPanel({ apiUrl, title, className = "" }) {
               <div
                 key={index}
                 className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
-                style={{ height: `${itemHeight}px` }}
               >
-                <div className="space-y-2 h-full flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-blue-800 text-lg font-semibold">Site Location:</span>
-                    <span className="text-blue-600 font-medium">{item.SiteLocation}</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-blue-800 text-lg font-semibold">
+                      Site Location:
+                    </span>
+                    <span className="text-blue-600 font-medium break-all text-right">
+                      {item.SiteLocation}
+                    </span>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-700 text-sm font-semibold">Expected Date:</span>
-                    <span className="text-gray-900 font-medium">{item.ExpectedDate}</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700 text-sm font-semibold">
+                      Expected Date:
+                    </span>
+                    <span className="text-gray-900 font-medium text-right">
+                      {item.ExpectedDate}
+                    </span>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-700 text-sm font-semibold">Items Availability:</span>
-                    <span className="text-gray-900 font-medium">{item.ItemsAvailability}</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700 text-sm font-semibold">
+                      Items Availability:
+                    </span>
+                    <span className="text-gray-900 font-medium text-right break-all">
+                      {item.ItemsAvailability}
+                    </span>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-700 text-sm font-semibold">Staff Allocated:</span>
-                    <span className="text-gray-900 font-medium">{item.StaffAllocated}</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700 text-sm font-semibold">
+                      Staff Allocated:
+                    </span>
+                    <span className="text-gray-900 font-medium text-right break-all">
+                      {item.StaffAllocated}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -120,10 +133,10 @@ function AutoScrollingPanel({ apiUrl, title, className = "" }) {
           </div>
         )}
       </div>
-
     </div>
   );
 }
+
 
 function AutoScrollingPanelcert({ apiUrl, title, className = "" }) {
   const [data, setData] = useState([]);
@@ -151,7 +164,7 @@ function AutoScrollingPanelcert({ apiUrl, title, className = "" }) {
         // Filter certificates expiring in next 7 days
         const today = new Date();
         const next7Days = new Date();
-        next7Days.setDate(today.getDate() + 7);
+        next7Days.setDate(today.getDate() + 30);
 
         const filteredData = cleanedData.filter((item) => {
           const dueDate = new Date(item.CertificateDuedate);
@@ -563,7 +576,7 @@ function Dashboard() {
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 h-64">
               <AutoScrollingPanelcert
-                apiUrl="http://192.168.0.106:5050/api/cert"
+                apiUrl="http://172.20.10.11:5050/api/cert"
                 title="Certification Expiry"
                 className="h-full"
               />
@@ -578,7 +591,7 @@ function Dashboard() {
               style={{ height: "calc(100vh - 12rem)" }}
             >
               <AutoScrollingPanel
-                apiUrl="http://192.168.0.106:5050/api/upcomingjobs"
+                apiUrl="http://172.20.10.11:5050/api/upcomingjobs"
                 title="Upcoming Jobs"
                 className="h-full"
               />
