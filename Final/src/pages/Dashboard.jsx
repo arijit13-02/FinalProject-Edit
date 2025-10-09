@@ -22,8 +22,6 @@ import logo from "../assets/logo.png";
 import axios from "axios";
 
 
-
-
 function AutoScrollingPanel({ apiUrl, title, className = "" }) {
   const [data, setData] = useState([]);
   const [hovered, setHovered] = useState(false);
@@ -86,7 +84,7 @@ function AutoScrollingPanel({ apiUrl, title, className = "" }) {
           </div>
         ) : (
           <div>
-            {[...data, ...data, ...data].map((item, index) => (
+            {[...data, ...data,...data, ...data,...data, ...data,...data, ...data,...data, ...data, ...data].map((item, index) => (
               <div
                 key={index}
                 className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
@@ -138,11 +136,11 @@ function AutoScrollingPanel({ apiUrl, title, className = "" }) {
 }
 
 
+
 function AutoScrollingPanelcert({ apiUrl, title, className = "" }) {
   const [data, setData] = useState([]);
   const [hovered, setHovered] = useState(false);
   const scrollRef = useRef(null);
-
   const itemHeight = 140; // card height
   const scrollSpeed = 0.5; // slower, smooth scroll
 
@@ -216,7 +214,7 @@ function AutoScrollingPanelcert({ apiUrl, title, className = "" }) {
           </div>
         ) : (
           <div>
-            {[...data, ...data].map((item, index) => (
+            {[...data, ...data,...data, ...data,...data, ...data,...data, ...data,...data, ...data, ...data].map((item, index) => (
               <div
                 key={index}
                 className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
@@ -332,7 +330,7 @@ function AutoScrollingPanelinventory({ apiUrl, title, className = "" }) {
           </div>
         ) : (
           <div>
-            {[...data, ...data].map((item, index) => (
+            {[...data, ...data,...data, ...data,...data, ...data,...data, ...data,...data, ...data, ...data].map((item, index) => (
               <div
                 key={index}
                 className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
@@ -588,7 +586,7 @@ function Dashboard() {
           <div className="lg:col-span-4 space-y-8">
             <div
               className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20"
-              style={{ height: "calc(100vh - 12rem)" }}
+              style={{ height: "calc(100vh - 14rem)" }}
             >
               <AutoScrollingPanel
                 apiUrl="http://172.20.10.11:5050/api/upcomingjobs"
