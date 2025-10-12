@@ -70,7 +70,15 @@ if (!fs.existsSync(AUTH_FILE)) {
 }
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
-// === AUTH ROUTES ===
+app.get("/api/chart1", (req, res) => {
+  const imagePath = path.join(__dirname, "data", "Monthly Sales Chart_Chart.png");
+  res.sendFile(imagePath);
+});
+
+app.get("/api/chart2", (req, res) => {
+  const imagePath = path.join(__dirname, "data", "WBSEDCL WorkOrder Chart_Chart.png");
+  res.sendFile(imagePath);
+});
 
 // Login route
 app.post("/api/login", async (req, res) => {
