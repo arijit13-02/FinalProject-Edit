@@ -25,7 +25,7 @@ import {
   BarChart3,
   BadgeCheck,
   MapPin,
-  DollarSign ,
+  DollarSign,
   PieChart,
   Activity
 } from "lucide-react";
@@ -131,7 +131,7 @@ function Staff() {
         headers: { "x-user-role": localStorage.getItem("userRole") }
       });
       setRecords(res.data);
-      
+
     } catch (err) {
       console.error("Error fetching data:", err);
     }
@@ -245,7 +245,7 @@ function Staff() {
   };
 
   const handleEdit = (record) => {
-    
+
     setFormData({
       StaffID: record.StaffID,
       StaffName: record.StaffName,
@@ -353,7 +353,7 @@ function Staff() {
 
     // 1. Prepare data (no nested TransformerDetails processing needed)
     const processedData = records.map(record => {
-      const { id, ID, updatedAt,createdAt, ...flatRecord } = record;
+      const { id, ID, updatedAt, createdAt, ...flatRecord } = record;
       return flatRecord;
     });
     // 2. Convert processed data to worksheet
@@ -373,52 +373,52 @@ function Staff() {
   };
 
   const handleExportXLS = async (record) => {
-  try {
-    // --- Export XLSX ---
-    const wb = XLSX.utils.book_new();
-    const sheetData = [
-      ["Staff ID", record.StaffID || ""],
-      ["Staff Name", record.StaffName || ""],
-      ["AADHAR", record.AADHAR || ""],
-      ["Address", record.Address || ""],
-      ["Phone Number", record.PhoneNumber || ""],
-      ["Date of Birth", record.DOB ? new Date(record.DOB).toLocaleDateString() : ""],
-      ["Age", record.Age || ""],
-      ["Blood Group", record.Blood || ""],
-      ["Bank Name", record.BankName || ""],
-      ["Branch", record.Branch || ""],
-      ["Account Number", record.AccountNo || ""],
-      ["IFSC Code", record.IFSCCode || ""],
-      ["ESIC Number", record.ESICNo || ""],
-      ["PF Number", record.PFNO || ""]
-    ];
+    try {
+      // --- Export XLSX ---
+      const wb = XLSX.utils.book_new();
+      const sheetData = [
+        ["Staff ID", record.StaffID || ""],
+        ["Staff Name", record.StaffName || ""],
+        ["AADHAR", record.AADHAR || ""],
+        ["Address", record.Address || ""],
+        ["Phone Number", record.PhoneNumber || ""],
+        ["Date of Birth", record.DOB ? new Date(record.DOB).toLocaleDateString() : ""],
+        ["Age", record.Age || ""],
+        ["Blood Group", record.Blood || ""],
+        ["Bank Name", record.BankName || ""],
+        ["Branch", record.Branch || ""],
+        ["Account Number", record.AccountNo || ""],
+        ["IFSC Code", record.IFSCCode || ""],
+        ["ESIC Number", record.ESICNo || ""],
+        ["PF Number", record.PFNO || ""]
+      ];
 
-    const ws = XLSX.utils.aoa_to_sheet(sheetData);
-    XLSX.utils.book_append_sheet(wb, ws, "Staff Record");
+      const ws = XLSX.utils.aoa_to_sheet(sheetData);
+      XLSX.utils.book_append_sheet(wb, ws, "Staff Record");
 
-    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    saveAs(new Blob([wbout], { type: "application/octet-stream" }), `${record.StaffID || "record"}.xlsx`);
+      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      saveAs(new Blob([wbout], { type: "application/octet-stream" }), `${record.StaffID || "record"}.xlsx`);
 
-    // --- Download attachment if exists ---
-    if (record.attachment) {
-      const fileUrl = `http://172.20.10.11:5050/Staffuploads/${record.attachment}`;
-      const fileExt = record.attachment.split(".").pop(); // jpg, png, pdf etc
-      const fileBlob = await fetch(fileUrl).then(res => res.blob());
-      saveAs(fileBlob, `${record.StaffID || "record"}.${fileExt}`);
+      // --- Download attachment if exists ---
+      if (record.attachment) {
+        const fileUrl = `http://172.20.10.11:5050/Staffuploads/${record.attachment}`;
+        const fileExt = record.attachment.split(".").pop(); // jpg, png, pdf etc
+        const fileBlob = await fetch(fileUrl).then(res => res.blob());
+        saveAs(fileBlob, `${record.StaffID || "record"}.${fileExt}`);
+      }
+    } catch (error) {
+      console.error("Export failed:", error);
     }
-  } catch (error) {
-    console.error("Export failed:", error);
-  }
-};
+  };
 
-const DetailItem = ({ label, value }) => (
+  const DetailItem = ({ label, value }) => (
     <div>
-        <label className="block text-xs font-medium text-gray-400 uppercase tracking-wider">{label}</label>
-        <p className="text-sm font-semibold text-gray-800 mt-0.5 break-words">
-            {value || 'N/A'}
-        </p>
+      <label className="block text-xs font-medium text-gray-400 uppercase tracking-wider">{label}</label>
+      <p className="text-sm font-semibold text-gray-800 mt-0.5 break-words">
+        {value || 'N/A'}
+      </p>
     </div>
-);
+  );
   // Import from XLSX
   const importFromXls = async (event) => {
     const file = event.target.files[0];
@@ -1138,161 +1138,161 @@ const DetailItem = ({ label, value }) => (
           </div>
         )}
         {/* Detail View Modal */}{" "}
-  {isDetailOpen && viewingRecord && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-      {/* Header */}
-      <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Staff Record Details</h2>
-        <button
-          onClick={() => setIsDetailOpen(false)}
-          className="text-white hover:bg-blue-700 p-1 rounded"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Main Content */}
-      <div className="p-6 space-y-6">
-        {/* Top Section: Left info + Right photo */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
-          {/* Left Info */}
-          <div className="flex-1 space-y-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-500">Staff ID</label>
-              <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-                {viewingRecord.StaffID}
-              </span>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-500">Staff Name</label>
-              <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-                {viewingRecord.StaffName}
-              </span>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-500">Address</label>
-              <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-                {viewingRecord.Address}
-              </span>
-            </div>
-          </div>
-
-          {/* Right Photo */}
-          <div className="w-40 h-40 flex-shrink-0 rounded overflow-hidden border border-gray-200">
-            {viewingRecord.attachment && !viewingRecord.attachment.endsWith(".pdf") ? (
-              <img
-                src={`http://172.20.10.11:5050/Staffuploads/${viewingRecord.attachment}`}
-                alt="Staff"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
-                No Photo
+        {isDetailOpen && viewingRecord && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Staff Record Details</h2>
+                <button
+                  onClick={() => setIsDetailOpen(false)}
+                  className="text-white hover:bg-blue-700 p-1 rounded"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Divider */}
-        <hr className="border-gray-200 my-4" />
+              {/* Main Content */}
+              <div className="p-6 space-y-6">
+                {/* Top Section: Left info + Right photo */}
+                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                  {/* Left Info */}
+                  <div className="flex-1 space-y-2">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500">Staff ID</label>
+                      <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                        {viewingRecord.StaffID}
+                      </span>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500">Staff Name</label>
+                      <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                        {viewingRecord.StaffName}
+                      </span>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500">Address</label>
+                      <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                        {viewingRecord.Address}
+                      </span>
+                    </div>
+                  </div>
 
-        {/* Rest of Details */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-500">Phone Number</label>
-            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-              {viewingRecord.PhoneNumber}
-            </span>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500">Date of Birth</label>
-            <p className="text-lg font-semibold text-gray-800">{new Date(viewingRecord.DOB).toLocaleDateString()}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500">Age</label>
-            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-              {viewingRecord.Age}
-            </span>
-          </div>
+                  {/* Right Photo */}
+                  <div className="w-40 h-40 flex-shrink-0 rounded overflow-hidden border border-gray-200">
+                    {viewingRecord.attachment && !viewingRecord.attachment.endsWith(".pdf") ? (
+                      <img
+                        src={`http://172.20.10.11:5050/Staffuploads/${viewingRecord.attachment}`}
+                        alt="Staff"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+                        No Photo
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-500">Blood Group</label>
-            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-              {viewingRecord.Blood}
-            </span>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500">Bank Name</label>
-            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-              {viewingRecord.BankName}
-            </span>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500">Branch</label>
-            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-              {viewingRecord.Branch}
-            </span>
-          </div>
+                {/* Divider */}
+                <hr className="border-gray-200 my-4" />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-500">Account Number</label>
-            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-              {viewingRecord.AccountNo}
-            </span>
+                {/* Rest of Details */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Phone Number</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                      {viewingRecord.PhoneNumber}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Date of Birth</label>
+                    <p className="text-lg font-semibold text-gray-800">{new Date(viewingRecord.DOB).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Age</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                      {viewingRecord.Age}
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Blood Group</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                      {viewingRecord.Blood}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Bank Name</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                      {viewingRecord.BankName}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Branch</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                      {viewingRecord.Branch}
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Account Number</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                      {viewingRecord.AccountNo}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">IFSC Code</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                      {viewingRecord.IFSCCode}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">ESIC Number</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                      {viewingRecord.ESICNo}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">PF Number</label>
+                    <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                      {viewingRecord.PFNO}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex flex-wrap gap-3 mt-4 justify-end">
+                  <button
+                    onClick={() => { setIsDetailOpen(false); handleEdit(viewingRecord); }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded font-medium flex items-center space-x-2"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    <span>Edit</span>
+                  </button>
+
+                  <button
+                    onClick={() => setIsDetailOpen(false)}
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-1 rounded font-medium"
+                  >
+                    Close
+                  </button>
+
+                  <button
+                    onClick={() => handleExportXLS(viewingRecord)}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download</span>
+                  </button>
+                </div>
+
+
+
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500">IFSC Code</label>
-            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-              {viewingRecord.IFSCCode}
-            </span>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500">ESIC Number</label>
-            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-              {viewingRecord.ESICNo}
-            </span>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500">PF Number</label>
-            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
-              {viewingRecord.PFNO}
-            </span>
-          </div>
-        </div>
-
-        {/* Buttons */}
-      <div className="flex flex-wrap gap-3 mt-4 justify-end">
-  <button
-    onClick={() => { setIsDetailOpen(false); handleEdit(viewingRecord); }}
-    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded font-medium flex items-center space-x-2"
-  >
-    <Edit3 className="w-4 h-4" />
-    <span>Edit</span>
-  </button>
-
-  <button
-    onClick={() => setIsDetailOpen(false)}
-    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-1 rounded font-medium"
-  >
-    Close
-  </button>
-
-  <button
-    onClick={() => handleExportXLS(viewingRecord)}
-    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2"
-  >
-    <Download className="w-4 h-4" />
-    <span>Download</span>
-  </button>
-</div>
-
-
-
-      </div>
-    </div>
-  </div>
-)}
+        )}
 
 
       </main>

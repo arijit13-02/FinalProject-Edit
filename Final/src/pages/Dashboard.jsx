@@ -141,7 +141,6 @@ function AutoScrollingPanelcert({ apiUrl, title, className = "" }) {
   const [data, setData] = useState([]);
   const [hovered, setHovered] = useState(false);
   const scrollRef = useRef(null);
-  const itemHeight = 140; // card height
   const scrollSpeed = 0.5; // slower, smooth scroll
 
   // Fetch and filter data
@@ -218,7 +217,7 @@ function AutoScrollingPanelcert({ apiUrl, title, className = "" }) {
               <div
                 key={index}
                 className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
-                style={{ height: `${itemHeight}px` }}
+                
               >
                 <div className="space-y-2 h-full flex flex-col justify-between">
                   <div className="flex items-center justify-between pb-1 border-b border-gray-200">
@@ -262,8 +261,6 @@ function AutoScrollingPanelinventory({ apiUrl, title, className = "" }) {
   const [data, setData] = useState([]);
   const [hovered, setHovered] = useState(false);
   const scrollRef = useRef(null);
-
-  const itemHeight = 240; // card height
   const scrollSpeed = 1; // slower, smooth scroll
 
   // Fetch and filter data
@@ -334,7 +331,6 @@ function AutoScrollingPanelinventory({ apiUrl, title, className = "" }) {
               <div
                 key={index}
                 className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-4 transform transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
-                style={{ height: `${itemHeight}px` }}
               >
                 <div className="space-y-2 h-full flex flex-col justify-between">
                   <div className="flex items-center justify-between pb-1 border-b border-gray-200">
@@ -378,32 +374,89 @@ function AutoScrollingPanelinventory({ apiUrl, title, className = "" }) {
 }
 
 
-function GraphPlaceholder({ title, icon: Icon }) {
+function GraphPlaceholder1({ title, icon: Icon }) {
+  const [imageSrc, setImageSrc] = useState(null); // ✅ define state
+
   const handleIconClick = () => {
     if (localStorage.getItem("userRole") === "admin") {
       window.location.href = "/data"; // redirect for admin
     }
   };
 
-  return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20">
-      {/* Header with clickable icon */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-        <div
-          className={`cursor-pointer ${localStorage.getItem("userRole") === "admin" ? "hover:text-blue-800" : ""}`}
-          onClick={handleIconClick}
-        >
-          <Icon className="w-5 h-5 text-blue-600" />
-        </div>
-      </div>
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const response = await axios.get("http://172.20.10.11:5050/api/chart1", {
+          responseType: "blob", // important
+        });
 
+        const imageUrl = URL.createObjectURL(response.data);
+        setImageSrc(imageUrl);
+      } catch (err) {
+        console.error("Error fetching image:", err);
+      }
+    };
+
+    fetchImage();
+  }, []);
+
+  return (
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20">
       {/* Chart placeholder */}
-      <div className="h-40 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
-        <div className="text-center">
-          <Icon className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-          <p className="text-sm text-gray-600">Chart visualization</p>
-        </div>
+      <div className="h-60 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
+        {imageSrc ? (
+          <img
+            src={imageSrc}
+            alt="Chart from server"
+            className="rounded-lg shadow-lg w-120 border"
+          />
+        ) : (
+          <p>Loading image...</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function GraphPlaceholder2({ title, icon: Icon }) {
+  const [imageSrc, setImageSrc] = useState(null); // ✅ define state
+
+  const handleIconClick = () => {
+    if (localStorage.getItem("userRole") === "admin") {
+      window.location.href = "/data"; // redirect for admin
+    }
+  };
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const response = await axios.get("http://172.20.10.11:5050/api/chart2", {
+          responseType: "blob", // important
+        });
+
+        const imageUrl = URL.createObjectURL(response.data);
+        setImageSrc(imageUrl);
+      } catch (err) {
+        console.error("Error fetching image:", err);
+      }
+    };
+
+    fetchImage();
+  }, []);
+
+    return (
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-lg border border-white/20">
+      {/* Chart placeholder */}
+      <div className="h-60 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
+        {imageSrc ? (
+          <img
+            src={imageSrc}
+            alt="Chart from server"
+            className="rounded-lg shadow-lg w-120 border"
+          />
+        ) : (
+          <p>Loading image...</p>
+        )}
       </div>
     </div>
   );
@@ -411,6 +464,9 @@ function GraphPlaceholder({ title, icon: Icon }) {
 
 
 function Dashboard() {
+
+    
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   //checks authentication
@@ -572,7 +628,7 @@ function Dashboard() {
               <h2 className="text-2xl font-bold text-gray-800 mb-2">MBS</h2>
               <p className="text-gray-600">Enterprise Solutions</p>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 h-64">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 flex-1 h-[18rem]">
               <AutoScrollingPanelcert
                 apiUrl="http://172.20.10.11:5050/api/cert"
                 title="Certification Expiry"
@@ -583,10 +639,10 @@ function Dashboard() {
           </div>
 
           {/* Middle */}
-          <div className="lg:col-span-4 space-y-8">
+          <div className="lg:col-span-4 space-y-6">
             <div
               className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20"
-              style={{ height: "calc(100vh - 14rem)" }}
+              style={{ height: "calc(36rem)" }}
             >
               <AutoScrollingPanel
                 apiUrl="http://172.20.10.11:5050/api/upcomingjobs"
@@ -599,18 +655,18 @@ function Dashboard() {
 
           {/* Right */}
           <div className="lg:col-span-5 space-y-6">
-  <GraphPlaceholder title="Revenue Analytics" icon={BarChart3} />
-  <GraphPlaceholder title="Market Analysis" icon={BarChart3} />
+  <GraphPlaceholder1 title="Monthly Sales Chart" icon={BarChart3} />
+  <GraphPlaceholder2 title="Market Analysis" icon={BarChart3} />
 </div>
 
 
         </div>
 
         {/* Bottom */}
-        <div className="mt-8">
+        <div className="mt-4">
           <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 h-64">
             <AutoScrollingPanelinventory
-              apiUrl="http://localhost:5050/api/inventory"
+              apiUrl="http://172.20.10.11:5050/api/inventory"
               title="Inventory Stock Limits"
               className="h-full"
             />
