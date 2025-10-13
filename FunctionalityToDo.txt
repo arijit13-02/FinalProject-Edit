@@ -36,5 +36,5 @@ Done Staff  - Import and Export buttons - Export at individual Level - Staff att
 Done Dashboard Data scroll and graph
 
 
-Data Space for two graph data
-
+Done Panel size adjust in autoscroll
+Done Chart thing

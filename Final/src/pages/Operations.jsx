@@ -303,20 +303,20 @@ function Operations() {
 
   const getApiUrl = () => {
     if (location === "inhouse" && category === "WBSEDCL")
-      return "http://172.20.10.11:5050/api/operations/inhousewb";
+      return "http://192.168.0.105:5050/api/operations/inhousewb";
 
     if (location === "inhouse" && category === "private")
-      return "http://172.20.10.11:5050/api/operations/inhousepvt";
+      return "http://192.168.0.105:5050/api/operations/inhousepvt";
 
     if (location === "inhouse" && category === "public")
-      return "http://172.20.10.11:5050/api/operations/inhousepub";
+      return "http://192.168.0.105:5050/api/operations/inhousepub";
 
     if (location === "site" && category === "WBSEDCL")
-      return "http://172.20.10.11:5050/api/operations/sitewb";
+      return "http://192.168.0.105:5050/api/operations/sitewb";
     if (location === "site" && category === "private")
-      return "http://172.20.10.11:5050/api/operations/sitepvt";
+      return "http://192.168.0.105:5050/api/operations/sitepvt";
     if (location === "site" && category === "public")
-      return "http://172.20.10.11:5050/api/operations/sitepub";
+      return "http://192.168.0.105:5050/api/operations/sitepub";
 
     return null;
   };
