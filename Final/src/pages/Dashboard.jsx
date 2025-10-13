@@ -386,7 +386,7 @@ function GraphPlaceholder1({ title, icon: Icon }) {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await axios.get("http://172.20.10.11:5050/api/chart1", {
+        const response = await axios.get("http://192.168.0.105:5050/api/chart1", {
           responseType: "blob", // important
         });
 
@@ -430,7 +430,7 @@ function GraphPlaceholder2({ title, icon: Icon }) {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await axios.get("http://172.20.10.11:5050/api/chart2", {
+        const response = await axios.get("http://192.168.0.105:5050/api/chart2", {
           responseType: "blob", // important
         });
 
@@ -630,7 +630,7 @@ function Dashboard() {
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 flex-1 h-[18rem]">
               <AutoScrollingPanelcert
-                apiUrl="http://172.20.10.11:5050/api/cert"
+                apiUrl="http://192.168.0.105:5050/api/cert"
                 title="Certification Expiry"
                 className="h-full"
               />
@@ -645,7 +645,7 @@ function Dashboard() {
               style={{ height: "calc(36rem)" }}
             >
               <AutoScrollingPanel
-                apiUrl="http://172.20.10.11:5050/api/upcomingjobs"
+                apiUrl="http://192.168.0.105:5050/api/upcomingjobs"
                 title="Upcoming Jobs"
                 className="h-full"
               />
@@ -666,7 +666,7 @@ function Dashboard() {
         <div className="mt-4">
           <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 h-64">
             <AutoScrollingPanelinventory
-              apiUrl="http://172.20.10.11:5050/api/inventory"
+              apiUrl="http://192.168.0.105:5050/api/inventory"
               title="Inventory Stock Limits"
               className="h-full"
             />

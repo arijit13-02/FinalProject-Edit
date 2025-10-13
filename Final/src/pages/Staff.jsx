@@ -125,7 +125,7 @@ function Staff() {
 
   const fetchData = async () => {
     try {
-      const url = "http://172.20.10.11:5050/api/staff";
+      const url = "http://192.168.0.105:5050/api/staff";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -182,7 +182,7 @@ function Staff() {
       if (editingRecord) {
         // Update existing record
         response = await axios.put(
-          `http://172.20.10.11:5050/api/staff/${editingRecord.id}`,
+          `http://192.168.0.105:5050/api/staff/${editingRecord.id}`,
           form,
           { headers }
         );
@@ -200,7 +200,7 @@ function Staff() {
       } else {
         // Add new record
         response = await axios.post(
-          "http://172.20.10.11:5050/api/staff",
+          "http://192.168.0.105:5050/api/staff",
           form,
           { headers }
         );
@@ -277,7 +277,7 @@ function Staff() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://172.20.10.11:5050/api/staff/${id}`,
+        `http://192.168.0.105:5050/api/staff/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -401,7 +401,7 @@ function Staff() {
 
       // --- Download attachment if exists ---
       if (record.attachment) {
-        const fileUrl = `http://172.20.10.11:5050/Staffuploads/${record.attachment}`;
+        const fileUrl = `http://192.168.0.105:5050/Staffuploads/${record.attachment}`;
         const fileExt = record.attachment.split(".").pop(); // jpg, png, pdf etc
         const fileBlob = await fetch(fileUrl).then(res => res.blob());
         saveAs(fileBlob, `${record.StaffID || "record"}.${fileExt}`);
@@ -438,7 +438,7 @@ function Staff() {
 
       // Insert each record individually
       for (const record of importedData) {
-        const url = "http://172.20.10.11:5050/api/staff";
+        const url = "http://192.168.0.105:5050/api/staff";
         if (!url) {
           console.error("Invalid location/category combination for record:", record);
           continue;
@@ -1182,7 +1182,7 @@ function Staff() {
                   <div className="w-40 h-40 flex-shrink-0 rounded overflow-hidden border border-gray-200">
                     {viewingRecord.attachment && !viewingRecord.attachment.endsWith(".pdf") ? (
                       <img
-                        src={`http://172.20.10.11:5050/Staffuploads/${viewingRecord.attachment}`}
+                        src={`http://192.168.0.105:5050/Staffuploads/${viewingRecord.attachment}`}
                         alt="Staff"
                         className="w-full h-full object-cover"
                       />
