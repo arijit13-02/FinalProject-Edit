@@ -57,6 +57,7 @@ const uploadDir = path.join(__dirname, "Staffuploads");
 
 // --- Auth file setup ---
 const AUTH_FILE = path.join(__dirname, "auth.json");
+const AUTH_FILE1 = path.join(__dirname, "auth1.json");
 
 // Utility functions
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf-8"));
@@ -68,6 +69,12 @@ if (!fs.existsSync(AUTH_FILE)) {
   const defaultHash = bcrypt.hashSync("admin123", 10);
   writeJson(AUTH_FILE, { adminPasswordHash: defaultHash });
 }
+
+if (!fs.existsSync(AUTH_FILE1)) {
+  const defaultHash = bcrypt.hashSync("admin123", 10);
+  writeJson(AUTH_FILE1, { OMPasswordHash: defaultHash }); // ✅ FIXED
+}
+
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
 app.get("/api/chart1", (req, res) => {
@@ -87,6 +94,19 @@ app.post("/api/login", async (req, res) => {
 
   const authData = readJson(AUTH_FILE);
   const isMatch = await bcrypt.compare(password, authData.adminPasswordHash);
+  if (isMatch) {
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ success: false, message: "Incorrect password" });
+  }
+});
+
+app.post("/api/login1", async (req, res) => {
+  const { role, password } = req.body;
+  if (role !== "operationsmanager") return res.json({ success: true });
+
+  const authData = readJson(AUTH_FILE1);
+  const isMatch = await bcrypt.compare(password, authData.OMPasswordHash  );
   if (isMatch) {
     res.json({ success: true });
   } else {
@@ -115,7 +135,25 @@ app.post("/api/change-password", async (req, res) => {
   res.json({ success: true, message: "Password changed successfully" });
 });
 
+app.post("/api/change-password1", async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({ success: false, message: "Missing fields" });
+  }
 
+  const authData = readJson(AUTH_FILE1);
+  const isMatch = await bcrypt.compare(oldPassword, authData.OMPasswordHash);
+
+  if (!isMatch) {
+    return res.status(401).json({ success: false, message: "Old password is incorrect" });
+  }
+
+  const newHash = await bcrypt.hash(newPassword, 10);
+  authData.OMPasswordHash = newHash;
+  writeJson(AUTH_FILE1, authData);
+
+  res.json({ success: true, message: "Password changed successfully" });
+});
 
 // --- API Routes ---
 app.use("/api/realtimejobs", realtimejobsRoutes);

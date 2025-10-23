@@ -10,10 +10,13 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [isChangePwdOpen, setIsChangePwdOpen] = useState(false);
+    const [isChangePwdOpen1, setIsChangePwdOpen1] = useState(false);
+
   const [oldPwd, setOldPwd] = useState("");
   const [newPwd, setNewPwd] = useState("");
 
   const changepwd = () => setIsChangePwdOpen(true);
+  const changepwd1 = () => setIsChangePwdOpen1(true);
 
   const handleChangePassword = async () => {
     if (!oldPwd || !newPwd) {
@@ -33,6 +36,31 @@ const Login = () => {
         setOldPwd("");
         setNewPwd("");
         setIsChangePwdOpen(false);
+      }
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      alert(err.response?.data?.message || "Failed to change password");
+    }
+  };
+
+    const handleChangePassword1 = async () => {
+    if (!oldPwd || !newPwd) {
+      alert("Please fill both fields");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        "http://192.168.0.105:5050/api/change-password1",
+        { oldPassword: oldPwd, newPassword: newPwd },
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        alert(res.data.message);
+        setOldPwd("");
+        setNewPwd("");
+        setIsChangePwdOpen1(false);
       }
     } catch (err) {
       console.error(err.response?.data || err.message);
@@ -62,7 +90,29 @@ const Login = () => {
         console.error("Login error", err.response?.data || err.message);
         alert("Login failed: Incorrect Password");
       }
-    } else {
+    } else if (role === "operationsmanager") {
+      try {
+        const res = await axios.post(
+          "http://192.168.0.105:5050/api/login1",
+          {
+            role,
+            password
+          },
+          { withCredentials: true }
+        );
+        if (res.data.success) {
+          localStorage.setItem("userRole", role);
+          navigate("/dashboard");
+        } else {
+          alert("Incorrect password");
+        }
+      } catch (err) {
+        console.error("Login error", err.response?.data || err.message);
+        alert("Login failed: Incorrect Password");
+      }
+    }
+    else
+     {
       localStorage.setItem("userRole", role);
       navigate("/dashboard");
     }
@@ -100,11 +150,21 @@ const Login = () => {
             >
               <option value="staff">Staff</option>
               <option value="admin">Admin</option>
+              <option value="operationsmanager">Operations Manager</option>
             </select>
             {role === "admin" && (
               <input
                 type="password"
                 placeholder="Admin Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-2 border mb-4"
+              />
+            )}
+            {role === "operationsmanager" && (
+              <input
+                type="password"
+                placeholder="Operations Manager Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full p-2 border mb-4"
@@ -121,7 +181,7 @@ const Login = () => {
                 onClick={changepwd}
                 className="w-full bg-yellow-600 text-white py-2 rounded-lg font-semibold hover:bg-yellow-700 transition duration-200"
               >
-                Change Password
+                Change Admin Password
               </button>
             )}
             {localStorage.getItem("userRole") === "admin" && (
@@ -132,10 +192,26 @@ const Login = () => {
                 Logout!
               </button>
             )}
+            {localStorage.getItem("userRole") === "operationsmanager" && (
+              <button
+                onClick={changepwd1}
+                className="w-full bg-yellow-600 text-white py-2 rounded-lg font-semibold hover:bg-yellow-700 transition duration-200"
+              >
+                Change Operations Manager Password
+              </button>
+            )}
+            {localStorage.getItem("userRole") === "operationsmanager" && (
+              <button
+                onClick={closesystem}
+                className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition duration-200"
+              >
+                Logout!
+              </button>
+            )}
             {isChangePwdOpen && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                 <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
-                  <h2 className="text-xl font-semibold text-gray-800">Change Password</h2>
+                  <h2 className="text-xl font-semibold text-gray-800">Change Admin Password</h2>
 
                   <input
                     type="text"
@@ -161,6 +237,43 @@ const Login = () => {
                     </button>
                     <button
                       onClick={handleChangePassword}
+                      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition"
+                    >
+                      Change
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {isChangePwdOpen1 && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
+                  <h2 className="text-xl font-semibold text-gray-800">Change Operations Manager Password</h2>
+
+                  <input
+                    type="text"
+                    placeholder="Old Password"
+                    value={oldPwd}
+                    onChange={(e) => setOldPwd(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="text"
+                    placeholder="New Password"
+                    value={newPwd}
+                    onChange={(e) => setNewPwd(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+
+                  <div className="flex space-x-3 justify-end">
+                    <button
+                      onClick={() => setIsChangePwdOpen1(false)}
+                      className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleChangePassword1}
                       className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition"
                     >
                       Change

@@ -512,6 +512,8 @@ function Dashboard() {
 
   // Custom alert to replace window.alert, as per constraints
   const showCustomAlert = (message) => {
+    alert("Admin Privileges Required!\nLogin to proceed");
+
     console.log("ALERT:", message); // Log it to console
     // In a real app, you would show a modal here. Using the built-in alert only for the canvas environment.
     // window.alert(message); // Retaining original alert for functionality demonstration, but note it's against best practice.
@@ -652,7 +654,7 @@ function Dashboard() {
                 Enterprise Process Management
               </p>
               <p className={`mt-3 text-sm font-semibold p-2 rounded-lg ${role === 'admin' ? 'bg-red-600/20 text-red-400' : 'bg-green-600/20 text-green-400'}`}>
-                Role: {role.toUpperCase()}
+                Role: {role.toUpperCase()=="OPERATIONSMANAGER"?"Operations Manager":role.toUpperCase()}
               </p>
             </div>
 
