@@ -309,44 +309,62 @@ function Staff() {
   };
   // Filter and sort records
 
-  const filteredAndSortedRecords = React.useMemo(() => {
-    let filtered = records.filter(
-      (record) =>
-        record.StaffID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.StaffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.AADHAR.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.Address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.PhoneNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.DOB.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.Age.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.Blood.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.BankName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.Branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.AccountNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.IFSCCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.ESICNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.PFNO.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+const filteredAndSortedRecords = React.useMemo(() => {
+  // Convert all fields safely to string before comparison
+  const safeString = (value) =>
+    value !== null && value !== undefined ? String(value).toLowerCase() : "";
 
-    if (sortConfig.key) {
-      filtered.sort((a, b) => {
-        let aValue = a[sortConfig.key];
-        let bValue = b[sortConfig.key];
-        if (sortConfig.key === "date" || sortConfig.key === "createdAt") {
-          aValue = new Date(aValue);
-          bValue = new Date(bValue);
-        }
-        if (aValue < bValue) {
-          return sortConfig.direction === "asc" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === "asc" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    return filtered;
-  }, [records, searchTerm, sortConfig]);
+  let filtered = records.filter((record) => {
+    const search = searchTerm.toLowerCase();
+
+    return (
+      safeString(record.StaffID).includes(search) ||
+      safeString(record.StaffName).includes(search) ||
+      safeString(record.AADHAR).includes(search) ||
+      safeString(record.Address).includes(search) ||
+      safeString(record.PhoneNumber).includes(search) ||
+      safeString(record.DOB).includes(search) ||
+      safeString(record.Age).includes(search) ||
+      safeString(record.Blood).includes(search) ||
+      safeString(record.BankName).includes(search) ||
+      safeString(record.Branch).includes(search) ||
+      safeString(record.AccountNo).includes(search) ||
+      safeString(record.IFSCCode).includes(search) ||
+      safeString(record.ESICNo).includes(search) ||
+      safeString(record.PFNO).includes(search)
+    );
+  });
+
+  // Sorting logic
+  if (sortConfig.key) {
+    filtered.sort((a, b) => {
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // Handle date sorting
+      if (sortConfig.key === "date" || sortConfig.key === "createdAt") {
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
+      }
+
+      // Convert non-dates to strings for safe comparison
+      if (typeof aValue === "number" || typeof bValue === "number") {
+        aValue = Number(aValue);
+        bValue = Number(bValue);
+      } else {
+        aValue = safeString(aValue);
+        bValue = safeString(bValue);
+      }
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
+
+  return filtered;
+}, [records, searchTerm, sortConfig]);
+
 
   const exportToXls = () => {
     if (!records || records.length === 0) return;
@@ -555,7 +573,7 @@ function Staff() {
                 onClick={() => document.getElementById("importFileInput").click()}
                 className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
               >
-                <Upload className="w-4 h-4" />
+                <Download className="w-4 h-4" />
                 <span>Import</span>
               </button>
 
@@ -571,7 +589,7 @@ function Staff() {
                 onClick={exportToXls}
                 className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
               >
-                <Download className="w-4 h-4" />
+                <Upload className="w-4 h-4" />
                 <span>Export</span>
               </button>
 

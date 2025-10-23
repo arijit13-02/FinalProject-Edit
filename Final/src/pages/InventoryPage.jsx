@@ -529,7 +529,7 @@ const getLimitColor = (a,b) => {
                     onClick={() => document.getElementById("importFileInput").click()}
                     className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
                   >
-                    <Upload className="w-4 h-4" />
+                <Download className="w-4 h-4" />
                     <span>Import</span>
                   </button>
 
@@ -545,7 +545,7 @@ const getLimitColor = (a,b) => {
                     onClick={exportToXls}
                     className="bg-white/90 hover:bg-white text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
                   >
-                    <Download className="w-4 h-4" />
+                <Upload className="w-4 h-4" />
                     <span>Export</span>
                   </button>
                 </div>
