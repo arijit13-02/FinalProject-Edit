@@ -498,7 +498,7 @@ function Vendors() {
                 onClick={() => document.getElementById("importFileInput").click()}
                 className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
               >
-                <Upload className="w-4 h-4" />
+                <Download className="w-4 h-4" />
                 <span>Import</span>
               </button>
 
@@ -514,7 +514,7 @@ function Vendors() {
                 onClick={exportToXls}
                 className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
               >
-                <Download className="w-4 h-4" />
+                <Upload className="w-4 h-4" />
                 <span>Export</span>
               </button>
               <button

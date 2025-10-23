@@ -322,34 +322,49 @@ function Certifications() {
   };
   // Filter and sort records
 
-  const filteredAndSortedRecords = React.useMemo(() => {
-    let filtered = records.filter(
-      (record) =>
-        record.CertificateDetails.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.CertificateNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.CertificateDuedate.toLowerCase().includes(searchTerm.toLowerCase())
+const filteredAndSortedRecords = React.useMemo(() => {
+  // Helper to safely convert anything to lowercase string
+  const safeString = (value) =>
+    value !== null && value !== undefined ? String(value).toLowerCase() : "";
 
-    );
+  const search = searchTerm.toLowerCase().trim();
 
-    if (sortConfig.key) {
-      filtered.sort((a, b) => {
-        let aValue = a[sortConfig.key];
-        let bValue = b[sortConfig.key];
-        if (sortConfig.key === "date" || sortConfig.key === "createdAt") {
-          aValue = new Date(aValue);
-          bValue = new Date(bValue);
-        }
-        if (aValue < bValue) {
-          return sortConfig.direction === "asc" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === "asc" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    return filtered;
-  }, [records, searchTerm, sortConfig]);
+  let filtered = records.filter((record) =>
+    safeString(record.CertificateDetails).includes(search) ||
+    safeString(record.CertificateNo).includes(search) ||
+    safeString(record.CertificateDuedate).includes(search)
+  );
+
+  // Sorting logic
+  if (sortConfig.key) {
+    filtered.sort((a, b) => {
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // If sorting by date
+      if (sortConfig.key === "date" || sortConfig.key === "createdAt") {
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
+      }
+
+      // Convert values safely for comparison
+      if (typeof aValue === "number" || typeof bValue === "number") {
+        aValue = Number(aValue);
+        bValue = Number(bValue);
+      } else {
+        aValue = safeString(aValue);
+        bValue = safeString(bValue);
+      }
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
+
+  return filtered;
+}, [records, searchTerm, sortConfig]);
+
 
 
   return (
@@ -444,7 +459,7 @@ function Certifications() {
                 onClick={() => document.getElementById("importFileInput").click()}
                 className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
               >
-                <Upload className="w-4 h-4" />
+                <Download className="w-4 h-4" />
                 <span>Import</span>
               </button>
 
@@ -460,7 +475,7 @@ function Certifications() {
                 onClick={exportToXls}
                 className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
               >
-                <Download className="w-4 h-4" />
+                <Upload className="w-4 h-4" />
                 <span>Export</span>
               </button>
 
