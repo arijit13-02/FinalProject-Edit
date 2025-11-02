@@ -97,7 +97,7 @@ const PendingJobs = () => {
   const fetchPendingJobs = async () => {
     try {
       const res = await axios.get(
-        "http://192.168.0.105:5050/api/inventory/pending"
+        "http://192.168.0.107:5050/api/inventory/pending"
       );
       setPendingJobs(res.data);
     } catch (err) {
@@ -129,7 +129,7 @@ const PendingJobs = () => {
 
     try {
       await axios.post(
-        "http://192.168.0.105:5050/api/inventory/pending/apply",
+        "http://192.168.0.107:5050/api/inventory/pending/apply",
         { actions }
       );
       alert("Changes applied successfully.");

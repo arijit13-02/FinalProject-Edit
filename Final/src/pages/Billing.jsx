@@ -49,7 +49,7 @@ function Billing() {
     if (role === "admin") {
       navigate(path);
     } else {
-      alert("Admin Privileges Required!\nLogin to proceed");
+      alert("Admin Privileges !\nLogin to proceed");
       navigate("/login");
     }
   };
@@ -99,7 +99,6 @@ function Billing() {
     SrNo: "",
     Date: "",
     BillNo: "",
-    Status: "",
     WorkDescrp: "",
     HSNSAC: "",
     PartyDetails: "",
@@ -120,7 +119,8 @@ function Billing() {
     AmountReceived: "",
     ChequeNEFTDetails: "",
     PaymentReceivedDate: "",
-    BillTotal: ""
+    BillTotal: "",
+    Remarks: ""
   });
   // Load records from localStorage (simulating JSON file)
 
@@ -132,7 +132,7 @@ function Billing() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.105:5050/api/billing";
+      const url = "http://192.168.0.107:5050/api/billing";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -160,7 +160,7 @@ function Billing() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.105:5050/api/billing/${editingRecord.id}`, // update by ID
+          `http://192.168.0.107:5050/api/billing/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -190,7 +190,7 @@ function Billing() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.105:5050/api/billing",
+          "http://192.168.0.107:5050/api/billing",
           formData,
           {
             headers: {
@@ -219,7 +219,6 @@ function Billing() {
       SrNo: "",
       Date: "",
       BillNo: "",
-      Status: "",
       WorkDescrp: "",
       HSNSAC: "",
       PartyDetails: "",
@@ -240,7 +239,8 @@ function Billing() {
       AmountReceived: "",
       ChequeNEFTDetails: "",
       PaymentReceivedDate: "",
-      BillTotal: ""
+      BillTotal: "",
+            Remarks: ""
     });
     setIsFormOpen(false);
     setEditingRecord(null);
@@ -251,7 +251,6 @@ function Billing() {
       SrNo: record.SrNo,
       Date: record.Date,
       BillNo: record.BillNo,
-      Status: record.Status,
       WorkDescrp: record.WorkDescrp,
       HSNSAC: record.HSNSAC,
       PartyDetails: record.PartyDetails,
@@ -272,7 +271,8 @@ function Billing() {
       AmountReceived: record.AmountReceived,
       ChequeNEFTDetails: record.ChequeNEFTDetails,
       PaymentReceivedDate: record.PaymentReceivedDate,
-      BillTotal: record.BillTotal
+      BillTotal: record.BillTotal,
+            Remarks: record.Remarks,
 
     });
     setEditingRecord(record);
@@ -288,7 +288,7 @@ function Billing() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.105:5050/api/billing/${id}`,
+        `http://192.168.0.107:5050/api/billing/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -326,7 +326,7 @@ function Billing() {
         String(record.SrNo).toLowerCase().includes(searchTerm.toLowerCase()) ||
         String(record.Date).toLowerCase().includes(searchTerm.toLowerCase()) ||
         String(record.BillNo).toLowerCase().includes(searchTerm.toLowerCase()) ||
-        String(record.Status).toLowerCase().includes(searchTerm.toLowerCase()) ||
+        String(record.Remarks).toLowerCase().includes(searchTerm.toLowerCase()) ||
         String(record.WorkDescrp).toLowerCase().includes(searchTerm.toLowerCase()) ||
         String(record.HSNSAC).toLowerCase().includes(searchTerm.toLowerCase()) ||
         String(record.PartyDetails).toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -403,7 +403,6 @@ function Billing() {
     { key: "SrNo", label: "Sr No" },
     { key: "Date", label: "Date" },
     { key: "BillNo", label: "Bill No" },
-    { key: "Status", label: "Status" },
     { key: "WorkDescrp", label: "Work Description" },
     { key: "JobCost", label: "Job Cost" },
     { key: "CGST", label: "CGST" },
@@ -421,52 +420,70 @@ function Billing() {
     { key: "ChequeNEFTDetails", label: "Cheque/NEFT Details" },
     { key: "PaymentReceivedDate", label: "Payment Received Date" },
     { key: "BillTotal", label: "Bill Total" },
+    { key: "Remarks", label: "Remarks" },
   ];
 
 
   // Import from XLSX
   const importFromXls = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const file = event.target.files[0];
+  if (!file) return;
 
-    const reader = new FileReader();
+  const reader = new FileReader();
 
-    reader.onload = async (e) => {
-      const dataArray = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(dataArray, { type: "array" });
+  reader.onload = async (e) => {
+    const dataArray = new Uint8Array(e.target.result);
 
-      const firstSheet = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheet];
+    // Read workbook, preserve formats
+    const workbook = XLSX.read(dataArray, { type: "array" });
+    const firstSheet = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheet];
 
-      // Convert sheet to JSON
-      const importedData = XLSX.utils.sheet_to_json(worksheet);
+    // Convert sheet → JSON, preserve decimals
+    const importedData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
 
-      // Insert each record individually
-      for (const record of importedData) {
-        const url = "http://192.168.0.105:5050/api/billing";
-        if (!url) {
-          console.error("Invalid location/category combination for record:", record);
-          continue;
+    // Clean floating point values
+    const cleanedData = importedData.map((row) => {
+      const newRow = {};
+      for (let key in row) {
+        let value = row[key];
+
+        // If value is numeric, round it to 4 decimals
+        if (!isNaN(value) && value !== null && value !== "") {
+          value = parseFloat(Number(value).toFixed(2));
         }
-
-        try {
-          const response = await axios.post(url, record, {
-            headers: { "x-user-role": localStorage.getItem("userRole") },
-          });
-
-          if (response.data.success) {
-            setRecords((prevData) => [...prevData, response.data.item || record]);
-          } else {
-            console.error("Failed to insert record:", response.data.message, record);
-          }
-        } catch (err) {
-          console.error("Error inserting record:", err, record);
-        }
+        newRow[key] = value;
       }
-    };
+      return newRow;
+    });
 
-    reader.readAsArrayBuffer(file);
+    // Insert records one by one
+    for (const record of cleanedData) {
+      const url = "http://192.168.0.107:5050/api/billing";
+      if (!url) {
+        console.error("Invalid location/category for record:", record);
+        continue;
+      }
+
+      try {
+        const response = await axios.post(url, record, {
+          headers: { "x-user-role": localStorage.getItem("userRole") },
+        });
+
+        if (response.data.success) {
+          setRecords((prevData) => [...prevData, response.data.item || record]);
+        } else {
+          console.error("Failed to insert record:", response.data.message, record);
+        }
+      } catch (err) {
+        console.error("Error inserting record:", err, record);
+      }
+    }
   };
+
+  reader.readAsArrayBuffer(file);
+};
+
 
 
   return (
@@ -657,16 +674,7 @@ function Billing() {
                       </div>
                     </th>
 
-                    <th
-                      rowSpan={2}
-                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-                      onClick={() => handleSort("Status")}
-                    >
-                      <div className="flex items-center space-x-1">
-                        <span>Status</span>
-                        {getSortIcon("Status")}
-                      </div>
-                    </th>
+                    
 
 
                     <th
@@ -870,7 +878,16 @@ function Billing() {
                         {getSortIcon("BillTotal")}
                       </div>
                     </th>
-
+                    <th
+                      rowSpan={2}
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("Remarks")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Remarks</span>
+                        {getSortIcon("Remarks")}
+                      </div>
+                    </th>
 
                     {/* Actions stays single */}
                     <th rowSpan={2} className="px-6 py-4 text-left text-sm font-medium text-gray-700">
@@ -907,6 +924,7 @@ function Billing() {
                         {getSortIcon("ScrapTax")}
                       </div>
                     </th>
+                    
                   </tr>
                 </thead>
 
@@ -917,7 +935,6 @@ function Billing() {
                       <td className="px-6 py-4"><div className="text-sm font-semibold text-gray-800">{record.SrNo}</div></td>
                       <td className="px-6 py-4"><div className="text-sm font-semibold text-gray-800">{record.Date}</div></td>
                       <td className="px-6 py-4"><div className="text-sm font-semibold text-gray-800">{record.BillNo}</div></td>
-                      <td className="px-6 py-4"><div className="text-sm font-semibold text-gray-800">{record.Status}</div></td>
                       <td className="px-6 py-4"><div className="text-sm font-semibold text-gray-800">{record.WorkDescrp}</div></td>
                       <td className="px-6 py-4"><div className="text-sm font-semibold text-gray-800">{record.HSNSAC}</div></td>
                       <td className="px-6 py-4"><div className="text-sm font-semibold text-gray-800">{record.PartyDetails}</div></td>
@@ -939,6 +956,7 @@ function Billing() {
                       <td className="px-6 py-4"><div className="text-sm font-semibold text-gray-800">{record.ChequeNEFTDetails}</div></td>
                       <td className="px-6 py-4"><div className="text-sm font-semibold text-gray-800">{record.PaymentReceivedDate}</div></td>
                       <td className="px-6 py-4"><div className="text-sm font-semibold text-gray-800">{record.BillTotal}</div></td>
+                      <td className="px-6 py-4"><div className="text-sm font-semibold text-gray-800">{record.Remarks}</div></td>
 
                       <td className="px-6 py-4">
                         <div className="flex space-x-2">
@@ -995,7 +1013,7 @@ function Billing() {
                 name="SrNo"
                 value={formData.SrNo}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter SrNo"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1008,7 +1026,7 @@ function Billing() {
                 name="Date"
                 value={formData.Date}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Date"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1021,21 +1039,21 @@ function Billing() {
                 name="BillNo"
                 value={formData.BillNo}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Bill No"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
               <input
                 type="text"
-                name="Status"
-                value={formData.Status}
+                name="Remarks"
+                value={formData.Remarks}
                 onChange={handleInputChange}
-                required
-                placeholder="Enter Status"
+                
+                placeholder="Enter Remarks"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -1047,7 +1065,7 @@ function Billing() {
                 name="WorkDescrp"
                 value={formData.WorkDescrp}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Work Description"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1060,7 +1078,7 @@ function Billing() {
                 name="HSNSAC"
                 value={formData.HSNSAC}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter HSN/SAC"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1081,7 +1099,7 @@ function Billing() {
         name="PartyDetails"
         value={formData.PartyDetails}
         onChange={handleInputChange}
-        required
+        
         placeholder="Enter Party Details"
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
@@ -1094,7 +1112,7 @@ function Billing() {
         name="PartyGSTNo"
         value={formData.PartyGSTNo}
         onChange={handleInputChange}
-        required
+        
         placeholder="Enter Party GST No"
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
@@ -1103,11 +1121,11 @@ function Billing() {
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">Job Cost</label>
       <input
-        type="number"
+        type="text"
         name="JobCost"
         value={formData.JobCost}
         onChange={handleInputChange}
-        required
+        
         placeholder="Enter Job Cost"
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
@@ -1119,11 +1137,11 @@ function Billing() {
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">Tax Rate</label>
       <input
-        type="number"
+        type="text"
         name="TaxRate"
         value={formData.TaxRate}
         onChange={handleInputChange}
-        required
+        
         placeholder="Enter Tax Rate"
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
@@ -1132,11 +1150,11 @@ function Billing() {
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">CGST</label>
       <input
-        type="number"
+        type="text"
         name="CGST"
         value={formData.CGST}
         onChange={handleInputChange}
-        required
+        
         placeholder="Enter CGST"
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
@@ -1145,11 +1163,11 @@ function Billing() {
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">SGST</label>
       <input
-        type="number"
+        type="text"
         name="SGST"
         value={formData.SGST}
         onChange={handleInputChange}
-        required
+        
         placeholder="Enter SGST"
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
@@ -1158,11 +1176,11 @@ function Billing() {
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">SD</label>
       <input
-        type="number"
+        type="text"
         name="SD"
         value={formData.SD}
         onChange={handleInputChange}
-        required
+        
         placeholder="Enter SD"
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
@@ -1179,11 +1197,11 @@ function Billing() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Total</label>
               <input
-                type="number"
+                type="text"
                 name="Total"
                 value={formData.Total}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Total"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1192,11 +1210,11 @@ function Billing() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Scrap</label>
               <input
-                type="number"
+                type="text"
                 name="Scrap"
                 value={formData.Scrap}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Scrap"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1205,11 +1223,11 @@ function Billing() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Net Amount</label>
               <input
-                type="number"
+                type="text"
                 name="NetAmount"
                 value={formData.NetAmount}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Net Amount"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1224,11 +1242,11 @@ function Billing() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">TDS</label>
               <input
-                type="number"
+                type="text"
                 name="TDS"
                 value={formData.TDS}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter TDS"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1237,11 +1255,11 @@ function Billing() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">TCS</label>
               <input
-                type="number"
+                type="text"
                 name="TCS"
                 value={formData.TCS}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter TCS"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1250,11 +1268,11 @@ function Billing() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Scrap Tax</label>
               <input
-                type="number"
+                type="text"
                 name="ScrapTax"
                 value={formData.ScrapTax}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Scrap Tax"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1270,11 +1288,11 @@ function Billing() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Others</label>
               <input
-                type="number"
+                type="text"
                 name="Others"
                 value={formData.Others}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Others"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1283,11 +1301,11 @@ function Billing() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Net Payable</label>
               <input
-                type="number"
+                type="text"
                 name="NetPayble"
                 value={formData.NetPayble}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Net Payable"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1296,11 +1314,11 @@ function Billing() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Amount Received</label>
               <input
-                type="number"
+                type="text"
                 name="AmountReceived"
                 value={formData.AmountReceived}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Amount Received"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1313,7 +1331,7 @@ function Billing() {
                 name="ChequeNEFTDetails"
                 value={formData.ChequeNEFTDetails}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Cheque/NEFT Details"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1326,7 +1344,7 @@ function Billing() {
                 name="PaymentReceivedDate"
                 value={formData.PaymentReceivedDate}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Payment Received Date"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1335,11 +1353,11 @@ function Billing() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Bill Total</label>
               <input
-                type="number"
+                type="text"
                 name="BillTotal"
                 value={formData.BillTotal}
                 onChange={handleInputChange}
-                required
+                
                 placeholder="Enter Bill Total"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -1396,7 +1414,6 @@ function Billing() {
                     "Sr No": viewingRecord.SrNo,
                     "Date": viewingRecord.Date,
                     "Bill No": viewingRecord.BillNo,
-                    "Status": viewingRecord.Status,
                     "Work Description": viewingRecord.WorkDescrp,
                     "HSN/SAC": viewingRecord.HSNSAC,
                     "Party Details": viewingRecord.PartyDetails,
@@ -1418,6 +1435,8 @@ function Billing() {
                     "Cheque / NEFT Details": viewingRecord.ChequeNEFTDetails,
                     "Payment Received Date": viewingRecord.PaymentReceivedDate,
                     "Bill Total": viewingRecord.BillTotal,
+                    "Remarks": viewingRecord.Remarks
+                    
                   }).map(([key, value]) => (
                     <div
                       key={key}

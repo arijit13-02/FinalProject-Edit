@@ -39,7 +39,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { data } from "autoprefixer";
 
-function Operations() {
+function Operationsom() {
   //checks authentication
   const navigate = useNavigate();
   const [role, setRole] = useState(() => {
@@ -51,7 +51,7 @@ function Operations() {
   }, [role]);
   // check role once on mount
   useEffect(() => {
-    if (role !== "admin") {
+    if (role !== "operationsmanager") {
       alert("Admin Privileges Required!\nLogin to proceed");
       navigate("/login");
     }
@@ -326,7 +326,7 @@ function Operations() {
       const url = getApiUrl();
       if (!url) return;
       const res = await axios.get(url, {
-        headers: { "x-user-role": localStorage.getItem("userRole") }
+        headers: { "x-user-role": "admin" }
       });
       setData(res.data);
     } catch (err) {
@@ -349,26 +349,26 @@ function Operations() {
   const exportToXls = () => {
     // 1. Process data
     const processedData = data.map((record) => {
-      // Deep copy and exclude unwanted fields
-      const { id, ID, updatedAt, createdAt, TransformerDetails, ...flatRecord } = record;
+  // Deep copy and exclude unwanted fields
+  const { id, ID, updatedAt, createdAt,TransformerDetails, ...flatRecord } = record;
 
-      if (
-        flatRecord.Location === "Site" &&
-        (flatRecord.Category === "Public" || flatRecord.Category === "Private")
-      ) {
-        const transformers = TransformerDetails || [];
+  if (
+    flatRecord.Location === "Site" &&
+    (flatRecord.Category === "Public" || flatRecord.Category === "Private")
+  ) {
+    const transformers = TransformerDetails || [];
 
-        transformers.forEach((t, index) => {
-          const idx = index + 1;
-          flatRecord[`KVA_${idx}`] = t.KVA || "";
-          flatRecord[`SrNo_${idx}`] = t.SrNo || "";
-          flatRecord[`Rating_${idx}`] = t.Rating || "";
-          flatRecord[`Note_${idx}`] = t.Note || "";
-        });
-      }
-
-      return flatRecord;
+    transformers.forEach((t, index) => {
+      const idx = index + 1;
+      flatRecord[`KVA_${idx}`] = t.KVA || "";
+      flatRecord[`SrNo_${idx}`] = t.SrNo || "";
+      flatRecord[`Rating_${idx}`] = t.Rating || "";
+      flatRecord[`Note_${idx}`] = t.Note || "";
     });
+  }
+
+  return flatRecord;
+});
 
 
 
@@ -398,32 +398,13 @@ function Operations() {
 
     reader.onload = async (e) => {
       const Data = new Uint8Array(e.target.result);
-
-      // Read workbook with formatting preserved
       const workbook = XLSX.read(Data, { type: "array" });
 
       const firstSheet = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheet];
 
-      // Convert sheet to JSON, fix floating numbers
-      let importedData = XLSX.utils.sheet_to_json(worksheet, {
-        raw: false, // preserves formatting and decimal values
-      });
-
-      // Clean floating precision for all numeric fields
-      importedData = importedData.map((row) => {
-        const newRow = {};
-        for (const key in row) {
-          const val = row[key];
-
-          if (val !== null && val !== "" && !isNaN(val)) {
-            newRow[key] = parseFloat(Number(val).toFixed(2)); // keep up to 4 decimals
-          } else {
-            newRow[key] = val;
-          }
-        }
-        return newRow;
-      });
+      // Convert sheet to JSON
+      let importedData = XLSX.utils.sheet_to_json(worksheet);
 
       // Normalize numeric-keyed rows (0,1,...)
       importedData = importedData.flatMap((row) => {
@@ -444,7 +425,6 @@ function Operations() {
         ) {
           const transformers = [];
           let idx = 1;
-
           while (record[`KVA_${idx}`] !== undefined) {
             transformers.push({
               KVA: record[`KVA_${idx}`],
@@ -465,15 +445,14 @@ function Operations() {
             record.TransformerDetails = transformers;
           }
         }
-
         return record;
       });
 
-      console.log("Normalized, fixed decimals & reconstructed:", reconstructedData);
+      console.log("Normalized & reconstructed:", reconstructedData);
 
-      // Insert each record to backend
+      // Insert each record individually
       for (const record of reconstructedData) {
-        const url = getApiUrl(record.Location, record.Category);
+        const url = getApiUrl(record.Location, record.Category); // API endpoint may depend on location/category
         if (!url) {
           console.error("Invalid location/category combination for record:", record);
           continue;
@@ -481,10 +460,11 @@ function Operations() {
 
         try {
           const response = await axios.post(url, record, {
-            headers: { "x-user-role": localStorage.getItem("userRole") },
+            headers: { "x-user-role": "admin" },
           });
 
           if (response.data.success) {
+            // Add inserted record to state
             setData((prevData) => [...prevData, response.data.item || record]);
           } else {
             console.error("Failed to insert record:", response.data.message, record);
@@ -503,7 +483,6 @@ function Operations() {
 
 
 
-
   const handleDelete = async (ID) => {
     try {
       const url = getApiUrl(); // pick API based on location + category
@@ -512,7 +491,7 @@ function Operations() {
         return;
       }
       await axios.delete(`${url}/${ID}`, {
-        headers: { "x-user-role": localStorage.getItem("userRole") }
+        headers: { "x-user-role": "admin" }
       });
       fetchData();
     } catch (err) {
@@ -521,89 +500,93 @@ function Operations() {
   };
 
   //checkehckehekcheckehcekcheckehcekcheck
-const filteredAndSortedRecords = React.useMemo(() => {
-  let filtered = data.filter((row) => {
-    const search = searchTerm.toLowerCase();
+  const filteredAndSortedRecords = React.useMemo(() => {
+    let filtered = data.filter((row) => {
+      // Normalize search term once
+      const search = searchTerm.toLowerCase();
 
-    let searchableFields = [
-      row.Client,
-      row.WorkOrder,
-      row.Date,
-      row.Category,
-      row.FileNo,
-      row.Dismetalling,
-      row.Inspection,
-      row.InformToClient,
-      row.Approval,
-      row.Winding,
-      row.Assembly,
-      row.HeatChamber,
-      row.Testing,
-      row.ClientInspection,
-      row.Delivery,
-      row.BillSubmission,
-      row.Payment,
-      row.Amount,
-      row.SecurityDeposited,
-      row.SiteLocation,
-      row.TypeOfJob,
-      row.LOINo,
-      row.LOIDate,
-      row.Division,
-      row.Location,
-      row.Tender,
-      row.PrelimarySurvey,
-      row.SIRNofTransformer,
-      row.FinalSurvey,
-      row.SRNofDrainoutOil,
-      row.StageInspection,
-      row.OilStatement,
-      row.SIRNofOil,
-      row.TransfomerTesting,
-      row.Materialdeliveredon,
-      row.SRNofTransformer,
-      row.Estimate,
-      row.FormalOrderPlaced,
-      row.OrderReferanceno,
-      row.OrderDate,
-      row.Billsubmission,
-      row.NetAmount,
-      row.SecurityDepositesubmitted,
-      row.SecurityDepositeReceived,
-      row.Make,
-      row.OilQty,
-    ];
+      // Collect all possible searchable fields safely
+      let searchableFields = [
+        row.Client,
+        row.WorkOrder,
+        row.Date,
+        row.Category,
+        row.FileNo,
+        row.Dismetalling,
+        row.Inspection,
+        row.InformToClient,
+        row.Approval,
+        row.Winding,
+        row.Assembly,
+        row.HeatChamber,
+        row.Testing,
+        row.ClientInspection,
+        row.Delivery,
+        row.BillSubmission,
+        row.Payment,
+        row.Amount,
+        row.SecurityDeposited,
+        row.SiteLocation,
+        row.TypeOfJob,
+        row.LOINo,
+        row.LOIDate,
+        row.Division,
+        row.Location,
+        row.Tender,
+        row.PrelimarySurvey,
+        row.SIRNofTransformer,
+        row.FinalSurvey,
+        row.SRNofDrainoutOil,
+        row.StageInspection,
+        row.OilStatement,
+        row.SIRNofOil,
+        row.TransfomerTesting,
+        row.Materialdeliveredon,
+        row.SRNofTransformer,
+        row.Estimate,
+        row.FormalOrderPlaced,
+        row.OrderReferanceno,
+        row.OrderDate,
+        row.Billsubmission,
+        row.NetAmount,
+        row.SecurityDepositesubmitted,
+        row.SecurityDepositeReceived,
+        row.Make,
+        row.OilQty
+      ];
 
-    if (Array.isArray(row.TransformerDetails)) {
-      row.TransformerDetails.forEach((t) => {
-        searchableFields.push(t.KVA, t.SrNo, t.Rating, t.Note);
-      });
-    }
-
-    return searchableFields.some((field) =>
-      String(field ?? "").toLowerCase().includes(search)
-    );
-  });
-
-  if (sortConfig.key) {
-    filtered.sort((a, b) => {
-      let aValue = a[sortConfig.key];
-      let bValue = b[sortConfig.key];
-
-      if (sortConfig.key === "date" || sortConfig.key === "createdAt") {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
+      // Add transformer details if they exist
+      if (Array.isArray(row.TransformerDetails)) {
+        row.TransformerDetails.forEach((t) => {
+          searchableFields.push(t.KVA, t.SrNo, t.Rating, t.Note);
+        });
       }
 
-      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
+      // Check if ANY field contains the search term
+      return searchableFields.some(
+        (field) =>
+          typeof field === "string" && field.toLowerCase().includes(search)
+      );
     });
-  }
-
-  return filtered;
-}, [data, searchTerm, sortConfig]);
-
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+        if (sortConfig.key === "date" || sortConfig.key === "createdAt") {
+          aValue = new Date(aValue);
+          bValue = new Date(bValue);
+        }
+        if (aValue < bValue) {
+          return sortConfig.direction === "asc" ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return filtered;
+  }, [data, searchTerm, sortConfig]);
   const handleFieldJobDetailChange = (index, field, value) => {
     setFormData((prev) => {
       const updated = [...prev.TransformerDetails];
@@ -1033,7 +1016,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
             updatedAt: new Date().toISOString()
           },
           {
-            headers: { "x-user-role": localStorage.getItem("userRole") }
+            headers: { "x-user-role": "admin" }
           }
         );
 
@@ -1050,7 +1033,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
       } else {
         // 🔹 CREATE new record
         const response = await axios.post(url, formData, {
-          headers: { "x-user-role": localStorage.getItem("userRole") }
+          headers: { "x-user-role": "admin" }
         });
 
         if (response.data.success) {
@@ -1092,64 +1075,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600">
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-3">
-              {navigationItems.map((item) => (
-                <button
-                  key={item.name}
-                  onClick={item.onClick}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition px-3 py-2 rounded-lg hover:bg-blue-50"
-                >
-                  <item.icon className="w-4 h-4" />
-                  <span className="font-medium">{item.name}</span>
-                </button>
-              ))}
-            </nav>
 
-            {/* Login Button */}
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate("/login")}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center space-x-2"
-              >
-                <User className="w-4 h-4" />
-                <span>Login</span>
-              </button>
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition"
-              >
-                {isMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-200">
-              <nav className="flex flex-col space-y-2">
-                {navigationItems.map((item) => (
-                  <button
-                    key={item.name}
-                    onClick={item.onClick}
-                    className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-blue-50"
-                  >
-                    <item.icon className="w-4 h-4" />
-                    <span className="font-medium">{item.name}</span>
-                  </button>
-                ))}
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
 
       {/* Main Content */}
       <main className="max-w-20xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -1169,12 +1095,12 @@ const filteredAndSortedRecords = React.useMemo(() => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white mb-2">
-                  Operations
+                  Operations by Operations Manager
                 </h1>
                 <p className="text-blue-100">
                   Automated Record entry in accordance with Real Time Jobs
                 </p>
-
+                
               </div>
             </div>
 
@@ -1269,11 +1195,19 @@ const filteredAndSortedRecords = React.useMemo(() => {
 
           {/* Buttons */}
           <div className="flex space-x-3 max-w-md">
+             <button
+                onClick={() => navigate("/login")}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center space-x-2"
+              >
+                <User className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+
             <button
               onClick={() => document.getElementById("importFileInput").click()}
               className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
             >
-              <Download className="w-4 h-4" />
+                <Download className="w-4 h-4" />
               <span>Import</span>
             </button>
 
@@ -1289,7 +1223,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
               onClick={exportToXls}
               className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
             >
-              <Upload className="w-4 h-4" />
+                <Upload className="w-4 h-4" />
               <span>Export</span>
             </button>
 
@@ -1387,7 +1321,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
                           return (
                             <td key={header.key} className="px-6 py-4">
                               <div className="text-sm text-gray-800">
-                                {rowValues[header.key] || "0"}
+                                {rowValues[header.key] || "N/A"}
                               </div>
                             </td>
                           );
@@ -1411,99 +1345,98 @@ const filteredAndSortedRecords = React.useMemo(() => {
 
               <form onSubmit={handleSubmit} className="p-4 space-y-2">
                 {formData && (
-                  <div className="space-y-3">
-                    {Object.entries(formData).map(([key, value]) => {
-                      if (["ID", "Location", "Category"].includes(key))
-                        return (
-                          <div key={key} className="flex justify-between items-center border-b border-gray-100 pb-2">
-                            <label className="w-40 text-sm font-medium text-gray-700">{key}</label>
-                            <input
-                              type="text"
-                              value={value || ""}
-                              readOnly
-                              disabled
-                              className="flex-1 px-2 py-1 border border-gray-300 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed"
-                            />
-                          </div>
-                        );
+  <div className="space-y-3">
+    {Object.entries(formData).map(([key, value]) => {
+      if (["ID", "Location", "Category"].includes(key))
+        return (
+          <div key={key} className="flex justify-between items-center border-b border-gray-100 pb-2">
+            <label className="w-40 text-sm font-medium text-gray-700">{key}</label>
+            <input
+              type="text"
+              value={value || ""}
+              readOnly
+              disabled
+              className="flex-1 px-2 py-1 border border-gray-300 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed"
+            />
+          </div>
+        );
 
-                      if (key === "updatedAt") return null;
+      if (key === "updatedAt") return null;
 
-                      if (Array.isArray(value))
-                        return (
-                          <div key={key} className="border-t pt-3">
-                            <h3 className="text-sm font-semibold text-gray-800 mb-2">{key}</h3>
-                            {value.map((item, index) => (
-                              <div key={index} className="border border-gray-200 rounded-lg p-3 mb-3 space-y-2">
-                                {Object.entries(item).map(([subKey, subValue]) => {
-                                  const fieldKey = `${subKey}_${index}`;
-                                  return (
-                                    <div key={subKey} className="flex justify-between items-center">
-                                      <label className="w-40 text-sm font-medium text-gray-700">{subKey}</label>
-                                      <input
-                                        type={dateMode[fieldKey] ? "date" : "text"}
-                                        value={subValue ?? ""}
-                                        onChange={(e) =>
-                                          handleFieldJobDetailChange(index, subKey, e.target.value)
-                                        }
-                                        placeholder="Enter value"
-                                        className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent"
-                                      />
-                                    </div>
-                                  );
-                                })}
+      if (Array.isArray(value))
+        return (
+          <div key={key} className="border-t pt-3">
+            <h3 className="text-sm font-semibold text-gray-800 mb-2">{key}</h3>
+            {value.map((item, index) => (
+              <div key={index} className="border border-gray-200 rounded-lg p-3 mb-3 space-y-2">
+                {Object.entries(item).map(([subKey, subValue]) => {
+                  const fieldKey = `${subKey}_${index}`;
+                  return (
+                    <div key={subKey} className="flex justify-between items-center">
+                      <label className="w-40 text-sm font-medium text-gray-700">{subKey}</label>
+                      <input
+                        type={dateMode[fieldKey] ? "date" : "text"}
+                        value={subValue || ""}
+                        onChange={(e) =>
+                          handleFieldJobDetailChange(index, subKey, e.target.value)
+                        }
+                        placeholder="Enter value"
+                        className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                  );
+                })}
+                <div className="flex justify-end space-x-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={addFieldJobDetail}
+                    className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
+                  >
+                    + Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeFieldJobDetail(index)}
+                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
 
-                                <div className="flex justify-end space-x-2 pt-2">
-                                  <button
-                                    type="button"
-                                    onClick={addFieldJobDetail}
-                                    className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
-                                  >
-                                    + Add
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => removeFieldJobDetail(index)}
-                                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
-                                  >
-                                    Remove
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        );
+      if (typeof value === "boolean")
+        return (
+          <div key={key} className="flex justify-between items-center border-b border-gray-100 pb-2">
+            <label className="w-40 text-sm font-medium text-gray-700">{key}</label>
+            <input
+              type="checkbox"
+              checked={value}
+              onChange={(e) =>
+                setFormData({ ...formData, [key]: e.target.checked })
+              }
+              className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+          </div>
+        );
 
-                      if (typeof value === "boolean")
-                        return (
-                          <div key={key} className="flex justify-between items-center border-b border-gray-100 pb-2">
-                            <label className="w-40 text-sm font-medium text-gray-700">{key}</label>
-                            <input
-                              type="checkbox"
-                              checked={value}
-                              onChange={(e) =>
-                                setFormData({ ...formData, [key]: e.target.checked })
-                              }
-                              className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                            />
-                          </div>
-                        );
-
-                      return (
-                        <div key={key} className="flex justify-between items-center border-b border-gray-100 pb-2">
-                          <label className="w-40 text-sm font-medium text-gray-700">{key}</label>
-                          <input
-                            type={dateMode[key] ? "date" : "text"}
-                            value={value || ""}
-                            onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
-                            placeholder="Enter value"
-                            className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+      return (
+        <div key={key} className="flex justify-between items-center border-b border-gray-100 pb-2">
+          <label className="w-40 text-sm font-medium text-gray-700">{key}</label>
+          <input
+            type={dateMode[key] ? "date" : "text"}
+            value={value || ""}
+            onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+            placeholder="Enter value"
+            className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+      );
+    })}
+  </div>
+)}
 
 
                 <div className="flex space-x-2 pt-2">
@@ -1539,57 +1472,56 @@ const filteredAndSortedRecords = React.useMemo(() => {
 
                 {/* All Fields */}
                 <div className="space-y-4">
-                  {Object.entries(viewingRecord).map(([key, value]) => {
-                    // Handle array of objects (like fieldJobDetails, TransformerDetails)
-                    if (Array.isArray(value)) {
-                      return (
-                        <div key={key} className="border-t pt-4">
-                          <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                            {key}
-                          </h4>
-                          {value.length > 0 ? (
-                            value.map((item, idx) => (
-                              <div
-                                key={idx}
-                                className="space-y-2 border border-gray-200 rounded-lg p-3 mb-3"
-                              >
-                                {Object.entries(item).map(([subKey, subValue]) => (
-                                  <div
-                                    key={subKey}
-                                    className="flex justify-between border-b border-gray-100 pb-1"
-                                  >
-                                    <span className="text-sm font-medium text-gray-500">
-                                      {subKey}
-                                    </span>
-                                    <span className="text-sm font-semibold text-gray-800">
-                                      {subValue ?? "0"}
-                                    </span>
-                                  </div>
-                                ))}
+  {Object.entries(viewingRecord).map(([key, value]) => {
+    // Handle array of objects (like fieldJobDetails, TransformerDetails)
+    if (Array.isArray(value)) {
+      return (
+        <div key={key} className="border-t pt-4">
+          <h4 className="text-lg font-semibold text-gray-800 mb-2">
+            {key}
+          </h4>
+          {value.length > 0 ? (
+            value.map((item, idx) => (
+              <div
+                key={idx}
+                className="space-y-2 border border-gray-200 rounded-lg p-3 mb-3"
+              >
+                {Object.entries(item).map(([subKey, subValue]) => (
+                  <div
+                    key={subKey}
+                    className="flex justify-between border-b border-gray-100 pb-1"
+                  >
+                    <span className="text-sm font-medium text-gray-500">
+                      {subKey}
+                    </span>
+                    <span className="text-sm font-semibold text-gray-800">
+                      {subValue || "N/A"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-600 italic">No {key} data</p>
+          )}
+        </div>
+      );
+    }
 
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-gray-600 italic">No {key} data</p>
-                          )}
-                        </div>
-                      );
-                    }
-
-                    // Handle normal fields (key-value pairs)
-                    return (
-                      <div
-                        key={key}
-                        className="flex justify-between border-b border-gray-100 pb-2"
-                      >
-                        <span className="text-sm font-medium text-gray-500">{key}</span>
-                        <span className="text-sm font-semibold text-gray-800">
-                          {value !== null && value !== undefined ? value.toString() : "0"}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
+    // Handle normal fields (key-value pairs)
+    return (
+      <div
+        key={key}
+        className="flex justify-between border-b border-gray-100 pb-2"
+      >
+        <span className="text-sm font-medium text-gray-500">{key}</span>
+        <span className="text-sm font-semibold text-gray-800">
+          {value ? value.toString() : "N/A"}
+        </span>
+      </div>
+    );
+  })}
+</div>
 
 
                 {/* Action Buttons */}
@@ -1631,4 +1563,4 @@ const filteredAndSortedRecords = React.useMemo(() => {
   );
 }
 
-export default Operations;
+export default Operationsom;

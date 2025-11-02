@@ -98,6 +98,8 @@ function Vendors() {
   const [formData, setFormData] = useState({
     SrNo: "",
     ItemSpec: "",
+    PurchaseDate: "",
+    BillNo: "",
     HSN: "",
     VendorName: "",
     GSTIN: "",
@@ -105,15 +107,13 @@ function Vendors() {
     ContactNo: "",
     MailingID: "",
     ContactName: "",
-    PurchaseDate: "",
-    Qty: "",
     Rate: "",
+    Qty: "",
     Unit: "",
     TaxPercent: "",
     TotalAmount: "",
     PaidOn: ""
   });
-  // Load records from localStorage (simulating JSON file)
 
   useEffect(() => {
     fetchData();
@@ -123,7 +123,7 @@ function Vendors() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.105:5050/api/vendors";
+      const url = "http://192.168.0.107:5050/api/vendors";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -151,7 +151,7 @@ function Vendors() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.105:5050/api/vendors/${editingRecord.id}`, // update by ID
+          `http://192.168.0.107:5050/api/vendors/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -181,7 +181,7 @@ function Vendors() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.105:5050/api/vendors",
+          "http://192.168.0.107:5050/api/vendors",
           formData,
           {
             headers: {
@@ -207,22 +207,23 @@ function Vendors() {
 
   const resetForm = () => {
     setFormData({
-      SrNo: "",
-      ItemSpec: "",
-      HSN: "",
-      VendorName: "",
-      GSTIN: "",
-      Address: "",
-      ContactNo: "",
-      MailingID: "",
-      ContactName: "",
-      PurchaseDate: "",
-      Qty: "",
-      Rate: "",
-      Unit: "",
-      TaxPercent: "",
-      TotalAmount: "",
-      PaidOn: ""
+          SrNo: "",
+    ItemSpec: "",
+    PurchaseDate: "",
+    BillNo: "",
+    HSN: "",
+    VendorName: "",
+    GSTIN: "",
+    Address: "",
+    ContactNo: "",
+    MailingID: "",
+    ContactName: "",
+    Rate: "",
+    Qty: "",
+    Unit: "",
+    TaxPercent: "",
+    TotalAmount: "",
+    PaidOn: ""
     });
     setIsFormOpen(false);
     setEditingRecord(null);
@@ -230,22 +231,23 @@ function Vendors() {
 
   const handleEdit = (record) => {
     setFormData({
-      SrNo: record.SrNo,
-      ItemSpec: record.ItemSpec,
-      HSN: record.HSN,
-      VendorName: record.VendorName,
-      GSTIN: record.GSTIN,
-      Address: record.Address,
-      ContactNo: record.ContactNo,
-      MailingID: record.MailingID,
-      ContactName: record.ContactName,
-      PurchaseDate: record.PurchaseDate,
-      Qty: record.Qty,
-      Rate: record.Rate,
-      Unit: record.Unit,
-      TaxPercent: record.TaxPercent,
-      TotalAmount: record.TotalAmount,
-      PaidOn: record.PaidOn
+ SrNo: record.SrNo,
+  ItemSpec: record.ItemSpec,
+  PurchaseDate: record.PurchaseDate,
+  BillNo: record.BillNo,
+  HSN: record.HSN,
+  VendorName: record.VendorName,
+  GSTIN: record.GSTIN,
+  Address: record.Address,
+  ContactNo: record.ContactNo,
+  MailingID: record.MailingID,
+  ContactName: record.ContactName,
+  Rate: record.Rate,
+  Qty: record.Qty,
+  Unit: record.Unit,
+  TaxPercent: record.TaxPercent,
+  TotalAmount: record.TotalAmount,
+  PaidOn: record.PaidOn
 
     });
     setEditingRecord(record);
@@ -261,7 +263,7 @@ function Vendors() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.105:5050/api/vendors/${id}`,
+        `http://192.168.0.107:5050/api/vendors/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -311,7 +313,8 @@ function Vendors() {
         record.Unit.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.TaxPercent.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.TotalAmount.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.PaidOn.toLowerCase().includes(searchTerm.toLowerCase())
+        record.PaidOn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.BillNo.toLowerCase().includes(searchTerm.toLowerCase()) 
 
     );
 
@@ -380,7 +383,7 @@ function Vendors() {
 
       // Insert each record individually
       for (const record of importedData) {
-        const url = "http://192.168.0.105:5050/api/vendors";
+        const url = "http://192.168.0.107:5050/api/vendors";
         if (!url) {
           console.error("Invalid location/category combination for record:", record);
           continue;

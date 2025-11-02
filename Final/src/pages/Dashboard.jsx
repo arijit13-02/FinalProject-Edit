@@ -388,7 +388,7 @@ function GraphPlaceholder1({ title, icon: Icon }) {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await axios.get("http://192.168.0.105:5050/api/chart1", {
+        const response = await axios.get("http://192.168.0.107:5050/api/chart1", {
           responseType: "blob",
         });
 
@@ -451,7 +451,7 @@ function GraphPlaceholder2({ title, icon: Icon }) {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await axios.get("http://192.168.0.105:5050/api/chart2", {
+        const response = await axios.get("http://192.168.0.107:5050/api/chart2", {
           responseType: "blob",
         });
 
@@ -501,6 +501,19 @@ function GraphPlaceholder2({ title, icon: Icon }) {
 
 function Dashboard() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOP, setIsOP] = useState(false);
+
+const nav1 = () => {
+      navigate("/operationsom");
+
+  };
+
+  useState(() => {
+    if (localStorage.getItem("userRole") == "operationsmanager")
+  setIsOP(true);
+});
+  
+
 
   // checks authentication
   const [role, setRole] = useState(() => {
@@ -660,7 +673,7 @@ function Dashboard() {
 
             <div className="bg-gray-800/80 rounded-2xl shadow-xl h-[24rem]">
               <AutoScrollingPanelcert
-                apiUrl="http://192.168.0.105:5050/api/cert"
+                apiUrl="http://192.168.0.107:5050/api/cert"
                 title="Critical Cert. Expiry (30 Days)"
                 className="h-full"
               />
@@ -671,11 +684,34 @@ function Dashboard() {
           <div className="lg:col-span-5 space-y-8">
             <div style={{ height: "calc(43rem)" }}>
               <AutoScrollingPanel
-                apiUrl="http://192.168.0.105:5050/api/upcomingjobs"
+                apiUrl="http://192.168.0.107:5050/api/upcomingjobs"
                 title="Upcoming Job Schedule"
                 className="h-full"
               />
             </div>
+          
+          
+            {isOP && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
+                  <h2 className="text-xl font-semibold text-gray-800">Move to Operations?</h2>
+                  <div className="flex space-x-3 justify-end">
+                    <button
+                      onClick={() => setIsOP(false)}
+                      className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={nav1} 
+                      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition"
+                    >
+                      Change
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Panel (Graphs) */}
@@ -695,7 +731,7 @@ function Dashboard() {
         <div className="mt-8">
           <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl h-96">
             <AutoScrollingPanelinventory
-              apiUrl="http://192.168.0.105:5050/api/inventory"
+              apiUrl="http://192.168.0.107:5050/api/inventory"
               title="Low Inventory Stock Alert"
               className="h-full"
             />
