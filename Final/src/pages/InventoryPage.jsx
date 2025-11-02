@@ -123,7 +123,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
   const fetchPendingChanges = async () => {
     try {
       const res = await axios.get(
-        "http://192.168.0.105:5050/api/inventory/pending"
+        "http://192.168.0.107:5050/api/inventory/pending"
       );
       setHasPendingChanges(res.data.length > 0);
     } catch (err) {
@@ -133,7 +133,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
 
   const loadRecords = async () => {
     try {
-      const res = await axios.get("http://192.168.0.105:5050/api/inventory", {
+      const res = await axios.get("http://192.168.0.107:5050/api/inventory", {
         params: { role }
       });
       setRecords(res.data);
@@ -172,7 +172,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
 
         try {
           const response = await axios.post(
-            `http://192.168.0.105:5050/api/inventory?role=${role}`, // role: 'admin' or 'staff'
+            `http://192.168.0.107:5050/api/inventory?role=${role}`, // role: 'admin' or 'staff'
             newRec,
             {
               headers: { "x-user-role": localStorage.getItem("userRole") },
@@ -254,7 +254,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.105:5050/api/inventory/${editingRecord.id}?role=${role}`, // update by ID
+          `http://192.168.0.107:5050/api/inventory/${editingRecord.id}?role=${role}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -280,7 +280,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
       // Adding new record
       try {
         const response = await axios.post(
-          `http://192.168.0.105:5050/api/inventory?role=${role}`, // role: 'admin' or 'staff'
+          `http://192.168.0.107:5050/api/inventory?role=${role}`, // role: 'admin' or 'staff'
           formData
         );
 
@@ -337,7 +337,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.105:5050/api/inventory/${id}?role=${role}`
+        `http://192.168.0.107:5050/api/inventory/${id}?role=${role}`
       );
       loadRecords();
     } catch (err) {

@@ -133,7 +133,7 @@ function RealTimeJobs() {
   const fetchPendingChanges = async () => {
     try {
       const res = await axios.get(
-        "http://192.168.0.105:5050/api/realtimejobs/pending"
+        "http://192.168.0.107:5050/api/realtimejobs/pending"
       );
       setHasPendingChanges(res.data.length > 0);
     } catch (err) {
@@ -143,7 +143,7 @@ function RealTimeJobs() {
 
   const loadRecords = async () => {
     try {
-      const res = await axios.get("http://192.168.0.105:5050/api/realtimejobs", {
+      const res = await axios.get("http://192.168.0.107:5050/api/realtimejobs", {
         params: { role }
       });
       setRecords(res.data);
@@ -200,7 +200,7 @@ const importFromXls = async (event) => {
 
       try {
         const response = await axios.post(
-          `http://192.168.0.105:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
+          `http://192.168.0.107:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
           newRec,
           {
             headers: { "x-user-role": localStorage.getItem("userRole") },
@@ -357,7 +357,7 @@ const importFromXls = async (event) => {
     resetForm();*/
       try {
         const response = await axios.put(
-          `http://192.168.0.105:5050/api/realtimejobs/${editingRecord.id}?role=${role}`, // update by ID
+          `http://192.168.0.107:5050/api/realtimejobs/${editingRecord.id}?role=${role}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -383,7 +383,7 @@ const importFromXls = async (event) => {
       // Adding new record
       try {
         const response = await axios.post(
-          `http://192.168.0.105:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
+          `http://192.168.0.107:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
           formData
         );
 
@@ -456,7 +456,7 @@ const importFromXls = async (event) => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.105:5050/api/realtimejobs/${id}?role=${role}`
+        `http://192.168.0.107:5050/api/realtimejobs/${id}?role=${role}`
       );
       loadRecords();
     } catch (err) {

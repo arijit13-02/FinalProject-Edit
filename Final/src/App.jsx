@@ -15,7 +15,7 @@ import Login from "./pages/Login";
 import RealTimeJobs from "./pages/RealTimeJobs";
 import PendingChangesRealTimeJobs from "./pages/PendingChangesRealTimeJobs";
 import PendingChangesInventory from "./pages/PendingChangesInventory";
-import Data from "./pages/data";
+import Operationsom from "./pages/Operationso";
 
 
 function App() {
@@ -35,7 +35,7 @@ function App() {
         <Route path="/pendingchangesrealtimejobs" element={<PendingChangesRealTimeJobs />} />
         <Route path="/pendingchangesinventory" element={<PendingChangesInventory />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/data" element={<Data />} />
+        <Route path="/operationsom" element={<Operationsom />} />
         
 
         {/* Fallback route */}
