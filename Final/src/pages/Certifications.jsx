@@ -110,7 +110,7 @@ function Certifications() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.107:5050/api/cert";
+      const url = "http://192.168.0.104:5050/api/cert";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -138,7 +138,7 @@ function Certifications() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.107:5050/api/cert/${editingRecord.id}`, // update by ID
+          `http://192.168.0.104:5050/api/cert/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -168,7 +168,7 @@ function Certifications() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.107:5050/api/cert",
+          "http://192.168.0.104:5050/api/cert",
           formData,
           {
             headers: {
@@ -245,52 +245,65 @@ function Certifications() {
 
   // Import from XLSX
   const importFromXls = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const file = event.target.files[0];
+  if (!file) return;
 
-    const reader = new FileReader();
+  const reader = new FileReader();
 
-    reader.onload = async (e) => {
-      const dataArray = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(dataArray, { type: "array" });
+  reader.onload = async (e) => {
+    const dataArray = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(dataArray, { type: "array" });
 
-      const firstSheet = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheet];
+    const firstSheet = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheet];
 
-      // Convert sheet to JSON
-      const importedData = XLSX.utils.sheet_to_json(worksheet);
+    // Convert sheet → JSON while keeping text formatting
+    const importedData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
 
-      // Insert each record individually
-      for (const record of importedData) {
-        const url = "http://192.168.0.107:5050/api/cert";
-        if (!url) {
-          console.error("Invalid location/category combination for record:", record);
-          continue;
+    // Clean floating point issues
+    const cleanedData = importedData.map((row) => {
+      const newRow = {};
+      for (let key in row) {
+        let value = row[key];
+
+        // If numeric → round to 2 decimals
+        if (!isNaN(value) && value !== null && value !== "") {
+          value = parseFloat(Number(value).toFixed(2));
         }
 
-        try {
-          const response = await axios.post(url, record, {
-            headers: { "x-user-role": localStorage.getItem("userRole") },
-          });
-
-          if (response.data.success) {
-            setRecords((prevData) => [...prevData, response.data.item || record]);
-          } else {
-            console.error("Failed to insert record:", response.data.message, record);
-          }
-        } catch (err) {
-          console.error("Error inserting record:", err, record);
-        }
+        newRow[key] = value;
       }
-    };
+      return newRow;
+    });
 
-    reader.readAsArrayBuffer(file);
+    // Insert each record
+    for (const record of cleanedData) {
+      const url = "http://192.168.0.104:5050/api/cert";
+
+      try {
+        const response = await axios.post(url, record, {
+          headers: { "x-user-role": localStorage.getItem("userRole") },
+        });
+
+        if (response.data.success) {
+          setRecords((prevData) => [...prevData, response.data.item || record]);
+        } else {
+          console.error("Failed to insert record:", response.data.message, record);
+        }
+      } catch (err) {
+        console.error("Error inserting record:", err, record);
+      }
+    }
   };
+
+  reader.readAsArrayBuffer(file);
+};
+
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.107:5050/api/cert/${id}`,
+        `http://192.168.0.104:5050/api/cert/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -518,9 +531,9 @@ const filteredAndSortedRecords = React.useMemo(() => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[90vh] overflow-y-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+<thead className="bg-gray-50 sticky top-0 z-10 shadow">
                   <tr>
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
@@ -630,7 +643,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Certificate Details
                       </label>
-                      <input type="text" name="CertificateDetails" value={formData.CertificateDetails} onChange={handleInputChange} required
+                      <input type="text" name="CertificateDetails" value={formData.CertificateDetails} onChange={handleInputChange} 
                         placeholder="Enter Certificate Details"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
@@ -639,7 +652,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Certificate Number
                       </label>
-                      <input type="text" name="CertificateNo" value={formData.CertificateNo} onChange={handleInputChange} required
+                      <input type="text" name="CertificateNo" value={formData.CertificateNo} onChange={handleInputChange} 
                         placeholder="Enter Certificate Number"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
@@ -649,7 +662,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Cert Due Date
                       </label>
-                      <input type="date" name="CertificateDuedate" value={formData.CertificateDuedate} onChange={handleInputChange} required
+                      <input type="date" name="CertificateDuedate" value={formData.CertificateDuedate} onChange={handleInputChange} 
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
 

@@ -125,7 +125,7 @@ function Staff() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.107:5050/api/staff";
+      const url = "http://192.168.0.104:5050/api/staff";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -182,7 +182,7 @@ function Staff() {
       if (editingRecord) {
         // Update existing record
         response = await axios.put(
-          `http://192.168.0.107:5050/api/staff/${editingRecord.id}`,
+          `http://192.168.0.104:5050/api/staff/${editingRecord.id}`,
           form,
           { headers }
         );
@@ -200,7 +200,7 @@ function Staff() {
       } else {
         // Add new record
         response = await axios.post(
-          "http://192.168.0.107:5050/api/staff",
+          "http://192.168.0.104:5050/api/staff",
           form,
           { headers }
         );
@@ -277,7 +277,7 @@ function Staff() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.107:5050/api/staff/${id}`,
+        `http://192.168.0.104:5050/api/staff/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -419,7 +419,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
 
       // --- Download attachment if exists ---
       if (record.attachment) {
-        const fileUrl = `http://192.168.0.107:5050/Staffuploads/${record.attachment}`;
+        const fileUrl = `http://192.168.0.104:5050/Staffuploads/${record.attachment}`;
         const fileExt = record.attachment.split(".").pop(); // jpg, png, pdf etc
         const fileBlob = await fetch(fileUrl).then(res => res.blob());
         saveAs(fileBlob, `${record.StaffID || "record"}.${fileExt}`);
@@ -439,47 +439,92 @@ const filteredAndSortedRecords = React.useMemo(() => {
   );
   // Import from XLSX
   const importFromXls = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const file = event.target.files?.[0];
+  if (!file) return;
 
-    const reader = new FileReader();
+  const reader = new FileReader();
 
-    reader.onload = async (e) => {
+  reader.onload = async (e) => {
+    try {
       const dataArray = new Uint8Array(e.target.result);
       const workbook = XLSX.read(dataArray, { type: "array" });
 
       const firstSheet = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheet];
 
-      // Convert sheet to JSON
-      const importedData = XLSX.utils.sheet_to_json(worksheet);
+      let importedData = XLSX.utils.sheet_to_json(worksheet) || [];
 
-      // Insert each record individually
+      // ✅ Normalize keys
+      importedData = importedData.map((row) => {
+        const cleanRow = {};
+        Object.keys(row).forEach((key) => {
+          cleanRow[key.trim()] = row[key];
+        });
+        return cleanRow;
+      });
+
+      // ✅ Decimal Converter
+      const toDecimal = (val) => {
+        if (val === null || val === undefined) return val;
+        if (typeof val === "number") return val;
+        if (typeof val === "string") {
+          const cleaned = val.replace(/,/g, "");
+          return isNaN(cleaned) ? val : Number(cleaned);
+        }
+        return val;
+      };
+
+      // ✅ Apply decimal conversion to all numeric-like cells
+      importedData = importedData.map((record) => {
+        const updated = { ...record };
+        Object.keys(updated).forEach((key) => {
+          updated[key] = toDecimal(updated[key]);
+        });
+        return updated;
+      });
+
+      const url = "http://192.168.0.104:5050/api/staff";
+      const insertedItems = [];
+      const promises = [];
+
       for (const record of importedData) {
-        const url = "http://192.168.0.107:5050/api/staff";
-        if (!url) {
-          console.error("Invalid location/category combination for record:", record);
-          continue;
-        }
+        // ✅ Skip empty row
+        if (Object.values(record).every((v) => v === "" || v == null)) continue;
 
-        try {
-          const response = await axios.post(url, record, {
-            headers: { "x-user-role": localStorage.getItem("userRole") },
-          });
-
-          if (response.data.success) {
-            setRecords((prevData) => [...prevData, response.data.item || record]);
-          } else {
-            console.error("Failed to insert record:", response.data.message, record);
-          }
-        } catch (err) {
-          console.error("Error inserting record:", err, record);
-        }
+        promises.push(
+          axios
+            .post(url, record, {
+              headers: { "x-user-role": localStorage.getItem("userRole") },
+            })
+            .then((res) => {
+              if (res.data.success) {
+                insertedItems.push(res.data.item || record);
+              } else {
+                console.error("Insert failed:", res.data.message, record);
+              }
+            })
+            .catch((err) => {
+              console.error("API insert error:", err, record);
+            })
+        );
       }
-    };
 
-    reader.readAsArrayBuffer(file);
+      await Promise.all(promises);
+
+      if (insertedItems.length > 0) {
+        setRecords((prev) => [...prev, ...insertedItems]);
+      }
+
+      console.log(`✅ Import completed: ${insertedItems.length} records inserted`);
+    } catch (error) {
+      console.error("❌ Error reading XLS:", error);
+    }
   };
+
+  reader.readAsArrayBuffer(file);
+};
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600">
@@ -632,9 +677,9 @@ const filteredAndSortedRecords = React.useMemo(() => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[90vh] overflow-y-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+<thead className="bg-gray-50 sticky top-0 z-10 shadow">
                   <tr>
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
@@ -1011,7 +1056,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
                         Age
                       </label>
                       <input
-                        type="number"
+                        type="text"
                         name="Age"
                         value={formData.Age}
                         onChange={handleInputChange}
@@ -1200,7 +1245,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
                   <div className="w-40 h-40 flex-shrink-0 rounded overflow-hidden border border-gray-200">
                     {viewingRecord.attachment && !viewingRecord.attachment.endsWith(".pdf") ? (
                       <img
-                        src={`http://192.168.0.107:5050/Staffuploads/${viewingRecord.attachment}`}
+                        src={`http://192.168.0.104:5050/Staffuploads/${viewingRecord.attachment}`}
                         alt="Staff"
                         className="w-full h-full object-cover"
                       />

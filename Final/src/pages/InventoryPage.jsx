@@ -123,7 +123,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
   const fetchPendingChanges = async () => {
     try {
       const res = await axios.get(
-        "http://192.168.0.107:5050/api/inventory/pending"
+        "http://192.168.0.104:5050/api/inventory/pending"
       );
       setHasPendingChanges(res.data.length > 0);
     } catch (err) {
@@ -133,7 +133,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
 
   const loadRecords = async () => {
     try {
-      const res = await axios.get("http://192.168.0.107:5050/api/inventory", {
+      const res = await axios.get("http://192.168.0.104:5050/api/inventory", {
         params: { role }
       });
       setRecords(res.data);
@@ -143,58 +143,73 @@ const [lowStockItems, setLowStockItems] = useState([]);
   };
 
   const importFromXls = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const file = event.target.files[0];
+  if (!file) return;
 
-    const reader = new FileReader();
+  const reader = new FileReader();
 
-    reader.onload = async (e) => {
-      const dataArray = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(dataArray, { type: "array" });
+  reader.onload = async (e) => {
+    const dataArray = new Uint8Array(e.target.result);
 
-      const firstSheet = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheet];
+    // Read workbook with preserved formatting
+    const workbook = XLSX.read(dataArray, { type: "array" });
 
-      // Convert sheet to JSON
-      const importedData = XLSX.utils.sheet_to_json(worksheet);
+    const firstSheet = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheet];
 
-      // Process and send each record
-      for (const row of importedData) {
-        // Only pick the relevant stock fields
-        const newRec = {
-          ItemDetails: row.ItemDetails || "",
-          StockInDate: row.StockInDate || "",
-          StockOutDate: row.StockOutDate || "",
-          StockAvailable: row.StockAvailable || "",
-          HSNCode: row.HSNCode || "",
-          Limit: row.Limit || "",
-        };
+    // Convert sheet → JSON (raw: false keeps decimals as text first)
+    const importedData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
 
-        try {
-          const response = await axios.post(
-            `http://192.168.0.107:5050/api/inventory?role=${role}`, // role: 'admin' or 'staff'
-            newRec,
-            {
-              headers: { "x-user-role": localStorage.getItem("userRole") },
-            }
-          );
+    // Clean floating-point issues
+    const cleanedData = importedData.map((row) => {
+      const newRow = {};
+      for (let key in row) {
+        let value = row[key];
 
-          if (response.data.success) {
-            setRecords((prevData) => [
-              ...prevData,
-              response.data.item || newRec,
-            ]);
-          } else {
-            console.error("Failed to insert record:", response.data.message, newRec);
-          }
-        } catch (err) {
-          console.error("Error inserting record:", err, newRec);
+        // If numeric, round to 2 decimals
+        if (!isNaN(value) && value !== null && value !== "") {
+          value = parseFloat(Number(value).toFixed(2));
         }
-      }
-    };
 
-    reader.readAsArrayBuffer(file);
+        newRow[key] = value;
+      }
+      return newRow;
+    });
+
+    // Insert each record
+    for (const record of cleanedData) {
+      const newRec = {
+        ItemDetails: record.ItemDetails || "",
+        StockInDate: record.StockInDate || "",
+        StockOutDate: record.StockOutDate || "",
+        StockAvailable: record.StockAvailable || "",
+        HSNCode: record.HSNCode || "",
+        Limit: record.Limit || "",
+      };
+
+      try {
+        const response = await axios.post(
+          `http://192.168.0.104:5050/api/inventory?role=${role}`,
+          newRec,
+          {
+            headers: { "x-user-role": localStorage.getItem("userRole") },
+          }
+        );
+
+        if (response.data.success) {
+          setRecords((prevData) => [...prevData, response.data.item || newRec]);
+        } else {
+          console.error("Failed to insert record:", response.data.message, newRec);
+        }
+      } catch (err) {
+        console.error("Error inserting record:", err, newRec);
+      }
+    }
   };
+
+  reader.readAsArrayBuffer(file);
+};
+
 
 
 
@@ -254,7 +269,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.107:5050/api/inventory/${editingRecord.id}?role=${role}`, // update by ID
+          `http://192.168.0.104:5050/api/inventory/${editingRecord.id}?role=${role}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -280,7 +295,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
       // Adding new record
       try {
         const response = await axios.post(
-          `http://192.168.0.107:5050/api/inventory?role=${role}`, // role: 'admin' or 'staff'
+          `http://192.168.0.104:5050/api/inventory?role=${role}`, // role: 'admin' or 'staff'
           formData
         );
 
@@ -337,7 +352,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.107:5050/api/inventory/${id}?role=${role}`
+        `http://192.168.0.104:5050/api/inventory/${id}?role=${role}`
       );
       loadRecords();
     } catch (err) {
@@ -636,9 +651,9 @@ const getLimitColor = (a,b) => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[90vh] overflow-y-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+<thead className="bg-gray-50 sticky top-0 z-10 shadow">
                   <tr>
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
@@ -804,7 +819,7 @@ const getLimitColor = (a,b) => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Item Details</label>
-                      <input type="text" name="ItemDetails" value={formData.ItemDetails} onChange={handleInputChange} required
+                      <input type="text" name="ItemDetails" value={formData.ItemDetails} onChange={handleInputChange} 
                         placeholder="Enter Item Details"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
@@ -812,26 +827,26 @@ const getLimitColor = (a,b) => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Stock In Date</label>
-                      <input type="text" name="StockInDate" value={formData.StockInDate} onChange={handleInputChange} required
+                      <input type="text" name="StockInDate" value={formData.StockInDate} onChange={handleInputChange} 
                         placeholder="Enter Stock In Date"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Stock Out Date</label>
-                      <input type="text" name="StockOutDate" value={formData.StockOutDate} onChange={handleInputChange} required
+                      <input type="text" name="StockOutDate" value={formData.StockOutDate} onChange={handleInputChange} 
                         placeholder="Enter Stock Out Date"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Stock Available</label>
-                      <input type="text" name="StockAvailable" value={formData.StockAvailable} onChange={handleInputChange} required
+                      <input type="text" name="StockAvailable" value={formData.StockAvailable} onChange={handleInputChange} 
                         placeholder="Enter Stock Available"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">HSN Code</label>
-                      <input type="text" name="HSNCode" value={formData.HSNCode} onChange={handleInputChange} required
+                      <input type="text" name="HSNCode" value={formData.HSNCode} onChange={handleInputChange} 
                         placeholder="Enter HSN Code"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
@@ -839,7 +854,7 @@ const getLimitColor = (a,b) => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Limit</label>
-                      <input type="text" name="Limit" value={formData.Limit} onChange={handleInputChange} required
+                      <input type="text" name="Limit" value={formData.Limit} onChange={handleInputChange} 
                         placeholder="Enter Limit"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>

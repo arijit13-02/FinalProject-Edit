@@ -1,0 +1,23 @@
+1. Install node.
+From the site: https://nodejs.org/en/download
+Download the "Windows Installer (.msi)" and install it.
+To check if it has been installed properly, open command prompt and run "node -v". It should display from version number. Then "npm -v", it should display some version number as well.
+
+
+2. Double click on "Start 0.bat" at first. The first time might take some time.
+
+Once done, the above steps dont have to be repeated. They only need to be followed for the initial setup.
+Now, only follow the below step for running it.
+
+Double click on "Start.bat" file to run the system. 
+
+
+Note:
+---------------
+If its not working properly as expected, follow:
+Disable firewall, defender and temporarily remove antivirus if any. 
+Why? The files are stored on your pc. It acts as a server and all the devices on the network are supposed to access and change the files as well. This is usually not allowed by firewall, windows defender or antivirus installed. Hence its better to temporarily disable them when this system is running.
+---------------
+At first enter some data and export the file.
+Now adjust the data in that exported file under the columns as you want, and then finally import it.
+

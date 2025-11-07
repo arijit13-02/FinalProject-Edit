@@ -51,15 +51,14 @@ Done Operations import fix
 Done In operations when the data in the sheet which is to be Import has a data as Zero, and after import the data reflected 
 is as “N/A” . 
 Done Once the data is imported The “Search record” doesn’t search for LOI No but if we add a new record and then do “search Record” for that particular LOI number it do the search. 
-
-In vendor, sequence of data as it is new
+Done In vendor, sequence of data as it is new
 
 
 For All Pages:
-1. logo Change
-2. Remove required 
-3. type change from number to text
-4. make the top row fixed
+Done 1. logo Change
+Done 2. Remove required 
+Done 3. type change from number to text
+Done 4. make the top row fixed
 5. Make all theme same
-6. Import fix
+Done 6. Import fix
 7. Right click prevent
