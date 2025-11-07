@@ -303,20 +303,20 @@ function Operations() {
 
   const getApiUrl = () => {
     if (location === "inhouse" && category === "WBSEDCL")
-      return "http://192.168.0.107:5050/api/operations/inhousewb";
+      return "http://192.168.0.104:5050/api/operations/inhousewb";
 
     if (location === "inhouse" && category === "private")
-      return "http://192.168.0.107:5050/api/operations/inhousepvt";
+      return "http://192.168.0.104:5050/api/operations/inhousepvt";
 
     if (location === "inhouse" && category === "public")
-      return "http://192.168.0.107:5050/api/operations/inhousepub";
+      return "http://192.168.0.104:5050/api/operations/inhousepub";
 
     if (location === "site" && category === "WBSEDCL")
-      return "http://192.168.0.107:5050/api/operations/sitewb";
+      return "http://192.168.0.104:5050/api/operations/sitewb";
     if (location === "site" && category === "private")
-      return "http://192.168.0.107:5050/api/operations/sitepvt";
+      return "http://192.168.0.104:5050/api/operations/sitepvt";
     if (location === "site" && category === "public")
-      return "http://192.168.0.107:5050/api/operations/sitepub";
+      return "http://192.168.0.104:5050/api/operations/sitepub";
 
     return null;
   };
@@ -391,112 +391,110 @@ function Operations() {
 
 
   const importFromXls = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const file = event.target.files[0];
+  if (!file) return;
 
-    const reader = new FileReader();
+  const reader = new FileReader();
 
-    reader.onload = async (e) => {
-      const Data = new Uint8Array(e.target.result);
+  reader.onload = async (e) => {
+    const dataArray = new Uint8Array(e.target.result);
 
-      // Read workbook with formatting preserved
-      const workbook = XLSX.read(Data, { type: "array" });
+    // Read workbook with formatting preserved
+    const workbook = XLSX.read(dataArray, { type: "array" });
+    const firstSheet = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheet];
 
-      const firstSheet = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheet];
+    // Convert sheet to JSON, fix floating numbers
+    let importedData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
 
-      // Convert sheet to JSON, fix floating numbers
-      let importedData = XLSX.utils.sheet_to_json(worksheet, {
-        raw: false, // preserves formatting and decimal values
-      });
+    // Fix floating numeric precision
+    importedData = importedData.map((row) => {
+      const newRow = {};
+      for (const key in row) {
+        const val = row[key];
 
-      // Clean floating precision for all numeric fields
-      importedData = importedData.map((row) => {
-        const newRow = {};
-        for (const key in row) {
-          const val = row[key];
-
-          if (val !== null && val !== "" && !isNaN(val)) {
-            newRow[key] = parseFloat(Number(val).toFixed(2)); // keep up to 4 decimals
-          } else {
-            newRow[key] = val;
-          }
-        }
-        return newRow;
-      });
-
-      // Normalize numeric-keyed rows (0,1,...)
-      importedData = importedData.flatMap((row) => {
-        const keys = Object.keys(row);
-        if (keys.some((k) => !isNaN(k))) {
-          return keys
-            .filter((k) => !isNaN(k))
-            .map((k) => ({ ...row[k] }));
-        }
-        return row;
-      });
-
-      // Reconstruct TransformerDetails conditionally
-      const reconstructedData = importedData.map((record) => {
-        if (
-          record.Location === "Site" &&
-          (record.Category === "Public" || record.Category === "Private")
-        ) {
-          const transformers = [];
-          let idx = 1;
-
-          while (record[`KVA_${idx}`] !== undefined) {
-            transformers.push({
-              KVA: record[`KVA_${idx}`],
-              SrNo: record[`SrNo_${idx}`],
-              Rating: record[`Rating_${idx}`],
-              Note: record[`Note_${idx}`],
-            });
-
-            delete record[`KVA_${idx}`];
-            delete record[`SrNo_${idx}`];
-            delete record[`Rating_${idx}`];
-            delete record[`Note_${idx}`];
-
-            idx++;
-          }
-
-          if (transformers.length > 0) {
-            record.TransformerDetails = transformers;
-          }
-        }
-
-        return record;
-      });
-
-      console.log("Normalized, fixed decimals & reconstructed:", reconstructedData);
-
-      // Insert each record to backend
-      for (const record of reconstructedData) {
-        const url = getApiUrl(record.Location, record.Category);
-        if (!url) {
-          console.error("Invalid location/category combination for record:", record);
-          continue;
-        }
-
-        try {
-          const response = await axios.post(url, record, {
-            headers: { "x-user-role": localStorage.getItem("userRole") },
-          });
-
-          if (response.data.success) {
-            setData((prevData) => [...prevData, response.data.item || record]);
-          } else {
-            console.error("Failed to insert record:", response.data.message, record);
-          }
-        } catch (err) {
-          console.error("Error inserting record:", err, record);
+        // check if numeric-ish
+        if (val !== null && val !== "" && !isNaN(val)) {
+          newRow[key] = parseFloat(Number(val).toFixed(2));
+        } else {
+          newRow[key] = val;
         }
       }
-    };
+      return newRow;
+    });
 
-    reader.readAsArrayBuffer(file);
+    // Normalize rows where keys are 0,1,2...
+    importedData = importedData.flatMap((row) => {
+      const keys = Object.keys(row);
+      const numericKeys = keys.filter((k) => !isNaN(k));
+
+      if (numericKeys.length > 0) {
+        return numericKeys.map((k) => ({ ...row[k] }));
+      }
+      return row;
+    });
+
+    // Reconstruct TransformerDetails
+    const cleanedData = importedData.map((record) => {
+      if (
+        record.Location === "Site" &&
+        (record.Category === "Public" || record.Category === "Private")
+      ) {
+        const transformers = [];
+        let idx = 1;
+
+        while (record[`KVA_${idx}`] !== undefined) {
+          transformers.push({
+            KVA: record[`KVA_${idx}`],
+            SrNo: record[`SrNo_${idx}`],
+            Rating: record[`Rating_${idx}`],
+            Note: record[`Note_${idx}`],
+          });
+
+          delete record[`KVA_${idx}`];
+          delete record[`SrNo_${idx}`];
+          delete record[`Rating_${idx}`];
+          delete record[`Note_${idx}`];
+
+          idx++;
+        }
+
+        if (transformers.length > 0) {
+          record.TransformerDetails = transformers;
+        }
+      }
+      return record;
+    });
+
+    console.log("✅ Final processed data:", cleanedData);
+
+    // Send each record to backend
+    for (const record of cleanedData) {
+      const url = getApiUrl(record.Location, record.Category);
+      if (!url) {
+        console.error("❌ Invalid location/category:", record);
+        continue;
+      }
+
+      try {
+        const response = await axios.post(url, record, {
+          headers: { "x-user-role": localStorage.getItem("userRole") },
+        });
+
+        if (response.data.success) {
+          setData((prev) => [...prev, response.data.item || record]);
+        } else {
+          console.error("❌ Failed insert:", response.data.message, record);
+        }
+      } catch (error) {
+        console.error("❌ Axios error:", error, record);
+      }
+    }
   };
+
+  reader.readAsArrayBuffer(file);
+};
+
 
 
 
@@ -1321,9 +1319,9 @@ const filteredAndSortedRecords = React.useMemo(() => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[90vh] overflow-y-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+<thead className="bg-gray-50 sticky top-0 z-10 shadow">
                   <tr>
                     {headers.map((header) => (
                       <th

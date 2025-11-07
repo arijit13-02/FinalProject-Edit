@@ -111,7 +111,7 @@ function UpcomingJobs() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.107:5050/api/upcomingjobs";
+      const url = "http://192.168.0.104:5050/api/upcomingjobs";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -139,7 +139,7 @@ function UpcomingJobs() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.107:5050/api/upcomingjobs/${editingRecord.id}`, // update by ID
+          `http://192.168.0.104:5050/api/upcomingjobs/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -169,7 +169,7 @@ function UpcomingJobs() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.107:5050/api/upcomingjobs",
+          "http://192.168.0.104:5050/api/upcomingjobs",
           formData,
           {
             headers: {
@@ -218,47 +218,81 @@ function UpcomingJobs() {
 
   // Import from XLSX
   const importFromXls = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const file = event.target.files?.[0];
+  if (!file) return;
 
-    const reader = new FileReader();
+  const reader = new FileReader();
 
-    reader.onload = async (e) => {
+  reader.onload = async (e) => {
+    try {
       const dataArray = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(dataArray, { type: "array" });
 
+      // ✅ raw:false preserves formatting like decimals as text instead of IEEE float
+      const workbook = XLSX.read(dataArray, { type: "array" });
       const firstSheet = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheet];
 
-      // Convert sheet to JSON
-      const importedData = XLSX.utils.sheet_to_json(worksheet);
+      let importedData = XLSX.utils.sheet_to_json(worksheet, { raw: false }) || [];
 
-      // Insert each record individually
-      for (const record of importedData) {
-        const url = "http://192.168.0.107:5050/api/upcomingjobs";
-        if (!url) {
-          console.error("Invalid location/category combination for record:", record);
-          continue;
-        }
+      // ✅ Normalize keys + fix decimals
+      importedData = importedData.map((row) => {
+        const cleaned = {};
+        for (let key in row) {
+          let val = row[key];
+          const normalizedKey = key.trim();
 
-        try {
-          const response = await axios.post(url, record, {
-            headers: { "x-user-role": localStorage.getItem("userRole") },
-          });
-
-          if (response.data.success) {
-            setRecords((prevData) => [...prevData, response.data.item || record]);
-          } else {
-            console.error("Failed to insert record:", response.data.message, record);
+          // ✅ Clean floating precision only for numeric values
+          if (val !== "" && val !== null && !isNaN(val)) {
+            val = parseFloat(Number(val).toFixed(2)); // <-- change 2 to 3/4 if needed
           }
-        } catch (err) {
-          console.error("Error inserting record:", err, record);
-        }
-      }
-    };
 
-    reader.readAsArrayBuffer(file);
+          cleaned[normalizedKey] = val;
+        }
+        return cleaned;
+      });
+
+      const url = "http://192.168.0.104:5050/api/upcomingjobs";
+      const inserted = [];
+      const requests = [];
+
+      for (const record of importedData) {
+        // ✅ Skip fully empty rows
+        if (Object.values(record).every((v) => v === "" || v == null)) continue;
+
+        requests.push(
+          axios
+            .post(url, record, {
+              headers: { "x-user-role": localStorage.getItem("userRole") },
+            })
+            .then((res) => {
+              if (res.data.success) {
+                inserted.push(res.data.item || record);
+              } else {
+                console.error("Failed:", res.data.message, record);
+              }
+            })
+            .catch((err) => {
+              console.error("Error inserting:", err, record);
+            })
+        );
+      }
+
+      // ✅ Wait for all inserts to finish
+      await Promise.all(requests);
+
+      if (inserted.length > 0) {
+        setRecords((prev) => [...prev, ...inserted]);
+      }
+
+      console.log(`✅ Import complete: ${inserted.length} records inserted`);
+    } catch (error) {
+      console.error("❌ XLS Import Error:", error);
+    }
   };
+
+  reader.readAsArrayBuffer(file);
+};
+
 
 
 
@@ -293,7 +327,7 @@ function UpcomingJobs() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.107:5050/api/upcomingjobs/${id}`,
+        `http://192.168.0.104:5050/api/upcomingjobs/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -505,9 +539,9 @@ function UpcomingJobs() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[90vh] overflow-y-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+<thead className="bg-gray-50 sticky top-0 z-10 shadow">
                   <tr>
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
@@ -633,7 +667,7 @@ function UpcomingJobs() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Site Location
                       </label>
-                      <input type="text" name="SiteLocation" value={formData.SiteLocation} onChange={handleInputChange} required
+                      <input type="text" name="SiteLocation" value={formData.SiteLocation} onChange={handleInputChange} 
                         placeholder="Enter Site Location"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
@@ -641,7 +675,7 @@ function UpcomingJobs() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Expected Date
                       </label>
-                      <input type="date" name="ExpectedDate" value={formData.ExpectedDate} onChange={handleInputChange} required
+                      <input type="date" name="ExpectedDate" value={formData.ExpectedDate} onChange={handleInputChange} 
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
                     <div>
@@ -649,7 +683,7 @@ function UpcomingJobs() {
                         Items Availability
                       </label>
                       <input type="text" name="ItemsAvailability" value={formData.ItemsAvailability} onChange={handleInputChange}
-                        required placeholder="Enter Items Availability"
+                         placeholder="Enter Items Availability"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
                     <div>
@@ -657,7 +691,7 @@ function UpcomingJobs() {
                         Staff Allocated
                       </label>
                       <input type="text" name="StaffAllocated" value={formData.StaffAllocated} onChange={handleInputChange}
-                        required placeholder="Enter Staff Allocated"
+                         placeholder="Enter Staff Allocated"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
 

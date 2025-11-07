@@ -133,7 +133,7 @@ function RealTimeJobs() {
   const fetchPendingChanges = async () => {
     try {
       const res = await axios.get(
-        "http://192.168.0.107:5050/api/realtimejobs/pending"
+        "http://192.168.0.104:5050/api/realtimejobs/pending"
       );
       setHasPendingChanges(res.data.length > 0);
     } catch (err) {
@@ -143,7 +143,7 @@ function RealTimeJobs() {
 
   const loadRecords = async () => {
     try {
-      const res = await axios.get("http://192.168.0.107:5050/api/realtimejobs", {
+      const res = await axios.get("http://192.168.0.104:5050/api/realtimejobs", {
         params: { role }
       });
       setRecords(res.data);
@@ -153,76 +153,123 @@ function RealTimeJobs() {
   };
 
 const importFromXls = async (event) => {
-  const file = event.target.files[0];
+  const file = event.target.files?.[0];
   if (!file) return;
 
   const reader = new FileReader();
 
   reader.onload = async (e) => {
-    const dataArray = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(dataArray, { type: "array" });
+    try {
+      const dataArray = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(dataArray, { type: "array" });
 
-    const firstSheet = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheet];
+      const firstSheet = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheet];
 
-    // Convert sheet to JSON
-    const importedData = XLSX.utils.sheet_to_json(worksheet);
+      // Convert XLS → JSON
+      let importedData = XLSX.utils.sheet_to_json(worksheet) || [];
 
-    // Process and send each record
-    for (const row of importedData) {
-      // Rebuild fieldJobDetails
-      const newRec = { ...row, fieldJobDetails: [] };
+      // Normalize keys (clean spaces in headers)
+      importedData = importedData.map((row) => {
+        const cleanRow = {};
+        Object.keys(row).forEach((key) => {
+          cleanRow[key.trim()] = row[key];
+        });
+        return cleanRow;
+      });
 
-      let index = 1;
-      while (
-        row.hasOwnProperty(`kva_${index}`) ||
-        row.hasOwnProperty(`srNo_${index}`) ||
-        row.hasOwnProperty(`rating_${index}`) ||
-        row.hasOwnProperty(`note_${index}`)
-      ) {
-        const kva = row[`kva_${index}`] || "";
-        const srNo = row[`srNo_${index}`] || "";
-        const rating = row[`rating_${index}`] || "";
-        const note = row[`note_${index}`] || "";
-
-        if (kva || srNo || rating || note) {
-          newRec.fieldJobDetails.push({ kva, srNo, rating, note });
+      // ✅ Decimal Converter - handles "12,500.00" → 12500, "7.5" → 7.5, "10" → 10
+      const toDecimal = (val) => {
+        if (val === null || val === undefined) return val;
+        if (typeof val === "number") return val;
+        if (typeof val === "string") {
+          const cleaned = val.replace(/,/g, "");
+          return isNaN(cleaned) ? val : Number(cleaned);
         }
+        return val;
+      };
 
-        // Clean up flat keys
-        delete newRec[`kva_${index}`];
-        delete newRec[`srNo_${index}`];
-        delete newRec[`rating_${index}`];
-        delete newRec[`note_${index}`];
+      const postPromises = [];
+      const insertedItems = [];
 
-        index++;
-      }
+      for (const row of importedData) {
+        const newRec = { ...row, fieldJobDetails: [] };
 
-      try {
-        const response = await axios.post(
-          `http://192.168.0.107:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
-          newRec,
-          {
-            headers: { "x-user-role": localStorage.getItem("userRole") },
+        let index = 1;
+        while (true) {
+          const exists =
+            newRec.hasOwnProperty(`kva_${index}`) ||
+            newRec.hasOwnProperty(`srNo_${index}`) ||
+            newRec.hasOwnProperty(`rating_${index}`) ||
+            newRec.hasOwnProperty(`note_${index}`);
+
+          if (!exists) break;
+
+          const kva = toDecimal(newRec[`kva_${index}`]);
+          const srNo = newRec[`srNo_${index}`] || "";
+          const rating = toDecimal(newRec[`rating_${index}`]);
+          const note = newRec[`note_${index}`] || "";
+
+          if (kva || srNo || rating || note) {
+            newRec.fieldJobDetails.push({ kva, srNo, rating, note });
           }
-        );
 
-        if (response.data.success) {
-          setRecords((prevData) => [
-            ...prevData,
-            response.data.item || newRec,
-          ]);
-        } else {
-          console.error("Failed to insert record:", response.data.message, newRec);
+          delete newRec[`kva_${index}`];
+          delete newRec[`srNo_${index}`];
+          delete newRec[`rating_${index}`];
+          delete newRec[`note_${index}`];
+
+          index++;
         }
-      } catch (err) {
-        console.error("Error inserting record:", err, newRec);
+
+        // ✅ Convert main numeric fields too (if present)
+        for (let key in newRec) {
+          if (key.toLowerCase().includes("kva") || key.toLowerCase().includes("rating")) {
+            newRec[key] = toDecimal(newRec[key]);
+          }
+        }
+
+        // API request stored for parallel call
+        postPromises.push(
+          axios
+            .post(
+              `http://192.168.0.104:5050/api/realtimejobs?role=${role}`,
+              newRec,
+              {
+                headers: { "x-user-role": localStorage.getItem("userRole") },
+              }
+            )
+            .then((response) => {
+              if (response.data.success) {
+                insertedItems.push(response.data.item || newRec);
+              } else {
+                console.error("Failed to insert:", response.data.message, newRec);
+              }
+            })
+            .catch((err) => {
+              console.error("Error inserting record:", err, newRec);
+            })
+        );
       }
+
+      // Wait for all uploads
+      await Promise.all(postPromises);
+
+      if (insertedItems.length > 0) {
+        setRecords((prev) => [...prev, ...insertedItems]);
+      }
+
+      console.log(`Import completed. (${insertedItems.length} records inserted)`);
+
+    } catch (err) {
+      console.error("Error reading XLS:", err);
     }
   };
 
   reader.readAsArrayBuffer(file);
 };
+
+
 
 
   const exportToXls = () => {
@@ -357,7 +404,7 @@ const importFromXls = async (event) => {
     resetForm();*/
       try {
         const response = await axios.put(
-          `http://192.168.0.107:5050/api/realtimejobs/${editingRecord.id}?role=${role}`, // update by ID
+          `http://192.168.0.104:5050/api/realtimejobs/${editingRecord.id}?role=${role}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -383,7 +430,7 @@ const importFromXls = async (event) => {
       // Adding new record
       try {
         const response = await axios.post(
-          `http://192.168.0.107:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
+          `http://192.168.0.104:5050/api/realtimejobs?role=${role}`, // role: 'admin' or 'staff'
           formData
         );
 
@@ -456,7 +503,7 @@ const importFromXls = async (event) => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.107:5050/api/realtimejobs/${id}?role=${role}`
+        `http://192.168.0.104:5050/api/realtimejobs/${id}?role=${role}`
       );
       loadRecords();
     } catch (err) {
@@ -723,9 +770,9 @@ const importFromXls = async (event) => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[90vh] overflow-y-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+<thead className="bg-gray-50 sticky top-0 z-10 shadow">
                   <tr>
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
@@ -922,7 +969,7 @@ const importFromXls = async (event) => {
                         name="location"
                         value={formData.location}
                         onChange={handleInputChange}
-                        required
+                        
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="">Select Location</option>
@@ -939,7 +986,7 @@ const importFromXls = async (event) => {
                         name="category"
                         value={formData.category}
                         onChange={handleInputChange}
-                        required
+                        
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="">Select Sector</option>
@@ -958,7 +1005,7 @@ const importFromXls = async (event) => {
                         name="orderNo"
                         value={formData.orderNo}
                         onChange={handleInputChange}
-                        required
+                        
                         placeholder="Order No/ LOI No"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
@@ -973,7 +1020,7 @@ const importFromXls = async (event) => {
                         name="date"
                         value={formData.date}
                         onChange={handleInputChange}
-                        required
+                        
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -987,7 +1034,7 @@ const importFromXls = async (event) => {
                         name="type"
                         value={formData.type}
                         onChange={handleInputChange}
-                        required
+                        
                         placeholder="Client/Division"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />

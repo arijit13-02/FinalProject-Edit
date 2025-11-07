@@ -49,7 +49,7 @@ function Billing() {
     if (role === "admin") {
       navigate(path);
     } else {
-      alert("Admin Privileges !\nLogin to proceed");
+      alert("Admin Privileges Required!\nLogin to proceed");
       navigate("/login");
     }
   };
@@ -132,7 +132,7 @@ function Billing() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.107:5050/api/billing";
+      const url = "http://192.168.0.104:5050/api/billing";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -160,7 +160,7 @@ function Billing() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.107:5050/api/billing/${editingRecord.id}`, // update by ID
+          `http://192.168.0.104:5050/api/billing/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -190,7 +190,7 @@ function Billing() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.107:5050/api/billing",
+          "http://192.168.0.104:5050/api/billing",
           formData,
           {
             headers: {
@@ -288,7 +288,7 @@ function Billing() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.107:5050/api/billing/${id}`,
+        `http://192.168.0.104:5050/api/billing/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -434,36 +434,32 @@ function Billing() {
   reader.onload = async (e) => {
     const dataArray = new Uint8Array(e.target.result);
 
-    // Read workbook, preserve formats
-    const workbook = XLSX.read(dataArray, { type: "array" });
-    const firstSheet = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheet];
+    // Read workbook keeping original values
+    const workbook = XLSX.read(dataArray, { type: "array", cellDates: true });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
-    // Convert sheet → JSON, preserve decimals
-    const importedData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
+    // Preserve numbers exactly as Excel shows
+    const importedData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
 
-    // Clean floating point values
     const cleanedData = importedData.map((row) => {
       const newRow = {};
-      for (let key in row) {
+
+      Object.keys(row).forEach((key) => {
         let value = row[key];
 
-        // If value is numeric, round it to 4 decimals
-        if (!isNaN(value) && value !== null && value !== "") {
-          value = parseFloat(Number(value).toFixed(2));
+        // Clean only floating numbers (not integers, not strings)
+        if (typeof value === "number" && !Number.isInteger(value)) {
+          value = Number(value.toFixed(2)); // Round to 2 decimals
         }
+
         newRow[key] = value;
-      }
+      });
+
       return newRow;
     });
 
-    // Insert records one by one
     for (const record of cleanedData) {
-      const url = "http://192.168.0.107:5050/api/billing";
-      if (!url) {
-        console.error("Invalid location/category for record:", record);
-        continue;
-      }
+      const url = "http://192.168.0.104:5050/api/billing";
 
       try {
         const response = await axios.post(url, record, {
@@ -471,18 +467,19 @@ function Billing() {
         });
 
         if (response.data.success) {
-          setRecords((prevData) => [...prevData, response.data.item || record]);
+          setRecords((prev) => [...prev, response.data.item || record]);
         } else {
-          console.error("Failed to insert record:", response.data.message, record);
+          console.error("Failed to insert record:", record, response.data.message);
         }
       } catch (err) {
-        console.error("Error inserting record:", err, record);
+        console.error("Error inserting record:", record, err);
       }
     }
   };
 
   reader.readAsArrayBuffer(file);
 };
+
 
 
 
@@ -636,9 +633,9 @@ function Billing() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[90vh] overflow-y-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+<thead className="bg-gray-50 sticky top-0 z-10 shadow">
                   {/* First row: Group headings */}
                   <tr>
                     {/* Sr No stays single */}

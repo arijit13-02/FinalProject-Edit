@@ -303,20 +303,20 @@ function Operationsom() {
 
   const getApiUrl = () => {
     if (location === "inhouse" && category === "WBSEDCL")
-      return "http://192.168.0.107:5050/api/operations/inhousewb";
+      return "http://192.168.0.104:5050/api/operations/inhousewb";
 
     if (location === "inhouse" && category === "private")
-      return "http://192.168.0.107:5050/api/operations/inhousepvt";
+      return "http://192.168.0.104:5050/api/operations/inhousepvt";
 
     if (location === "inhouse" && category === "public")
-      return "http://192.168.0.107:5050/api/operations/inhousepub";
+      return "http://192.168.0.104:5050/api/operations/inhousepub";
 
     if (location === "site" && category === "WBSEDCL")
-      return "http://192.168.0.107:5050/api/operations/sitewb";
+      return "http://192.168.0.104:5050/api/operations/sitewb";
     if (location === "site" && category === "private")
-      return "http://192.168.0.107:5050/api/operations/sitepvt";
+      return "http://192.168.0.104:5050/api/operations/sitepvt";
     if (location === "site" && category === "public")
-      return "http://192.168.0.107:5050/api/operations/sitepub";
+      return "http://192.168.0.104:5050/api/operations/sitepub";
 
     return null;
   };
@@ -390,93 +390,126 @@ function Operationsom() {
 
 
 
-  const importFromXls = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const importFromXls = async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
 
+  try {
     const reader = new FileReader();
 
     reader.onload = async (e) => {
-      const Data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(Data, { type: "array" });
+      try {
+        const rawData = new Uint8Array(e.target.result);
 
-      const firstSheet = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheet];
+        // ✅ raw:false helps keep decimals as text before rounding
+        const workbook = XLSX.read(rawData, { type: "array" });
+        const firstSheet = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheet];
 
-      // Convert sheet to JSON
-      let importedData = XLSX.utils.sheet_to_json(worksheet);
+        // Convert sheet to JSON
+        let importedData = XLSX.utils.sheet_to_json(worksheet, { raw: false }) || [];
 
-      // Normalize numeric-keyed rows (0,1,...)
-      importedData = importedData.flatMap((row) => {
-        const keys = Object.keys(row);
-        if (keys.some((k) => !isNaN(k))) {
-          return keys
-            .filter((k) => !isNaN(k))
-            .map((k) => ({ ...row[k] }));
-        }
-        return row;
-      });
+        // ✅ Clean decimals & normalize keys
+        importedData = importedData.flatMap((row) => {
+          const cleanedRow = {};
 
-      // Reconstruct TransformerDetails conditionally
-      const reconstructedData = importedData.map((record) => {
-        if (
-          record.Location === "Site" &&
-          (record.Category === "Public" || record.Category === "Private")
-        ) {
-          const transformers = [];
-          let idx = 1;
-          while (record[`KVA_${idx}`] !== undefined) {
-            transformers.push({
-              KVA: record[`KVA_${idx}`],
-              SrNo: record[`SrNo_${idx}`],
-              Rating: record[`Rating_${idx}`],
-              Note: record[`Note_${idx}`],
+          for (let key in row) {
+            const trimmedKey = key.trim();
+            let val = row[key];
+
+            // ✅ round only numeric values
+            if (val !== "" && val !== null && !isNaN(val)) {
+              val = parseFloat(Number(val).toFixed(2)); // change 2 → 3/4 if required
+            }
+
+            cleanedRow[trimmedKey] = val;
+          }
+
+          // ✅ check numeric-keyed rows (0,1,2...)
+          const numericKeys = Object.keys(cleanedRow).filter((k) => !isNaN(k));
+
+          if (numericKeys.length > 0) {
+            return numericKeys.map((k) => ({ ...cleanedRow[k] }));
+          }
+
+          return cleanedRow;
+        });
+
+        // ✅ Rebuild TransformerDetails
+        const reconstructedData = importedData.map((record) => {
+          const isSite =
+            record?.Location === "Site" &&
+            (record?.Category === "Public" || record?.Category === "Private");
+
+          if (isSite) {
+            const transformers = [];
+            let idx = 1;
+
+            while (record[`KVA_${idx}`] !== undefined) {
+              transformers.push({
+                KVA: record[`KVA_${idx}`],
+                SrNo: record[`SrNo_${idx}`],
+                Rating: record[`Rating_${idx}`],
+                Note: record[`Note_${idx}`],
+              });
+
+              delete record[`KVA_${idx}`];
+              delete record[`SrNo_${idx}`];
+              delete record[`Rating_${idx}`];
+              delete record[`Note_${idx}`];
+
+              idx++;
+            }
+
+            if (transformers.length > 0) {
+              record.TransformerDetails = transformers;
+            }
+          }
+
+          return record;
+        });
+
+        // ✅ Bulk insert with Promise.all
+        const insertPromises = reconstructedData.map(async (record) => {
+          const url = getApiUrl(record.Location, record.Category);
+          if (!url) {
+            console.warn(
+              "Skipped record due to invalid Location/Category:",
+              record
+            );
+            return null;
+          }
+
+          try {
+            const response = await axios.post(url, record, {
+              headers: { "x-user-role": "admin" },
             });
 
-            delete record[`KVA_${idx}`];
-            delete record[`SrNo_${idx}`];
-            delete record[`Rating_${idx}`];
-            delete record[`Note_${idx}`];
-
-            idx++;
+            if (response.data?.success) {
+              setData((prev) => [...prev, response.data.item || record]);
+            } else {
+              console.error("Insert failed:", response.data?.message, record);
+            }
+          } catch (err) {
+            console.error("API error while inserting:", err, record);
           }
+        });
 
-          if (transformers.length > 0) {
-            record.TransformerDetails = transformers;
-          }
-        }
-        return record;
-      });
+        await Promise.all(insertPromises);
 
-      console.log("Normalized & reconstructed:", reconstructedData);
-
-      // Insert each record individually
-      for (const record of reconstructedData) {
-        const url = getApiUrl(record.Location, record.Category); // API endpoint may depend on location/category
-        if (!url) {
-          console.error("Invalid location/category combination for record:", record);
-          continue;
-        }
-
-        try {
-          const response = await axios.post(url, record, {
-            headers: { "x-user-role": "admin" },
-          });
-
-          if (response.data.success) {
-            // Add inserted record to state
-            setData((prevData) => [...prevData, response.data.item || record]);
-          } else {
-            console.error("Failed to insert record:", response.data.message, record);
-          }
-        } catch (err) {
-          console.error("Error inserting record:", err, record);
-        }
+        console.log("✅ Import completed with decimal handling.");
+      } catch (err) {
+        console.error("Error processing XLS:", err);
       }
     };
 
     reader.readAsArrayBuffer(file);
-  };
+  } catch (err) {
+    console.error("File read failed:", err);
+  }
+};
+
+
 
 
 
@@ -1255,9 +1288,9 @@ function Operationsom() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[90vh] overflow-y-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+<thead className="bg-gray-50 sticky top-0 z-10 shadow">
                   <tr>
                     {headers.map((header) => (
                       <th

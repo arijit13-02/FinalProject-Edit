@@ -15,16 +15,17 @@ import {
   TrendingUp,
   Activity,
 } from "lucide-react";
-// Since I cannot access local assets, I'll use a standard placeholder for the logo
-// import logo from "../assets/logo.png";
+import logo from "../assets/logo.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 // Placeholder for the logo (since local imports like 'logo' won't work in this environment)
 const PlaceholderLogo = () => (
-  <div className="w-full h-full flex items-center justify-center bg-teal-500/10 text-teal-400 text-2xl font-bold rounded-full">
-    MBS
-  </div>
+  <img
+    src={logo}
+    alt="Logo"
+    className="w-full h-full object-contain rounded-full bg-white"
+  />
 );
 
 /**
@@ -388,7 +389,7 @@ function GraphPlaceholder1({ title, icon: Icon }) {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await axios.get("http://192.168.0.107:5050/api/chart1", {
+        const response = await axios.get("http://192.168.0.104:5050/api/chart1", {
           responseType: "blob",
         });
 
@@ -451,7 +452,7 @@ function GraphPlaceholder2({ title, icon: Icon }) {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await axios.get("http://192.168.0.107:5050/api/chart2", {
+        const response = await axios.get("http://192.168.0.104:5050/api/chart2", {
           responseType: "blob",
         });
 
@@ -673,7 +674,7 @@ const nav1 = () => {
 
             <div className="bg-gray-800/80 rounded-2xl shadow-xl h-[24rem]">
               <AutoScrollingPanelcert
-                apiUrl="http://192.168.0.107:5050/api/cert"
+                apiUrl="http://192.168.0.104:5050/api/cert"
                 title="Critical Cert. Expiry (30 Days)"
                 className="h-full"
               />
@@ -684,7 +685,7 @@ const nav1 = () => {
           <div className="lg:col-span-5 space-y-8">
             <div style={{ height: "calc(43rem)" }}>
               <AutoScrollingPanel
-                apiUrl="http://192.168.0.107:5050/api/upcomingjobs"
+                apiUrl="http://192.168.0.104:5050/api/upcomingjobs"
                 title="Upcoming Job Schedule"
                 className="h-full"
               />
@@ -731,7 +732,7 @@ const nav1 = () => {
         <div className="mt-8">
           <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl h-96">
             <AutoScrollingPanelinventory
-              apiUrl="http://192.168.0.107:5050/api/inventory"
+              apiUrl="http://192.168.0.104:5050/api/inventory"
               title="Low Inventory Stock Alert"
               className="h-full"
             />
