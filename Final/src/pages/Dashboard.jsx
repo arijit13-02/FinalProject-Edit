@@ -121,9 +121,9 @@ function AutoScrollingPanel({ apiUrl, title, className = "" }) {
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-400 font-medium">Items Availability:</span>
+                    <span className="text-gray-400 font-medium">Work Description:</span>
                     <span className="text-gray-200 font-bold text-right break-all">
-                      {item.ItemsAvailability}
+                      {item.Workdescription}
                     </span>
                   </div>
 
