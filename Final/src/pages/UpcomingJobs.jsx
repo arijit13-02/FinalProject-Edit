@@ -98,7 +98,7 @@ function UpcomingJobs() {
   const [formData, setFormData] = useState({
     SiteLocation: "",
     ExpectedDate: "",
-    ItemsAvailability: "",
+    Workdescription: "",
     StaffAllocated: ""
   });
   // Load records from localStorage (simulating JSON file)
@@ -111,7 +111,7 @@ function UpcomingJobs() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.104:5050/api/upcomingjobs";
+      const url = "http://192.168.0.100:5050/api/upcomingjobs";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -139,7 +139,7 @@ function UpcomingJobs() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.104:5050/api/upcomingjobs/${editingRecord.id}`, // update by ID
+          `http://192.168.0.100:5050/api/upcomingjobs/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -169,7 +169,7 @@ function UpcomingJobs() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.104:5050/api/upcomingjobs",
+          "http://192.168.0.100:5050/api/upcomingjobs",
           formData,
           {
             headers: {
@@ -251,7 +251,7 @@ function UpcomingJobs() {
         return cleaned;
       });
 
-      const url = "http://192.168.0.104:5050/api/upcomingjobs";
+      const url = "http://192.168.0.100:5050/api/upcomingjobs";
       const inserted = [];
       const requests = [];
 
@@ -300,7 +300,7 @@ function UpcomingJobs() {
     setFormData({
       SiteLocation: "",
       ExpectedDate: "",
-      ItemsAvailability: "",
+      Workdescription: "",
       StaffAllocated: ""
     });
     setIsFormOpen(false);
@@ -311,7 +311,7 @@ function UpcomingJobs() {
     setFormData({
       SiteLocation: record.SiteLocation,
       ExpectedDate: record.ExpectedDate,
-      ItemsAvailability: record.ItemsAvailability,
+      Workdescription: record.Workdescription,
       StaffAllocated: record.StaffAllocated
     });
     setEditingRecord(record);
@@ -327,7 +327,7 @@ function UpcomingJobs() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.104:5050/api/upcomingjobs/${id}`,
+        `http://192.168.0.100:5050/api/upcomingjobs/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -364,7 +364,7 @@ function UpcomingJobs() {
       (record) =>
         record.SiteLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.ExpectedDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.ItemsAvailability.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.Workdescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.StaffAllocated.toLowerCase().includes(searchTerm.toLowerCase()));
 
     if (sortConfig.key) {
@@ -565,11 +565,11 @@ function UpcomingJobs() {
 
                     <th
                       className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
-                      onClick={() => handleSort("ItemsAvailability")}
+                      onClick={() => handleSort("Workdescription")}
                     >
                       <div className="flex items-center space-x-1">
                         <span>Work Description</span>
-                        {getSortIcon("ItemsAvailability")}
+                        {getSortIcon("Workdescription")}
                       </div>
                     </th>
 
@@ -603,7 +603,7 @@ function UpcomingJobs() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm font-semibold text-gray-800">
-                          {record.ItemsAvailability}
+                          {record.Workdescription}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -680,10 +680,10 @@ function UpcomingJobs() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Items Availability
+                        Work Description
                       </label>
-                      <input type="text" name="ItemsAvailability" value={formData.ItemsAvailability} onChange={handleInputChange}
-                         placeholder="Enter Items Availability"
+                      <input type="text" name="Workdescription" value={formData.Workdescription} onChange={handleInputChange}
+                         placeholder="Enter Work description"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                     </div>
                     <div>
@@ -749,8 +749,8 @@ function UpcomingJobs() {
 
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-500"> Items Availability </label>
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium`}> {viewingRecord.ItemsAvailability} </span>
+                    <label className="block text-sm font-medium text-gray-500"> Work Description </label>
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium`}> {viewingRecord.Workdescription} </span>
                   </div>
 
                   <div>

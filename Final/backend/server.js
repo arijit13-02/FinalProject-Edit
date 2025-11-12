@@ -35,7 +35,7 @@ const requireAdmin = (req, res, next) => {
 // --- CORS configuration ---
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://192.168.0.104:5173" // LAN access
+  "http://192.168.0.100:5173" // LAN access
 ];
 
 app.use(
@@ -175,6 +175,6 @@ app.get("/api/health", (req, res) => {
 });
 
 // --- Start Server ---
-app.listen(PORT, "192.168.0.104", () => {
-  console.log(`✅ Backend running at http://192.168.0.104:${PORT}`);
+app.listen(PORT, "192.168.0.100", () => {
+  console.log(`✅ Backend running at http://192.168.0.100:${PORT}`);
 });

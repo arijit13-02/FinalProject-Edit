@@ -3,10 +3,11 @@
     "ItemDetails": "Brass Studs",
     "StockInDate": "12.08.2025",
     "StockOutDate": "13.09.2025",
-    "StockAvailable": "26000000",
+    "StockAvailable": "2489744784",
     "HSNCode": "258USHM",
     "Limit": "200000",
-    "id": "1760352944805"
+    "id": "1760352944805",
+    "updatedAt": "2025-11-12T07:15:00.804Z"
   },
   {
     "ItemDetails": "Insulation",

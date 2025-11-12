@@ -389,7 +389,7 @@ function GraphPlaceholder1({ title, icon: Icon }) {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await axios.get("http://192.168.0.104:5050/api/chart1", {
+        const response = await axios.get("http://192.168.0.100:5050/api/chart1", {
           responseType: "blob",
         });
 
@@ -452,7 +452,7 @@ function GraphPlaceholder2({ title, icon: Icon }) {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await axios.get("http://192.168.0.104:5050/api/chart2", {
+        const response = await axios.get("http://192.168.0.100:5050/api/chart2", {
           responseType: "blob",
         });
 
@@ -674,7 +674,7 @@ const nav1 = () => {
 
             <div className="bg-gray-800/80 rounded-2xl shadow-xl h-[24rem]">
               <AutoScrollingPanelcert
-                apiUrl="http://192.168.0.104:5050/api/cert"
+                apiUrl="http://192.168.0.100:5050/api/cert"
                 title="Critical Cert. Expiry (30 Days)"
                 className="h-full"
               />
@@ -685,7 +685,7 @@ const nav1 = () => {
           <div className="lg:col-span-5 space-y-8">
             <div style={{ height: "calc(43rem)" }}>
               <AutoScrollingPanel
-                apiUrl="http://192.168.0.104:5050/api/upcomingjobs"
+                apiUrl="http://192.168.0.100:5050/api/upcomingjobs"
                 title="Upcoming Job Schedule"
                 className="h-full"
               />
@@ -732,7 +732,7 @@ const nav1 = () => {
         <div className="mt-8">
           <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl h-96">
             <AutoScrollingPanelinventory
-              apiUrl="http://192.168.0.104:5050/api/inventory"
+              apiUrl="http://192.168.0.100:5050/api/inventory"
               title="Low Inventory Stock Alert"
               className="h-full"
             />

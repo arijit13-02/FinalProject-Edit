@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -124,7 +123,7 @@ function Vendors() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.104:5050/api/vendors";
+      const url = "http://192.168.0.100:5050/api/vendors";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -152,7 +151,7 @@ function Vendors() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.104:5050/api/vendors/${editingRecord.id}`, // update by ID
+          `http://192.168.0.100:5050/api/vendors/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -182,7 +181,7 @@ function Vendors() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.104:5050/api/vendors",
+          "http://192.168.0.100:5050/api/vendors",
           formData,
           {
             headers: {
@@ -208,23 +207,23 @@ function Vendors() {
 
   const resetForm = () => {
     setFormData({
-      SrNo: "",
-      ItemSpec: "",
-      PurchaseDate: "",
-      BillNo: "",
-      HSN: "",
-      VendorName: "",
-      GSTIN: "",
-      Address: "",
-      ContactNo: "",
-      MailingID: "",
-      ContactName: "",
-      Rate: "",
-      Qty: "",
-      Unit: "",
-      TaxPercent: "",
-      TotalAmount: "",
-      PaidOn: ""
+          SrNo: "",
+    ItemSpec: "",
+    PurchaseDate: "",
+    BillNo: "",
+    HSN: "",
+    VendorName: "",
+    GSTIN: "",
+    Address: "",
+    ContactNo: "",
+    MailingID: "",
+    ContactName: "",
+    Rate: "",
+    Qty: "",
+    Unit: "",
+    TaxPercent: "",
+    TotalAmount: "",
+    PaidOn: ""
     });
     setIsFormOpen(false);
     setEditingRecord(null);
@@ -232,23 +231,23 @@ function Vendors() {
 
   const handleEdit = (record) => {
     setFormData({
-      SrNo: record.SrNo,
-      ItemSpec: record.ItemSpec,
-      PurchaseDate: record.PurchaseDate,
-      BillNo: record.BillNo,
-      HSN: record.HSN,
-      VendorName: record.VendorName,
-      GSTIN: record.GSTIN,
-      Address: record.Address,
-      ContactNo: record.ContactNo,
-      MailingID: record.MailingID,
-      ContactName: record.ContactName,
-      Rate: record.Rate,
-      Qty: record.Qty,
-      Unit: record.Unit,
-      TaxPercent: record.TaxPercent,
-      TotalAmount: record.TotalAmount,
-      PaidOn: record.PaidOn
+ SrNo: record.SrNo,
+  ItemSpec: record.ItemSpec,
+  PurchaseDate: record.PurchaseDate,
+  BillNo: record.BillNo,
+  HSN: record.HSN,
+  VendorName: record.VendorName,
+  GSTIN: record.GSTIN,
+  Address: record.Address,
+  ContactNo: record.ContactNo,
+  MailingID: record.MailingID,
+  ContactName: record.ContactName,
+  Rate: record.Rate,
+  Qty: record.Qty,
+  Unit: record.Unit,
+  TaxPercent: record.TaxPercent,
+  TotalAmount: record.TotalAmount,
+  PaidOn: record.PaidOn
 
     });
     setEditingRecord(record);
@@ -264,7 +263,7 @@ function Vendors() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.104:5050/api/vendors/${id}`,
+        `http://192.168.0.100:5050/api/vendors/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -297,45 +296,63 @@ function Vendors() {
   // Filter and sort records
 
   const filteredAndSortedRecords = React.useMemo(() => {
-    let filtered = records.filter(
-      (record) =>
-        record.SrNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.ItemSpec.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.HSN.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.VendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.GSTIN.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.Address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.ContactNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.MailingID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.ContactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.PurchaseDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.Qty.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.Rate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.Unit.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.TaxPercent.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.TotalAmount.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.PaidOn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.BillNo.toLowerCase().includes(searchTerm.toLowerCase())
 
+      const safeString = (value) =>
+    value !== null && value !== undefined ? String(value).toLowerCase() : "";
+
+      
+  let filtered = records.filter((record) => {
+    const search = searchTerm.toLowerCase();
+
+return (
+      safeString(record.SrNo).includes(search) ||
+      safeString(record.ItemSpec).includes(search) ||
+      safeString(record.HSN).includes(search) ||
+      safeString(record.VendorName).includes(search) ||
+      safeString(record.GSTIN).includes(search) ||
+      safeString(record.Address).includes(search) ||
+      safeString(record.ContactNo).includes(search) ||
+      safeString(record.MailingID).includes(search) ||
+      safeString(record.ContactName).includes(search) ||
+      safeString(record.PurchaseDate).includes(search) ||
+      safeString(record.Qty).includes(search) ||
+      safeString(record.Rate).includes(search) ||
+      safeString(record.Unit).includes(search) ||
+      safeString(record.TotalAmount).includes(search) ||
+      safeString(record.PaidOn).includes(search) ||
+      safeString(record.BillNo).includes(search) ||
+      safeString(record.TaxPercent).includes(search)
     );
+  });
 
-    if (sortConfig.key) {
-      filtered.sort((a, b) => {
-        let aValue = a[sortConfig.key];
-        let bValue = b[sortConfig.key];
-        if (sortConfig.key === "date" || sortConfig.key === "createdAt") {
-          aValue = new Date(aValue);
-          bValue = new Date(bValue);
-        }
-        if (aValue < bValue) {
-          return sortConfig.direction === "asc" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === "asc" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
+
+    // Sorting logic
+  if (sortConfig.key) {
+    filtered.sort((a, b) => {
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // Handle date sorting
+      if (sortConfig.key === "date" || sortConfig.key === "createdAt") {
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
+      }
+
+      // Convert non-dates to strings for safe comparison
+      if (typeof aValue === "number" || typeof bValue === "number") {
+        aValue = Number(aValue);
+        bValue = Number(bValue);
+      } else {
+        aValue = safeString(aValue);
+        bValue = safeString(bValue);
+      }
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
+
     return filtered;
   }, [records, searchTerm, sortConfig]);
 
@@ -344,10 +361,10 @@ function Vendors() {
     if (!records || records.length === 0) return;
 
     // 1. Prepare data (no nested TransformerDetails processing needed)
-    const processedData = records.map(record => {
-      const { id, ID, updatedAt, createdAt, ...flatRecord } = record;
-      return flatRecord;
-    });
+      const processedData = records.map(record => {
+    const { id, ID, updatedAt,createdAt, ...flatRecord } = record;
+    return flatRecord;
+  });
 
     // 2. Convert processed data to worksheet
     const ws = XLSX.utils.json_to_sheet(processedData);
@@ -374,61 +391,34 @@ function Vendors() {
 
     reader.onload = async (e) => {
       const dataArray = new Uint8Array(e.target.result);
-
-      // ✅ Read workbook with numeric precision preserved
-      const workbook = XLSX.read(dataArray, {
-        type: "array",
-        cellDates: true,
-        cellNF: false,
-        cellText: false,
-        raw: false
-      });
+      const workbook = XLSX.read(dataArray, { type: "array" });
 
       const firstSheet = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheet];
 
-      // ✅ Convert sheet to JSON and keep precision
-      let importedData = XLSX.utils.sheet_to_json(worksheet, {
-        defval: "",             // empty cells become empty string instead of undefined
-        rawNumbers: true,       // prevents floating rounding like 30395.58569999
-        raw: true
-      });
+      // Convert sheet to JSON
+      const importedData = XLSX.utils.sheet_to_json(worksheet);
 
-      // ✅ Clean numeric precision manually just in case
-      importedData = importedData.map((row) => {
-        const cleaned = {};
-        for (const key in row) {
-          const value = row[key];
-
-          cleaned[key] =
-            typeof value === "number"
-              ? parseFloat(value.toFixed(2)) // keep decimals precise
-              : String(value).trim();        // ensure text is safe
-
-        }
-        return cleaned;
-      });
-
-      console.log("Final Import Data:", importedData);
-
-      // ✅ Insert each record
+      // Insert each record individually
       for (const record of importedData) {
+        const url = "http://192.168.0.100:5050/api/vendors";
+        if (!url) {
+          console.error("Invalid location/category combination for record:", record);
+          continue;
+        }
+
         try {
-          const response = await axios.post(
-            "http://192.168.0.104:5050/api/vendors",
-            record,
-            {
-              headers: { "x-user-role": localStorage.getItem("userRole") },
-            }
-          );
+          const response = await axios.post(url, record, {
+            headers: { "x-user-role": localStorage.getItem("userRole") },
+          });
 
           if (response.data.success) {
-            setRecords((prev) => [...prev, response.data.item || record]);
+            setRecords((prevData) => [...prevData, response.data.item || record]);
           } else {
-            console.error("Insert failed:", response.data.message, record);
+            console.error("Failed to insert record:", response.data.message, record);
           }
         } catch (err) {
-          console.error("Axios error inserting:", record, err);
+          console.error("Error inserting record:", err, record);
         }
       }
     };
@@ -437,595 +427,722 @@ function Vendors() {
   };
 
 
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 font-sans">
-    {/* Header */}
-    <header className="sticky top-0 z-10 bg-gray-900/90 backdrop-blur-md shadow-2xl border-b-2 border-indigo-700/50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600">
+      {/* Header */}
+      <header className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-                {/* Desktop Navigation */}
-                <nav className="hidden md:flex space-x-3">
-                    {navigationItems.map((item) => (
-                        <button
-                            key={item.name}
-                            onClick={item.onClick}
-                            // Applied dark theme, white text, teal hover, indigo background hover, high rounding
-                            className="flex items-center space-x-2 text-white hover:text-teal-400 transition px-3 py-2 rounded-lg hover:bg-indigo-700/50 text-sm font-medium tracking-wide"
-                        >
-                            <item.icon className="w-4 h-4" />
-                            <span>{item.name}</span>
-                        </button>
-                    ))}
-                </nav>
+          <div className="flex items-center justify-between h-16">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-3">
+              {navigationItems.map((item) => (
+                <button
+                  key={item.name}
+                  onClick={item.onClick}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition px-3 py-2 rounded-lg hover:bg-blue-50"
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span className="font-medium">{item.name}</span>
+                </button>
+              ))}
+            </nav>
 
-                {/* Login Button (Themed to Teal Accent) */}
-                <div className="flex items-center space-x-4">
-                    <button
-                        onClick={() => navigate("/login")}
-                        // Applied Teal accent style from dashboard theme
-                        className="bg-teal-500 hover:bg-teal-600 text-white px-5 py-2 rounded-xl font-bold transition duration-300 transform hover:scale-105 shadow-lg shadow-teal-500/30 flex items-center space-x-2 text-sm"
-                    >
-                        <User className="w-4 h-4" />
-                        <span>Login</span>
-                    </button>
-                    <button
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        // Applied dark theme icon style
-                        className="md:hidden p-2 rounded-lg text-white hover:bg-gray-700 transition"
-                    >
-                        {isMenuOpen ? (
-                            <X className="w-6 h-6" />
-                        ) : (
-                            <Menu className="w-6 h-6" />
-                        )}
-                    </button>
-                </div>
+            {/* Login Button */}
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => navigate("/login")}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center space-x-2"
+              >
+                <User className="w-4 h-4" />
+                <span>Login</span>
+              </button>
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition"
+              >
+                {isMenuOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
+              </button>
             </div>
+          </div>
 
-            {/* Mobile Navigation */}
-            {isMenuOpen && (
-                // Applied dark theme border and background for mobile
-                <div className="md:hidden py-4 border-t border-gray-700">
-                    <nav className="flex flex-col space-y-2">
-                        {navigationItems.map((item) => (
-                            <button
-                                key={item.name}
-                                onClick={item.onClick}
-                                // Applied dark theme mobile nav styling
-                                className="flex items-center space-x-3 text-gray-300 hover:text-teal-400 px-3 py-2 rounded-lg hover:bg-indigo-700/50 transition font-medium text-base"
-                            >
-                                <item.icon className="w-5 h-5" />
-                                <span>{item.name}</span>
-                            </button>
-                        ))}
-                    </nav>
-                </div>
-            )}
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <div className="md:hidden py-4 border-t border-gray-200">
+              <nav className="flex flex-col space-y-2">
+                {navigationItems.map((item) => (
+                  <button
+                    key={item.name}
+                    onClick={item.onClick}
+                    className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-blue-50"
+                  >
+                    <item.icon className="w-4 h-4" />
+                    <span className="font-medium">{item.name}</span>
+                  </button>
+                ))}
+              </nav>
+            </div>
+          )}
         </div>
-    </header>
+      </header>
 
       {/* Main Content */}
-<main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    {/* Page Header with Logo */}
-    <div className="mb-8">
-        <div className="flex items-center justify-between">
+      <main className="max-w-20xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header with Logo */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
-                {/* Company Logo (Themed dark card) */}
-                <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 shadow-xl border border-indigo-700/30 text-center">
-                    {/* Adjusted dimensions for a more balanced look on a dark card */}
-                    <div className="w-16 h-12 rounded-xl flex items-center justify-center mx-auto overflow-hidden">
-                        <img
-                            className="w-full h-full object-contain"
-                            src={logo}
-                            alt="company logo"
-                        />
-                    </div>
+              {/* Company Logo */}
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20 text-center">
+                <div className="w-16 h-12 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
+                  <img
+                    className="w-full h-full object-contain"
+                    src={logo}
+                    alt="company logo"
+                  />
                 </div>
-                {/* Title and Subtitle */}
-                <div>
-                    <h1 className="text-4xl font-extrabold text-white mb-1 tracking-wider">
-                        Vendors
-                    </h1>
-                    <p className="text-teal-400 font-medium">
-                        Manage and track all your vendor records.
-                    </p>
-                </div>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white mb-2">
+                  Vendors
+                </h1>
+                <p className="text-blue-100">
+                  Manage and track all your vendor records.
+                </p>
+              </div>
             </div>
             <div className="flex space-x-3">
-                {/* Import Button (Themed: Dark background with Teal text) */}
-                <button
-                    onClick={() => document.getElementById("importFileInput").click()}
-                    className="bg-gray-800/80 hover:bg-gray-700 text-teal-400 border border-indigo-700/50 px-4 py-2 rounded-xl font-bold transition duration-300 transform hover:scale-[1.03] shadow-lg flex items-center space-x-1 text-sm"
-                >
-                    <Download className="w-4 h-4" />
-                    <span>Import</span>
-                </button>
+              <button
+                onClick={() => document.getElementById("importFileInput").click()}
+                className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+              >
+                <Download className="w-4 h-4" />
+                <span>Import</span>
+              </button>
 
-                <input
-                    type="file"
-                    id="importFileInput"
-                    accept=".xlsx,.xls"
-                    onChange={importFromXls}
-                    style={{ display: "none" }}
-                />
-
-                {/* Export Button (Themed: Dark background with Teal text) */}
-                <button
-                    onClick={exportToXls}
-                    className="bg-gray-800/80 hover:bg-gray-700 text-teal-400 border border-indigo-700/50 px-4 py-2 rounded-xl font-bold transition duration-300 transform hover:scale-[1.03] shadow-lg flex items-center space-x-1 text-sm"
-                >
-                    <Upload className="w-4 h-4" />
-                    <span>Export</span>
-                </button>
-                {/* Add Vendor Record Button (Themed: Prominent Teal Button) */}
-                <button
-                    onClick={() => setIsFormOpen(true)}
-                    className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-xl font-extrabold transition duration-300 transform hover:scale-105 shadow-xl shadow-teal-500/30 flex items-center space-x-2 text-base tracking-wide"
-                >
-                    <Plus className="w-5 h-5" />
-                    <span>Add Vendor Record</span>
-                </button>
-            </div>
-        </div>
-    </div>
-    {/* Search Bar (Themed: Dark, high-contrast input) */}
-    <div className="mb-8">
-        <div className="relative max-w-lg">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-400 w-5 h-5" />
-            <input
-                type="text"
-                placeholder="Search records..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                // Dark theme input styling
-                className="w-full pl-10 pr-4 py-3 bg-gray-800/80 backdrop-blur-sm border-2 border-indigo-700/50 text-white rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 shadow-xl placeholder-gray-400 transition duration-200"
-            />
-        </div>
-    </div>
-        {/* Job Records Table */}
-        <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-indigo-700/50 overflow-hidden mt-6">
-    {/* Table Header (Themed: Teal Accent Background) */}
-    <div className="bg-indigo-900 text-teal-400 p-5 font-extrabold text-xl border-b border-indigo-700 flex justify-between items-center">
-        <span>Vendor Records ({records.length})</span>
-        {/* Optional: Add a button/icon here if needed */}
-    </div>
-
-    {filteredAndSortedRecords.length === 0 ? (
-        <div className="text-center py-12">
-            {/* Themed icon and text for empty state */}
-            <TrendingUp className="w-12 h-12 text-indigo-400/50 mx-auto mb-4" />
-            <p className="text-gray-400 font-medium">
-                {searchTerm
-                    ? "No records match your search."
-                    : "No records found. Add your first vendor record!"}
-            </p>
-        </div>
-    ) : (
-        <div className="overflow-x-auto max-h-[90vh] overflow-y-auto">
-            <table className="min-w-full divide-y divide-indigo-700/50">
-                {/* Table Head (Themed: Dark indigo sticky header) */}
-                <thead className="bg-indigo-900 sticky top-0 z-10 shadow-lg shadow-indigo-900/50">
-                    <tr>
-                        {/* Column Header Styling */}
-                        {[
-                            "SrNo", "ItemSpec", "PurchaseDate", "BillNo", "HSN", 
-                            "VendorName", "GSTIN", "Address", "ContactNo", "MailingID", 
-                            "ContactName", "Rate", "Qty", "Unit", "TaxPercent", 
-                            "TotalAmount", "PaidOn"
-                        ].map((key) => (
-                            <th
-                                key={key}
-                                className="px-6 py-4 text-left text-sm font-bold text-teal-400 cursor-pointer hover:bg-indigo-800/80 transition-colors duration-200 uppercase tracking-wider whitespace-nowrap"
-                                onClick={() => handleSort(key)}
-                            >
-                                <div className="flex items-center space-x-1">
-                                    <span>{key.replace(/([A-Z])/g, ' $1').trim().replace('Sr No', 'Sr No').replace('Tax Percent', 'Tax %').replace('Mailing I D', 'Mailing ID').replace('Contact No', 'Contact No').replace('Rate', 'Rate (Rs)')}</span>
-                                    {getSortIcon(key)}
-                                </div>
-                            </th>
-                        ))}
-                        <th className="px-6 py-4 text-left text-sm font-bold text-teal-400 uppercase tracking-wider whitespace-nowrap">
-                            Actions
-                        </th>
-                    </tr>
-                </thead>
-                
-                {/* Table Body (Themed: Dark rows, subtle hover, white text) */}
-                <tbody className="divide-y divide-indigo-800/50">
-                    {filteredAndSortedRecords.map((record, index) => (
-                        <tr 
-                            key={record.id} 
-                            // Alternating row color for better readability
-                            className={`${index % 2 === 0 ? 'bg-gray-800/50' : 'bg-gray-800/80'} hover:bg-indigo-900/60 transition-colors duration-200`}
-                        >
-                            {/* Record Data Cells */}
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm font-medium text-white">{record.SrNo}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.ItemSpec}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.PurchaseDate}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.BillNo}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.HSN}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300 font-semibold">{record.VendorName}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.GSTIN}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.Address}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.ContactNo}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.MailingID}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.ContactName}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-teal-300 font-bold">{record.Rate}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.Qty}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.Unit}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-teal-300">{record.TaxPercent}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-teal-300 font-extrabold">{record.TotalAmount}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-300">{record.PaidOn}</div>
-                            </td>
-
-                            {/* Actions Column (Themed buttons) */}
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="flex space-x-2">
-                                    <button onClick={() => handleView(record)}
-                                        // Teal/Aqua accent for view
-                                        className="p-2 text-teal-400 hover:bg-teal-500/20 rounded-lg transition-colors duration-200"
-                                        title="View details"
-                                    >
-                                        <Eye className="w-4 h-4" />
-                                    </button>
-                                    <button onClick={() => handleEdit(record)}
-                                        // Indigo/Blue accent for edit
-                                        className="p-2 text-indigo-400 hover:bg-indigo-500/20 rounded-lg transition-colors duration-200"
-                                        title="Edit record"
-                                    >
-                                        <Edit3 className="w-4 h-4" />
-                                    </button>
-                                    <button onClick={() => handleDelete(record.id)}
-                                        // Standard red for delete
-                                        className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors duration-200"
-                                        title="Delete record"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    )}
-</div>
-        {/* Form Modal (Themed) */}
-{isFormOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-    <div className="bg-gray-900 rounded-2xl shadow-2xl shadow-indigo-900/50 max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-indigo-700/50">
-      
-      {/* Modal Header */}
-      <div className="bg-indigo-900 text-teal-400 p-5 rounded-t-xl flex items-center justify-between border-b border-indigo-700">
-        <h2 className="text-xl font-bold">
-          {editingRecord ? "Edit Vendor Record" : "Add New Vendor Record"}
-        </h2>
-        <button
-          onClick={resetForm}
-          className="text-teal-400 hover:bg-indigo-800 p-2 rounded-full transition-colors duration-200"
-          title="Close"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
-
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
-        
-        {/* Vendor Information Section */}
-        <div>
-          <h3 className="text-lg font-bold text-teal-400 mb-4 border-b border-indigo-700/50 pb-2">
-            Vendor & Item Information
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-            {/* SrNo */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">SrNo</label>
               <input
-                type="text"
-                name="SrNo"
-                value={formData.SrNo}
-                onChange={handleInputChange}
-                placeholder="Enter SrNo"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                type="file"
+                id="importFileInput"
+                accept=".xlsx,.xls"
+                onChange={importFromXls}
+                style={{ display: "none" }}
               />
-            </div>
 
-            {/* Item Spec */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Item Spec</label>
-              <input
-                type="text"
-                name="ItemSpec"
-                value={formData.ItemSpec}
-                onChange={handleInputChange}
-                placeholder="Enter Item Spec"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* Purchase Date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Purchase Date</label>
-              <input
-                type="text"
-                name="PurchaseDate"
-                value={formData.PurchaseDate}
-                onChange={handleInputChange}
-                placeholder="Enter Purchase Date"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* BillNo */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Bill Number</label>
-              <input
-                type="text"
-                name="BillNo"
-                value={formData.BillNo}
-                onChange={handleInputChange}
-                placeholder="Enter Bill Number"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* HSN */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">HSN</label>
-              <input
-                type="text"
-                name="HSN"
-                value={formData.HSN}
-                onChange={handleInputChange}
-                placeholder="Enter HSN"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            
-            {/* Vendor Info Heading */}
-            <div className="col-span-3 mt-4 mb-2">
-              <h2 className="text-sm font-bold text-teal-400 border-b border-indigo-700/50 pb-1">Vendor Info</h2>
-            </div>
-
-            {/* Vendor Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Vendor Name</label>
-              <input
-                type="text"
-                name="VendorName"
-                value={formData.VendorName}
-                onChange={handleInputChange}
-                placeholder="Enter Vendor Name"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* GSTIN */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">GSTIN</label>
-              <input
-                type="text"
-                name="GSTIN"
-                value={formData.GSTIN}
-                onChange={handleInputChange}
-                placeholder="Enter GSTIN"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* Address */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Address</label>
-              <input
-                type="text"
-                name="Address"
-                value={formData.Address}
-                onChange={handleInputChange}
-                placeholder="Enter Address"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* Contact Info Heading */}
-            <div className="col-span-3 mt-4 mb-2">
-              <h2 className="text-sm font-bold text-teal-400 border-b border-indigo-700/50 pb-1">Contact Info</h2>
-            </div>
-
-            {/* Contact No */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Contact No</label>
-              <input
-                type="text"
-                name="ContactNo"
-                value={formData.ContactNo}
-                onChange={handleInputChange}
-                placeholder="Enter Contact No"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* Mailing ID */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Mailing ID</label>
-              <input
-                type="text"
-                name="MailingID"
-                value={formData.MailingID}
-                onChange={handleInputChange}
-                placeholder="Enter Mailing ID"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* Contact Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Contact Name</label>
-              <input
-                type="text"
-                name="ContactName"
-                value={formData.ContactName}
-                onChange={handleInputChange}
-                placeholder="Enter Contact Name"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* Rate */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Rate (Rs)</label>
-              <input
-                type="text"
-                name="Rate"
-                value={formData.Rate}
-                onChange={handleInputChange}
-                placeholder="Enter Rate (Rs)"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* Qty */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Qty</label>
-              <input
-                type="text"
-                name="Qty"
-                value={formData.Qty}
-                onChange={handleInputChange}
-                placeholder="Enter Qty"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* Unit */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Unit</label>
-              <input
-                type="text"
-                name="Unit"
-                value={formData.Unit}
-                onChange={handleInputChange}
-                placeholder="Enter Unit"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* Tax & Payment Heading */}
-            <div className="col-span-3 mt-4 mb-2">
-              <h2 className="text-sm font-bold text-teal-400 border-b border-indigo-700/50 pb-1">Tax & Payment</h2>
-            </div>
-
-            {/* Tax Percent */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Tax %</label>
-              <input
-                type="text"
-                name="TaxPercent"
-                value={formData.TaxPercent}
-                onChange={handleInputChange}
-                placeholder="Enter Tax %"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* Total Amount */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Total Amount</label>
-              <input
-                type="text"
-                name="TotalAmount"
-                value={formData.TotalAmount}
-                onChange={handleInputChange}
-                placeholder="Enter Total Amount"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            {/* Paid On */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Paid On</label>
-              <input
-                type="text"
-                name="PaidOn"
-                value={formData.PaidOn}
-                onChange={handleInputChange}
-                placeholder="Enter Paid On"
-                className="w-full px-4 py-2 border border-indigo-700 rounded-lg bg-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
+              <button
+                onClick={exportToXls}
+                className="bg-white/90 hover:bg-white text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 flex items-center space-x-1"
+              >
+                <Upload className="w-4 h-4" />
+                <span>Export</span>
+              </button>
+              <button
+                onClick={() => setIsFormOpen(true)}
+                className="bg-white/90 hover:bg-white text-blue-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Add Vendor Record</span>
+              </button>
             </div>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex space-x-4 pt-4">
-          <button
-            type="submit"
-            className="flex-1 bg-teal-600 hover:bg-teal-500 text-white px-4 py-3 rounded-lg font-bold transition-colors duration-200 flex items-center justify-center space-x-2 shadow-md shadow-teal-500/30"
-          >
-            <Save className="w-5 h-5" />
-            <span>{editingRecord ? "Update Record" : "Save Record"}</span>
-          </button>
-          <button
-            type="button"
-            onClick={resetForm}
-            className="flex-1 bg-indigo-700 hover:bg-indigo-600 text-gray-100 px-4 py-3 rounded-lg font-medium transition-colors duration-200 shadow-md shadow-indigo-700/30"
-          >
-            Cancel
-          </button>
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search records..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white/90 backdrop-blur-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-lg"
+            />
+          </div>
         </div>
-      </form>
-    </div>
-  </div>
-)}
-        {/* Detail View Modal */}{" "}
-        {/* Detail View Modal (Themed) */}
-{isDetailOpen && viewingRecord && (
-  <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-    <div className="bg-gray-900 rounded-2xl shadow-2xl shadow-indigo-900/50 max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-indigo-700/50">
+        {/* Job Records Table */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden">
+          <div className="bg-blue-600 text-white p-4 font-semibold text-lg">
+            Vendor Records ({records.length})
+          </div>
 
+          {filteredAndSortedRecords.length === 0 ? (
+            <div className="text-center py-12">
+              <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">
+                {searchTerm
+                  ? "No records match your search."
+                  : "No records found. Add your first vendor record!"}
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("SrNo")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Sr No</span>
+                        {getSortIcon("SrNo")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("ItemSpec")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Item Spec</span>
+                        {getSortIcon("ItemSpec")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("HSN")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>HSN</span>
+                        {getSortIcon("HSN")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("VendorName")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Vendor Name</span>
+                        {getSortIcon("VendorName")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("GSTIN")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>GSTIN</span>
+                        {getSortIcon("GSTIN")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("Address")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Address</span>
+                        {getSortIcon("Address")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("ContactNo")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Contact No</span>
+                        {getSortIcon("ContactNo")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("MailingID")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Mailing ID</span>
+                        {getSortIcon("MailingID")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("ContactName")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Contact Name</span>
+                        {getSortIcon("ContactName")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("PurchaseDate")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Purchase Date</span>
+                        {getSortIcon("PurchaseDate")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("Qty")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Qty</span>
+                        {getSortIcon("Qty")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("Rate")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Rate (Rs)</span>
+                        {getSortIcon("Rate")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("Unit")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Unit</span>
+                        {getSortIcon("Unit")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("TaxPercent")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Tax %</span>
+                        {getSortIcon("TaxPercent")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("TotalAmount")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Total Amount</span>
+                        {getSortIcon("TotalAmount")}
+                      </div>
+                    </th>
+
+                    <th
+                      className="px-6 py-4 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleSort("PaidOn")}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Paid On</span>
+                        {getSortIcon("PaidOn")}
+                      </div>
+                    </th>
+
+
+                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredAndSortedRecords.map((record) => (
+                    <tr key={record.id} className="hover:bg-gray-50 transition-colors duration-200">
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.SrNo}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.ItemSpec}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.HSN}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.VendorName}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.GSTIN}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.Address}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.ContactNo}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.MailingID}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.ContactName}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.PurchaseDate}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.Qty}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.Rate}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.Unit}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.TaxPercent}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.TotalAmount}</div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-800">{record.PaidOn}</div>
+                      </td>
+
+
+
+                      <td className="px-6 py-4">
+                        <div className="flex space-x-2">
+                          <button onClick={() => handleView(record)}
+                            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                            title="View details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleEdit(record)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                            title="Edit record"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleDelete(record.id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                            title="Delete record"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+        {/* Form Modal */}{" "}
+        {isFormOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
+                <h2 className="text-xl font-semibold">
+                  {editingRecord ? "Edit Job Record" : "Add New Vendor Record"}
+                </h2>
+                <button
+                  onClick={resetForm}
+                  className="text-white hover:bg-blue-700 p-1 rounded"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                {/* Common Fields */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-800 mb-4">
+                    Vendor Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                    {/* SrNo */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">SrNo</label>
+                      <input
+                        type="text"
+                        name="SrNo"
+                        value={formData.SrNo}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter SrNo"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Item Spec */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Item Spec</label>
+                      <input
+                        type="text"
+                        name="ItemSpec"
+                        value={formData.ItemSpec}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Item Spec"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* HSN */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">HSN</label>
+                      <input
+                        type="text"
+                        name="HSN"
+                        value={formData.HSN}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter HSN"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Vendor Info Heading */}
+                    <div className="col-span-3 mt-4 mb-2">
+                      <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Vendor Info</h2>
+                    </div>
+
+                    {/* Vendor Name */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Name</label>
+                      <input
+                        type="text"
+                        name="VendorName"
+                        value={formData.VendorName}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Vendor Name"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* GSTIN */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">GSTIN</label>
+                      <input
+                        type="text"
+                        name="GSTIN"
+                        value={formData.GSTIN}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter GSTIN"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Address */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                      <input
+                        type="text"
+                        name="Address"
+                        value={formData.Address}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Address"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Contact Info Heading */}
+                    <div className="col-span-3 mt-4 mb-2">
+                      <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Contact Info</h2>
+                    </div>
+
+                    {/* Contact No */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Contact No</label>
+                      <input
+                        type="text"
+                        name="ContactNo"
+                        value={formData.ContactNo}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Contact No"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Mailing ID */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Mailing ID</label>
+                      <input
+                        type="text"
+                        name="MailingID"
+                        value={formData.MailingID}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Mailing ID"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Contact Name */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
+                      <input
+                        type="text"
+                        name="ContactName"
+                        value={formData.ContactName}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Contact Name"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Purchase Date */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+                      <input
+                        type="text"
+                        name="PurchaseDate"
+                        value={formData.PurchaseDate}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Purchase Date"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Qty */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Qty</label>
+                      <input
+                        type="number"
+                        name="Qty"
+                        value={formData.Qty}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Qty"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Rate */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Rate</label>
+                      <input
+                        type="number"
+                        name="Rate"
+                        value={formData.Rate}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Rate"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Unit */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                      <input
+                        type="text"
+                        name="Unit"
+                        value={formData.Unit}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Unit"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Tax & Payment Heading */}
+                    <div className="col-span-3 mt-4 mb-2">
+                      <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Tax & Payment</h2>
+                    </div>
+
+                    {/* Tax Percent */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Tax Percent</label>
+                      <input
+                        type="number"
+                        name="TaxPercent"
+                        value={formData.TaxPercent}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Tax Percent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Total Amount */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
+                      <input
+                        type="number"
+                        name="TotalAmount"
+                        value={formData.TotalAmount}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Total Amount"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Paid On */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Paid On</label>
+                      <input
+                        type="text"
+                        name="PaidOn"
+                        value={formData.PaidOn}
+                        onChange={handleInputChange}
+                        
+                        placeholder="Enter Paid On"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                  </div>
+                </div>
+
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>{editingRecord ? "Update" : "Save"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {/* Detail View Modal */}{" "}
+  {isDetailOpen && viewingRecord && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      
       {/* Header */}
-      <div className="bg-indigo-900 text-teal-400 p-5 rounded-t-xl flex items-center justify-between border-b border-indigo-700">
-        <h2 className="text-xl font-bold">Vendor Record Details</h2>
+      <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Vendor Record Details</h2>
         <button
           onClick={() => setIsDetailOpen(false)}
-          className="text-teal-400 hover:bg-indigo-800 p-2 rounded-full transition-colors duration-200"
-          title="Close"
+          className="text-white hover:bg-blue-700 p-1 rounded"
         >
           <X className="w-5 h-5" />
         </button>
@@ -1036,161 +1153,153 @@ function Vendors() {
 
         {/* Vendor Information Section */}
         <div>
-          <h3 className="text-lg font-bold text-teal-400 mb-4 border-b border-indigo-700/50 pb-2">Vendor Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
+          <h3 className="text-lg font-medium text-gray-800 mb-4">Vendor Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
             {/* SrNo */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">SrNo</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white font-semibold">
+              <label className="block text-sm font-medium text-gray-700 mb-1">SrNo</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.SrNo}
               </p>
             </div>
 
             {/* Item Spec */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Item Spec</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Item Spec</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.ItemSpec}
-              </p>
-            </div>
-
-            {/* Purchase Date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Purchase Date</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
-                {viewingRecord.PurchaseDate}
-              </p>
-            </div>
-
-            {/* Bill number */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Bill Number</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
-                {viewingRecord.BillNo}
               </p>
             </div>
 
             {/* HSN */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">HSN</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
+              <label className="block text-sm font-medium text-gray-700 mb-1">HSN</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.HSN}
               </p>
             </div>
 
             {/* Section Header: Vendor Info */}
             <div className="col-span-3 mt-4 mb-2">
-              <h2 className="text-sm font-bold text-teal-400 border-b border-indigo-700/50 pb-1">Vendor Info</h2>
+              <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Vendor Info</h2>
             </div>
 
             {/* Vendor Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Vendor Name</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white font-semibold">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Name</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.VendorName}
               </p>
             </div>
 
             {/* GSTIN */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">GSTIN</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
+              <label className="block text-sm font-medium text-gray-700 mb-1">GSTIN</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.GSTIN}
               </p>
             </div>
 
             {/* Address */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Address</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.Address}
               </p>
             </div>
 
             {/* Section Header: Contact Info */}
             <div className="col-span-3 mt-4 mb-2">
-              <h2 className="text-sm font-bold text-teal-400 border-b border-indigo-700/50 pb-1">Contact Info</h2>
+              <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Contact Info</h2>
             </div>
 
             {/* Contact No */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Contact No</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contact No</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.ContactNo}
               </p>
             </div>
 
             {/* Mailing ID */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Mailing ID</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mailing ID</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.MailingID}
               </p>
             </div>
 
             {/* Contact Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Contact Name</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.ContactName}
               </p>
             </div>
 
             {/* Section Header: Purchase Details */}
             <div className="col-span-3 mt-4 mb-2">
-              <h2 className="text-sm font-bold text-teal-400 border-b border-indigo-700/50 pb-1">Purchase Details</h2>
+              <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Purchase Details</h2>
             </div>
 
-            {/* Rate */}
+            {/* Purchase Date */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Rate (Rs)</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-teal-300 font-bold">
-                {viewingRecord.Rate}
+              <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.PurchaseDate}
               </p>
             </div>
 
             {/* Qty */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Qty</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Qty</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.Qty}
+              </p>
+            </div>
+
+            {/* Rate */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Rate</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
+                {viewingRecord.Rate}
               </p>
             </div>
 
             {/* Unit */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Unit</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.Unit}
               </p>
             </div>
 
             {/* Section Header: Tax & Payment */}
             <div className="col-span-3 mt-4 mb-2">
-              <h2 className="text-sm font-bold text-teal-400 border-b border-indigo-700/50 pb-1">Tax & Payment</h2>
+              <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">Tax & Payment</h2>
             </div>
 
             {/* Tax Percent */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Tax %</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-teal-300">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tax Percent</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.TaxPercent}
               </p>
             </div>
 
             {/* Total Amount */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Total Amount</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-teal-300 font-extrabold">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.TotalAmount}
               </p>
             </div>
 
             {/* Paid On */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Paid On</label>
-              <p className="px-4 py-2 border border-indigo-700 rounded-lg text-sm bg-gray-800 text-white">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Paid On</label>
+              <p className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50">
                 {viewingRecord.PaidOn}
               </p>
             </div>
@@ -1199,18 +1308,18 @@ function Vendors() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex space-x-4 pt-4">
+        <div className="flex space-x-3 pt-4">
           <button
             onClick={() => { setIsDetailOpen(false); handleEdit(viewingRecord); }}
-            className="flex-1 bg-teal-600 hover:bg-teal-500 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-md shadow-teal-500/30"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
           >
-            <Edit3 className="w-5 h-5" />
+            <Edit3 className="w-4 h-4" />
             <span>Edit Record</span>
           </button>
 
           <button
             onClick={() => setIsDetailOpen(false)}
-            className="flex-1 bg-indigo-700 hover:bg-indigo-600 text-gray-100 px-4 py-3 rounded-lg font-medium transition-colors duration-200 shadow-md shadow-indigo-700/30"
+            className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
           >
             Close
           </button>
@@ -1220,8 +1329,16 @@ function Vendors() {
     </div>
   </div>
 )}
+
+
+
+
       </main>
+
+
+
     </div>
   );
 }
+
 export default Vendors;
