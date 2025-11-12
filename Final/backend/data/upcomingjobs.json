@@ -2,28 +2,28 @@
   {
     "SiteLocation": "SAI SURFACTANTS",
     "ExpectedDate": "2025-10-23",
-    "ItemsAvailability": "Gasket Replacment",
+    "Workdescription": "Gasket Replacment",
     "StaffAllocated": "Sandip Jitender, Uday, Joydeep",
     "id": "1760352904652"
   },
   {
     "SiteLocation": "RML -6",
     "ExpectedDate": "2025-10-13",
-    "ItemsAvailability": "Filtration Testing",
+    "Workdescription": "Filtration Testing",
     "StaffAllocated": "Sandip Jitender, Uday",
     "id": "1760352904607"
   },
   {
     "SiteLocation": "Amer Sil KETEX",
     "ExpectedDate": "2025-10-28",
-    "ItemsAvailability": "EPOXY BUSHING ",
+    "Workdescription": "EPOXY BUSHING ",
     "StaffAllocated": "Sandip Jitender, Uday, Joydeep",
     "id": "1760352904559"
   },
   {
     "SiteLocation": "RML -7",
     "ExpectedDate": "2025-10-21",
-    "ItemsAvailability": "EPOXY BUSHING ",
+    "Workdescription": "EPOXY BUSHING ",
     "StaffAllocated": "Sandip Jitender, Anup, ",
     "id": "1760352904550"
   }

@@ -5,17 +5,25 @@
     "orderNo": "nowimport",
     "date": "2025-10-15",
     "type": "Jdjdjd",
-    "dismental": "Started",
-    "Winding": "Started",
-    "Assembley": "Started",
+    "dismental": "Completed",
+    "Winding": "Completed",
+    "Assembley": "Completed",
     "testing": "",
     "siteLocation": "",
     "typeOfJob": "",
     "otherJobType": "",
     "execution": "",
     "delivery": false,
-    "fieldJobDetails": [],
-    "id": "1759790007047"
+    "fieldJobDetails": [
+      {
+        "kva": "",
+        "srNo": "",
+        "rating": "",
+        "note": ""
+      }
+    ],
+    "id": "1759790007047",
+    "updatedAt": "2025-11-12T07:09:04.538Z"
   },
   {
     "location": "Site",
