@@ -173,7 +173,7 @@ function AutoScrollingPanelcert({ apiUrl, title, className = "" }) {
 
         const filteredData = cleanedData.filter((item) => {
           const dueDate = new Date(item.CertificateDuedate);
-          return dueDate >= today && dueDate <= next30Days;
+          return dueDate <= today || dueDate <= next30Days;
         });
 
         setData(filteredData);
