@@ -132,7 +132,7 @@ function Billing() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.100:5050/api/billing";
+      const url = "http://192.168.0.110:5050/api/billing";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -160,7 +160,7 @@ function Billing() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.100:5050/api/billing/${editingRecord.id}`, // update by ID
+          `http://192.168.0.110:5050/api/billing/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -190,7 +190,7 @@ function Billing() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.100:5050/api/billing",
+          "http://192.168.0.110:5050/api/billing",
           formData,
           {
             headers: {
@@ -288,7 +288,7 @@ function Billing() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.100:5050/api/billing/${id}`,
+        `http://192.168.0.110:5050/api/billing/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -459,7 +459,7 @@ function Billing() {
     });
 
     for (const record of cleanedData) {
-      const url = "http://192.168.0.100:5050/api/billing";
+      const url = "http://192.168.0.110:5050/api/billing";
 
       try {
         const response = await axios.post(url, record, {
@@ -617,7 +617,7 @@ function Billing() {
             />
           </div>
         </div>
-        {/* Job Records Table */}
+
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden">
           <div className="bg-blue-600 text-white p-4 font-semibold text-lg">
             Billing Records ({records.length})

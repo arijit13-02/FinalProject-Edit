@@ -389,7 +389,7 @@ function GraphPlaceholder1({ title, icon: Icon }) {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await axios.get("http://192.168.0.100:5050/api/chart1", {
+        const response = await axios.get("http://192.168.0.110:5050/api/chart1", {
           responseType: "blob",
         });
 
@@ -452,7 +452,68 @@ function GraphPlaceholder2({ title, icon: Icon }) {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await axios.get("http://192.168.0.100:5050/api/chart2", {
+        const response = await axios.get("http://192.168.0.110:5050/api/chart2", {
+          responseType: "blob",
+        });
+
+        const imageUrl = URL.createObjectURL(response.data);
+        setImageSrc(imageUrl);
+      } catch (err) {
+        console.error("Error fetching image:", err);
+      }
+    };
+
+    fetchImage();
+  }, []);
+
+  return (
+    <div
+      className="bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 shadow-xl border border-indigo-700/30 cursor-pointer"
+      onClick={handleIconClick}
+    >
+      <div className="flex items-center mb-3">
+        <Icon className="w-5 h-5 text-teal-400 mr-2" />
+        <h3 className="text-lg font-bold text-white">{title}</h3>
+      </div>
+      <div className="h-64 bg-gray-700/50 rounded-xl flex items-center justify-center border-2 border-dashed border-teal-400/50 overflow-hidden">
+        {imageSrc ? (
+          <img
+            src={imageSrc}
+            alt="Chart from server"
+            className="w-full h-full object-cover rounded-xl"
+            style={{
+              objectFit: "cover", // crop to fill container 
+              objectPosition: "center 90%"
+            }}
+
+            onError={() => setImageSrc(null)} // Fallback if image fails to load
+          />
+        ) : (
+          <div className="text-gray-400 p-4 text-center">
+            <TrendingUp className="w-8 h-8 mx-auto mb-2 text-teal-400" />
+            <p>Loading {title} or chart data unavailable.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function GraphPlaceholder3({ title, icon: Icon }) {
+  const [imageSrc, setImageSrc] = useState(null);
+
+  // Original functionality retained: redirect for admin on click
+  const handleIconClick = () => {
+    if (localStorage.getItem("userRole") === "admin") {
+      // alert("Redirecting to data..."); // Using alert just to show the logic is kept
+      // window.location.href = "/data"; // Not using window.location here as it would break
+    }
+  };
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const response = await axios.get("http://192.168.0.110:5050/api/chart3", {
           responseType: "blob",
         });
 
@@ -659,7 +720,7 @@ const nav1 = () => {
           {/* Left Panel */}
           <div className="lg:col-span-3 space-y-8">
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-indigo-700/30 text-center text-white">
-              <div className="w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden border-4 border-teal-500 p-1 bg-white">
+              <div className="w-28 h-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden border-4 border-teal-500 p-1 bg-white">
                 {/* Replaced logo import with a placeholder component */}
                 <PlaceholderLogo />
               </div>
@@ -674,7 +735,7 @@ const nav1 = () => {
 
             <div className="bg-gray-800/80 rounded-2xl shadow-xl h-[24rem]">
               <AutoScrollingPanelcert
-                apiUrl="http://192.168.0.100:5050/api/cert"
+                apiUrl="http://192.168.0.110:5050/api/cert"
                 title="Critical Cert. Expiry (30 Days)"
                 className="h-full"
               />
@@ -685,7 +746,7 @@ const nav1 = () => {
           <div className="lg:col-span-5 space-y-8">
             <div style={{ height: "calc(43rem)" }}>
               <AutoScrollingPanel
-                apiUrl="http://192.168.0.100:5050/api/upcomingjobs"
+                apiUrl="http://192.168.0.110:5050/api/upcomingjobs"
                 title="Upcoming Job Schedule"
                 className="h-full"
               />
@@ -730,14 +791,30 @@ const nav1 = () => {
 
         {/* Bottom Panel (Inventory) */}
         <div className="mt-8">
-          <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl h-96">
-            <AutoScrollingPanelinventory
-              apiUrl="http://192.168.0.100:5050/api/inventory"
-              title="Low Inventory Stock Alert"
-              className="h-full"
-            />
-          </div>
-        </div>
+  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    {/* Left Panel 8 columns on large screens */}
+    <div className="lg:col-span-8">
+      <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl h-80">
+        <AutoScrollingPanelinventory
+          apiUrl="http://192.168.0.110:5050/api/inventory"
+          title="Low Inventory Stock Alert"
+          className="h-full"
+        />
+      </div>
+    </div>
+
+    {/* Right Panel 4 columns on large screens */}
+    <div className="lg:col-span-4">
+      <GraphPlaceholder3
+              title="WBSEDCL LOI Chart"
+        icon={TrendingUp}
+      />
+    </div>
+
+  </div>
+</div>
+
       </main>
     </div>
   );

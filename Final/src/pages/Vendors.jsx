@@ -123,7 +123,7 @@ function Vendors() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.100:5050/api/vendors";
+      const url = "http://192.168.0.110:5050/api/vendors";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -151,7 +151,7 @@ function Vendors() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.100:5050/api/vendors/${editingRecord.id}`, // update by ID
+          `http://192.168.0.110:5050/api/vendors/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -181,7 +181,7 @@ function Vendors() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.100:5050/api/vendors",
+          "http://192.168.0.110:5050/api/vendors",
           formData,
           {
             headers: {
@@ -263,7 +263,7 @@ function Vendors() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.100:5050/api/vendors/${id}`,
+        `http://192.168.0.110:5050/api/vendors/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -401,7 +401,7 @@ return (
 
       // Insert each record individually
       for (const record of importedData) {
-        const url = "http://192.168.0.100:5050/api/vendors";
+        const url = "http://192.168.0.110:5050/api/vendors";
         if (!url) {
           console.error("Invalid location/category combination for record:", record);
           continue;
@@ -851,7 +851,7 @@ return (
             <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
-                  {editingRecord ? "Edit Job Record" : "Add New Vendor Record"}
+                  {editingRecord ? "Edit Vendor Record" : "Add New Vendor Record"}
                 </h2>
                 <button
                   onClick={resetForm}
@@ -1023,7 +1023,7 @@ return (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Qty</label>
                       <input
-                        type="number"
+                        type="text"
                         name="Qty"
                         value={formData.Qty}
                         onChange={handleInputChange}
@@ -1037,7 +1037,7 @@ return (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Rate</label>
                       <input
-                        type="number"
+                        type="text"
                         name="Rate"
                         value={formData.Rate}
                         onChange={handleInputChange}
@@ -1070,7 +1070,7 @@ return (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Tax Percent</label>
                       <input
-                        type="number"
+                        type="text"
                         name="TaxPercent"
                         value={formData.TaxPercent}
                         onChange={handleInputChange}
@@ -1084,7 +1084,7 @@ return (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
                       <input
-                        type="number"
+                        type="text"
                         name="TotalAmount"
                         value={formData.TotalAmount}
                         onChange={handleInputChange}

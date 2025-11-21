@@ -123,7 +123,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
   const fetchPendingChanges = async () => {
     try {
       const res = await axios.get(
-        "http://192.168.0.100:5050/api/inventory/pending"
+        "http://192.168.0.110:5050/api/inventory/pending"
       );
       setHasPendingChanges(res.data.length > 0);
     } catch (err) {
@@ -133,7 +133,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
 
   const loadRecords = async () => {
     try {
-      const res = await axios.get("http://192.168.0.100:5050/api/inventory", {
+      const res = await axios.get("http://192.168.0.110:5050/api/inventory", {
         params: { role }
       });
       setRecords(res.data);
@@ -189,7 +189,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
 
       try {
         const response = await axios.post(
-          `http://192.168.0.100:5050/api/inventory?role=${role}`,
+          `http://192.168.0.110:5050/api/inventory?role=${role}`,
           newRec,
           {
             headers: { "x-user-role": localStorage.getItem("userRole") },
@@ -269,7 +269,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.100:5050/api/inventory/${editingRecord.id}?role=${role}`, // update by ID
+          `http://192.168.0.110:5050/api/inventory/${editingRecord.id}?role=${role}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -295,7 +295,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
       // Adding new record
       try {
         const response = await axios.post(
-          `http://192.168.0.100:5050/api/inventory?role=${role}`, // role: 'admin' or 'staff'
+          `http://192.168.0.110:5050/api/inventory?role=${role}`, // role: 'admin' or 'staff'
           formData
         );
 
@@ -352,7 +352,7 @@ const [lowStockItems, setLowStockItems] = useState([]);
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.100:5050/api/inventory/${id}?role=${role}`
+        `http://192.168.0.110:5050/api/inventory/${id}?role=${role}`
       );
       loadRecords();
     } catch (err) {
@@ -800,7 +800,7 @@ const getLimitColor = (a,b) => {
             <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
-                  {editingRecord ? "Edit Vendor Record" : "Add New Vendor Record"}
+                  {editingRecord ? "Edit Inventory Record" : "Add New Inventory Record"}
                 </h2>
                 <button
                   onClick={resetForm}

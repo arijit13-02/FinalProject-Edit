@@ -303,20 +303,20 @@ function Operationsom() {
 
   const getApiUrl = () => {
     if (location === "inhouse" && category === "WBSEDCL")
-      return "http://192.168.0.100:5050/api/operations/inhousewb";
+      return "http://192.168.0.110:5050/api/operations/inhousewb";
 
     if (location === "inhouse" && category === "private")
-      return "http://192.168.0.100:5050/api/operations/inhousepvt";
+      return "http://192.168.0.110:5050/api/operations/inhousepvt";
 
     if (location === "inhouse" && category === "public")
-      return "http://192.168.0.100:5050/api/operations/inhousepub";
+      return "http://192.168.0.110:5050/api/operations/inhousepub";
 
     if (location === "site" && category === "WBSEDCL")
-      return "http://192.168.0.100:5050/api/operations/sitewb";
+      return "http://192.168.0.110:5050/api/operations/sitewb";
     if (location === "site" && category === "private")
-      return "http://192.168.0.100:5050/api/operations/sitepvt";
+      return "http://192.168.0.110:5050/api/operations/sitepvt";
     if (location === "site" && category === "public")
-      return "http://192.168.0.100:5050/api/operations/sitepub";
+      return "http://192.168.0.110:5050/api/operations/sitepub";
 
     return null;
   };
@@ -1354,7 +1354,7 @@ function Operationsom() {
                           return (
                             <td key={header.key} className="px-6 py-4">
                               <div className="text-sm text-gray-800">
-                                {rowValues[header.key] || "N/A"}
+                                {rowValues[header.key] || "0"}
                               </div>
                             </td>
                           );
@@ -1528,7 +1528,7 @@ function Operationsom() {
                       {subKey}
                     </span>
                     <span className="text-sm font-semibold text-gray-800">
-                      {subValue || "N/A"}
+                      {subValue || "0"}
                     </span>
                   </div>
                 ))}
@@ -1549,7 +1549,7 @@ function Operationsom() {
       >
         <span className="text-sm font-medium text-gray-500">{key}</span>
         <span className="text-sm font-semibold text-gray-800">
-          {value ? value.toString() : "N/A"}
+          {value ? value.toString() : "0"}
         </span>
       </div>
     );
