@@ -26,7 +26,7 @@ const Login = () => {
 
     try {
       const res = await axios.post(
-        "http://192.168.0.100:5050/api/change-password",
+        "http://192.168.0.110:5050/api/change-password",
         { oldPassword: oldPwd, newPassword: newPwd },
         { withCredentials: true }
       );
@@ -51,7 +51,7 @@ const Login = () => {
 
     try {
       const res = await axios.post(
-        "http://192.168.0.100:5050/api/change-password1",
+        "http://192.168.0.110:5050/api/change-password1",
         { oldPassword: oldPwd, newPassword: newPwd },
         { withCredentials: true }
       );
@@ -73,7 +73,7 @@ const Login = () => {
     if (role === "admin") {
       try {
         const res = await axios.post(
-          "http://192.168.0.100:5050/api/login",
+          "http://192.168.0.110:5050/api/login",
           {
             role,
             password
@@ -93,7 +93,7 @@ const Login = () => {
     } else if (role === "operationsmanager") {
       try {
         const res = await axios.post(
-          "http://192.168.0.100:5050/api/login1",
+          "http://192.168.0.110:5050/api/login1",
           {
             role,
             password

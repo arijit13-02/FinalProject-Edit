@@ -110,7 +110,7 @@ function Certifications() {
 
   const fetchData = async () => {
     try {
-      const url = "http://192.168.0.100:5050/api/cert";
+      const url = "http://192.168.0.110:5050/api/cert";
       if (!url) return;
       const res = await axios.get(url, {
         headers: { "x-user-role": localStorage.getItem("userRole") }
@@ -138,7 +138,7 @@ function Certifications() {
     if (editingRecord) {
       try {
         const response = await axios.put(
-          `http://192.168.0.100:5050/api/cert/${editingRecord.id}`, // update by ID
+          `http://192.168.0.110:5050/api/cert/${editingRecord.id}`, // update by ID
           {
             ...formData,
             id: editingRecord.id,
@@ -168,7 +168,7 @@ function Certifications() {
       try {
 
         const response = await axios.post(
-          "http://192.168.0.100:5050/api/cert",
+          "http://192.168.0.110:5050/api/cert",
           formData,
           {
             headers: {
@@ -278,7 +278,7 @@ function Certifications() {
 
     // Insert each record
     for (const record of cleanedData) {
-      const url = "http://192.168.0.100:5050/api/cert";
+      const url = "http://192.168.0.110:5050/api/cert";
 
       try {
         const response = await axios.post(url, record, {
@@ -303,7 +303,7 @@ function Certifications() {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://192.168.0.100:5050/api/cert/${id}`,
+        `http://192.168.0.110:5050/api/cert/${id}`,
         {
           headers: { "x-user-role": localStorage.getItem("userRole") }
         }
@@ -515,7 +515,6 @@ const filteredAndSortedRecords = React.useMemo(() => {
             />
           </div>
         </div>
-        {/* Job Records Table */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden">
           <div className="bg-blue-600 text-white p-4 font-semibold text-lg">
             Certifications Records ({records.length})
@@ -527,7 +526,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
               <p className="text-gray-600">
                 {searchTerm
                   ? "No records match your search."
-                  : "No records found. Add your first upcoming job record!"}
+                  : "No records found. Add your first upcoming certification record!"}
               </p>
             </div>
           ) : (
@@ -695,7 +694,7 @@ const filteredAndSortedRecords = React.useMemo(() => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="bg-blue-600 text-white p-4 rounded-t-xl flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Job Record Details</h2>
+                <h2 className="text-xl font-semibold">Certification Record Details</h2>
                 <button
                   onClick={() => setIsDetailOpen(false)}
                   className="text-white hover:bg-blue-700 p-1 rounded"
